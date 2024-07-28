@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt'],
+  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt', "@nuxtjs/supabase"],
   shadcn: {
     prefix: '',
     componentDir: './components/ui'
@@ -10,4 +10,4 @@ export default defineNuxtConfig({
       pathPrefix: false,
     },
   ],
-}) 
+})
