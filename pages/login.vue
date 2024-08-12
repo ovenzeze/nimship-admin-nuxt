@@ -7,17 +7,18 @@ const supabase = useSupabaseClient()
 const { toast } = useToast()
 const email = ref('')
 
-toast({ title: 'Uh oh! Something went wrong.', description: 'There was a problem with your request.', variant: 'destructive' })
 
 const signInWithOtp = async () => {
   console.info('[signInWithOtp]', email.value)
-  const { error } = await supabase.auth.signInWithOtp({ email: email.value, options: { emailRedirectTo: 'http://localhost:3000/confirm' }})
+  const { error } = await supabase.auth.signInWithOtp({ email: email.value, options: { emailRedirectTo: '//localhost:3000/confirm-login' }})
   if (error) {
     toast({ title: 'Uh oh! Something went wrong.', description: 'There was a problem with your request.', variant: 'destructive' })
     console.log(error)
   }
 }
-
+onMounted(() => {
+  toast({ description: 'There was a problem with your request.'})
+})
 </script>
 
 <template>

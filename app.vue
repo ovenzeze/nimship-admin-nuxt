@@ -1,11 +1,12 @@
 <template>
   <NuxtLayout>
     <NuxtPage />
-    <Toaster />
+  <Toaster />
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
+import Toaster from '@/components/ui/toast/Toaster.vue'
 </script>
 
 <style>
@@ -18,7 +19,9 @@
   font-feature-settings: normal;
   font-variation-settings: normal;
   -webkit-tap-highlight-color: transparent;
-  font-family: 'Crimson Text', Inter var, Inter, system-ui, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  font-family: "Crimson Text", Inter var, Inter, system-ui, Noto Sans,
+    sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+    Noto Color Emoji;
 }
 
 body {
@@ -40,10 +43,10 @@ body {
 .button-27 {
   appearance: none;
   background-color: #000000;
-  border: 2px solid #1A1A1A;
+  border: 2px solid #1a1a1a;
   border-radius: 8px;
   box-sizing: border-box;
-  color: #FFFFFF;
+  color: #ffffff;
   cursor: pointer;
   display: inline-block;
   font-weight: 600;
@@ -54,7 +57,7 @@ body {
   padding: 8px 20px;
   text-align: center;
   text-decoration: none;
-  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  transition: all 300ms cubic-bezier(0.23, 1, 0.32, 1);
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
@@ -84,13 +87,11 @@ body::-webkit-scrollbar {
 body::-webkit-scrollbar-track {
   border-radius: 9999px;
   background-color: #f3f4f6;
-
 }
 
 body::-webkit-scrollbar-thumb {
   border-radius: 9999px;
   background-color: #f3f4f6;
-
 }
 .noscrollbar::-webkit-scrollbar {
   width: 0.125rem;

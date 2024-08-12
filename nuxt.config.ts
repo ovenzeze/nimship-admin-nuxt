@@ -1,4 +1,5 @@
 export default defineNuxtConfig({
+  devtools: { enabled: true },
   pages: true,
   modules: [
     '@nuxtjs/tailwindcss',
@@ -12,7 +13,8 @@ export default defineNuxtConfig({
 
   shadcn: {
     prefix: '',
-    componentDir: './components/ui'
+    componentDir: './components/ui',
+    priority: 100,
   },
 
   googleFonts: {
@@ -27,9 +29,8 @@ export default defineNuxtConfig({
       'Noto Sans SC': [400, 600],
     }
   },
-
-  components: [{ path: '~/components', pathPrefix: false, extensions: ['vue'], priority: 10 }],
   imports: { dirs: ['composables', '~/components/ui/**'] },
   runtimeConfig: { public: {} },
   compatibilityDate: '2024-07-28',
+  components: [{ path: '~/components', pathPrefix: false, extensions: ['vue'], priority: 99 }],
 })
