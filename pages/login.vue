@@ -1,16 +1,19 @@
 <script setup lang="ts">
-// import { useToast } from '@/components/ui/toast/use-toast'
+import { useToast } from '~/components/ui/toast';
+
 definePageMeta({ layout: 'public' })
 
 const supabase = useSupabaseClient()
-const toast = useToast()
+const { toast } = useToast()
 const email = ref('')
+
+toast({ title: 'Uh oh! Something went wrong.', description: 'There was a problem with your request.', variant: 'destructive' })
 
 const signInWithOtp = async () => {
   console.info('[signInWithOtp]', email.value)
   const { error } = await supabase.auth.signInWithOtp({ email: email.value, options: { emailRedirectTo: 'http://localhost:3000/confirm' }})
   if (error) {
-    toast.toast({ title: 'Uh oh! Something went wrong.', description: 'There was a problem with your request.', variant: 'destructive' })
+    toast({ title: 'Uh oh! Something went wrong.', description: 'There was a problem with your request.', variant: 'destructive' })
     console.log(error)
   }
 }
@@ -39,9 +42,7 @@ const signInWithOtp = async () => {
       </div> -->
     </CardContent>
     <CardFooter>
-      <Button @click="signInWithOtp" class="w-full cursor-pointer button-27">
-       <!-- <Icon name="i-heroicons:arrow-right-circle" class="w-6 h-6 mr-2 text-red-500" /> -->
-       <!-- <LucideVoicemail /> -->
+      <Button @click="signInWithOtp" disabled class="w-full cursor-pointer button-27">
         Sign in with email
       </Button>
     </CardFooter>

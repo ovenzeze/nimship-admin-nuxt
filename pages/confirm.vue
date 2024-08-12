@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-center min-h-screen bg-background">
-    <Card class="w-[350px]">
+    <Card class="w-[350px] border-gray-100">
       <CardHeader>
         <CardTitle>Email Login</CardTitle>
         <CardDescription>Please check your inbox</CardDescription>
