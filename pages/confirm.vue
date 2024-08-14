@@ -4,33 +4,50 @@
       <Card class="w-full max-w-[370px] bg-white bg-opacity-90 dark:bg-gray-800 dark:bg-opacity-90">
         <CardHeader class="text-center">
           <CardTitle>Login Confirmation</CardTitle>
-          <CardDescription>{{ status === 'success' ? 'Login Successful' : 'Verification Failed' }}</CardDescription>
+          <CardDescription>
+            <template v-if="status === 'success'">
+              Welcome, {{ email }}
+            </template>
+            <template v-else-if="status === 'error'">
+              Verification failed
+            </template>
+            <template v-else>
+              Verifying
+            </template>
+          </CardDescription>
+          
         </CardHeader>
+
         <CardContent class="text-center">
           <div v-if="status === 'success'">
             <div class="flex justify-center mb-4">
-              <LucideCheckCircle class="h-12 w-12 text-success animate-bounce" />
+              <LucideCheckCircle class="h-12 w-12 text-success animate-pulse" />
             </div>
-            <Typography variant="h4" class="mb-2">
-              Logged in as {{ email }}
-            </Typography>
-            <Alert variant="success" class="mb-4">
-              <AlertDescription>
-                Redirecting to homepage in {{ redirectCountdown }} seconds
-              </AlertDescription>
-            </Alert>
-            <Button class="w-full animate-pulse" @click="redirectToHome">Redirect Now</Button>
+            <p class="text-gray-500 mb-6">
+              Redirecting to home in {{ redirectCountdown }} seconds
+            </p>
+            <Button class="w-full" @click="redirectToHome">
+              Go to Home
+              <LucideHome class="h-4 w-4 ml-2" />
+            </Button>
           </div>
-          <div v-else>
+          <div v-else-if="status === 'error'">
             <div class="flex justify-center items-center mb-4">
               <LucideAlertTriangle class="h-12 w-12 text-destructive animate-pulse" />
             </div>
-            <!-- <Alert variant="destructive" class="mb-6"> -->
-            <h5  class="text-gray-500">
-                Invalid url. Please check your email link.
+            <h5 class="text-gray-500">
+              Verification failed. Please check your email link.
             </h5>
-            <!-- </Alert> -->
-            <Button class="w-full mt-6" @click="redirectToHome">Return to Homepage</Button>
+            <Button class="w-full mt-6" @click="redirectToHome">
+              <LucideArrowLeft class="h-4 w-4 mr-2" />
+              Return to Home
+            </Button>
+          </div>
+          <div v-else>
+            <div class="flex justify-center items-center mb-4">
+              <LucideLoader class="h-8 w-8 text-primary animate-spin" />
+            </div>
+            <p class="text-gray-500 animate-pulse mt-4">Verifying login information</p>
           </div>
         </CardContent>
       </Card>
@@ -41,48 +58,61 @@
 <script setup lang="ts">
 import { useRouter } from 'nuxt/app'
 import { useToast } from '@/components/ui/toast/use-toast'
-import { LucideCheckCircle, LucideAlertTriangle } from 'lucide-vue-next'
+import { LucideCheckCircle, LucideAlertTriangle, LucideHome, LucideLoader, LucideArrowLeft } from 'lucide-vue-next'
 
 definePageMeta({ layout: 'public' })
 
 const router = useRouter()
 const route = useRoute()
-const status = ref('error')
+const status = ref('pending')
 const redirectCountdown = ref(5)
 const email = ref('')
 const user = useSupabaseUser()
+const { toast } = useToast()
+const supabase = useSupabaseClient()
 
-// 获取重定向路径
+// Get redirect path
 const cookieName = useRuntimeConfig().public.supabase.cookieName
 const redirectPath = useCookie(`${cookieName}-redirect-path`).value
 
-// 验证 URL 参数
-onMounted(async () => {
-  const token = route.query.token as string
-  if (token) {
-    try {
-      // 这里应该调用 Supabase 或者您的后端 API 来验证 token
-      // 以下是一个模拟的验证过程
-      const { data, error } = await useAsyncData('verifyToken', () => 
-        Promise.resolve({ user: { email: 'user@example.com' } })
-      )
-      
-      if (data.value && data.value.user) {
-        status.value = 'success'
-        email.value = data.value.user.email
-        startRedirectCountdown()
-      } else {
-        status.value = 'error'
-      }
-    } catch (error) {
-      status.value = 'error'
-    }
+// Verify user login status
+const verifyLoginStatus = () => {
+  if (user.value) {
+    status.value = 'success'
+    email.value = user.value.email || ''
+    startRedirectCountdown()
+    // Clear cookie
+    useCookie(`${cookieName}-redirect-path`).value = null
+    // Show success toast
+    toast({ title: 'Login Successful', description: 'Welcome back!', variant: 'success' })
   } else {
     status.value = 'error'
   }
-})
+}
 
+let initialVerificationTimer: NodeJS.Timeout
 let redirectTimer: NodeJS.Timeout
+
+onMounted(async () => {
+  // Listen for auth state changes
+  const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN') {
+      verifyLoginStatus()
+    }
+  })
+
+  // Initial verification timer
+  initialVerificationTimer = setTimeout(() => {
+    if (status.value === 'pending') {
+      status.value = 'error'
+    }
+  }, 3000)
+
+  // Clean up the listener when the component is unmounted
+  onUnmounted(() => {
+    authListener.subscription.unsubscribe()
+  })
+})
 
 const startRedirectCountdown = () => {
   redirectTimer = setInterval(() => {
@@ -102,6 +132,7 @@ const redirectToHome = () => {
 
 onUnmounted(() => {
   clearInterval(redirectTimer)
+  clearTimeout(initialVerificationTimer)
 })
 </script>
 
@@ -113,7 +144,7 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   z-index: -1;
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background: linear-gradient(-45deg, #f3e7e9, #e3eeff, #e3eeff, #f3e7e9);
   background-size: 400% 400%;
   animation: gradientBG 15s ease infinite;
 }
@@ -130,7 +161,7 @@ onUnmounted(() => {
   }
 }
 
-/* 确保内容在背景之上 */
+/* Ensure content is above the background */
 .flex {
   position: relative;
   z-index: 1;

@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   pages: true,
   modules: [
     '@nuxtjs/tailwindcss',
@@ -8,7 +8,8 @@ export default defineNuxtConfig({
     "@nuxtjs/google-fonts",
     "nuxt-icons",
     "@nuxtjs/i18n",
-    "nuxt-lucide-icons"
+    "nuxt-lucide-icons",
+    '@nuxt/content'
   ],
 
   shadcn: { prefix: '', componentDir: './components/ui' },
@@ -25,6 +26,15 @@ export default defineNuxtConfig({
       'Noto Sans SC': [400, 600],
     }
   },
+
+  supabase: {
+    redirectOptions: {
+      login: '/login',
+      callback: '/confirm',
+      exclude: ['/terms', '/privacy'],
+    }
+  },
+
   imports: { dirs: ['composables', '~/components/ui/**'] },
   runtimeConfig: { public: {} },
   compatibilityDate: '2024-07-28',
