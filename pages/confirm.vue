@@ -1,92 +1,88 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-background">
-    <Card class="w-[350px] border-gray-100">
-      <CardHeader>
-        <CardTitle>Email Login</CardTitle>
-        <CardDescription>Please check your inbox</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div v-if="status === 'waiting'">
-          <div class="flex justify-center mb-4">
-            <LucideVoicemail class="h-12 w-12 text-primary" />
+  <div class="background-container">
+    <div class="flex items-center justify-center min-h-screen bg-background">
+      <Card class="w-full max-w-[370px] bg-white bg-opacity-90 dark:bg-gray-800 dark:bg-opacity-90">
+        <CardHeader class="text-center">
+          <CardTitle>Login Confirmation</CardTitle>
+          <CardDescription>{{ status === 'success' ? 'Login Successful' : 'Verification Failed' }}</CardDescription>
+        </CardHeader>
+        <CardContent class="text-center">
+          <div v-if="status === 'success'">
+            <div class="flex justify-center mb-4">
+              <LucideCheckCircle class="h-12 w-12 text-success animate-bounce" />
+            </div>
+            <Typography variant="h4" class="mb-2">
+              Logged in as {{ email }}
+            </Typography>
+            <Alert variant="success" class="mb-4">
+              <AlertDescription>
+                Redirecting to homepage in {{ redirectCountdown }} seconds
+              </AlertDescription>
+            </Alert>
+            <Button class="w-full animate-pulse" @click="redirectToHome">Redirect Now</Button>
           </div>
-          <Typography variant="h4" class="text-center mb-2">
-            Email sent to {{ email }}
-          </Typography>
-          <Alert variant="default" class="mb-4">
-            <AlertTitle>Tip</AlertTitle>
-            <AlertDescription>
-              If not received, please check your spam folder
-            </AlertDescription>
-          </Alert>
-          <Button class="w-full" :disabled="countdown > 0" @click="resendEmail">
-            Resend {{ countdown > 0 ? `(${countdown}s)` : '' }}
-          </Button>
-        </div>
-        <div v-else-if="status === 'confirm'">
-          <div class="flex justify-center mb-4">
-            <LucideCheckCircle class="h-12 w-12 text-success" />
+          <div v-else>
+            <div class="flex justify-center items-center mb-4">
+              <LucideAlertTriangle class="h-12 w-12 text-destructive animate-pulse" />
+            </div>
+            <!-- <Alert variant="destructive" class="mb-6"> -->
+            <h5  class="text-gray-500">
+                Invalid url. Please check your email link.
+            </h5>
+            <!-- </Alert> -->
+            <Button class="w-full mt-6" @click="redirectToHome">Return to Homepage</Button>
           </div>
-          <Typography variant="h4" class="text-center mb-2">
-            Verification Successful
-          </Typography>
-          <Alert variant="success" class="mb-4">
-            <AlertDescription>
-              Redirecting to homepage in {{ redirectCountdown }}s
-            </AlertDescription>
-          </Alert>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'nuxt/app'
 import { useToast } from '@/components/ui/toast/use-toast'
+import { LucideCheckCircle, LucideAlertTriangle } from 'lucide-vue-next'
 
 definePageMeta({ layout: 'public' })
 
-
 const router = useRouter()
-const status = ref('waiting')
-const countdown = ref(60)
-const redirectCountdown = ref(3)
-const email = ref('user@example.com') // Replace with actual email
+const route = useRoute()
+const status = ref('error')
+const redirectCountdown = ref(5)
+const email = ref('')
 const user = useSupabaseUser()
 
-
-// Get redirect path from cookies
+// 获取重定向路径
 const cookieName = useRuntimeConfig().public.supabase.cookieName
 const redirectPath = useCookie(`${cookieName}-redirect-path`).value
 
-watch(user, () => {
-  if (user.value) {
-      // Clear cookie
-      useCookie(`${cookieName}-redirect-path`).value = null
-      // Redirect to path
-      return navigateTo(redirectPath || '/'); 
-  }
-}, { immediate: true })
-
-let countdownTimer: NodeJS.Timeout
-let redirectTimer: NodeJS.Timeout
-
-const startCountdown = () => {
-  countdown.value = 60
-  countdownTimer = setInterval(() => {
-    if (countdown.value > 0) {
-      countdown.value--
-    } else {
-      clearInterval(countdownTimer)
+// 验证 URL 参数
+onMounted(async () => {
+  const token = route.query.token as string
+  if (token) {
+    try {
+      // 这里应该调用 Supabase 或者您的后端 API 来验证 token
+      // 以下是一个模拟的验证过程
+      const { data, error } = await useAsyncData('verifyToken', () => 
+        Promise.resolve({ user: { email: 'user@example.com' } })
+      )
+      
+      if (data.value && data.value.user) {
+        status.value = 'success'
+        email.value = data.value.user.email
+        startRedirectCountdown()
+      } else {
+        status.value = 'error'
+      }
+    } catch (error) {
+      status.value = 'error'
     }
-  }, 1000)
-}
+  } else {
+    status.value = 'error'
+  }
+})
 
-const resendEmail = () => {
-  // Logic to resend email
-  startCountdown()
-}
+let redirectTimer: NodeJS.Timeout
 
 const startRedirectCountdown = () => {
   redirectTimer = setInterval(() => {
@@ -94,26 +90,49 @@ const startRedirectCountdown = () => {
       redirectCountdown.value--
     } else {
       clearInterval(redirectTimer)
-      router.push('/') // Redirect to homepage
+      redirectToHome()
     }
   }, 1000)
 }
 
-const simulateConfirmation = () => {
-  setTimeout(() => {
-    status.value = 'confirm'
-    startRedirectCountdown()
-  }, 5000) // Simulate confirmation after 5 seconds
+const redirectToHome = () => {
+  clearInterval(redirectTimer)
+  router.push(redirectPath || '/')
 }
 
-onMounted(() => {
-  startCountdown()
-  simulateConfirmation() // For demonstration purposes
-})
-
 onUnmounted(() => {
-  clearInterval(countdownTimer)
   clearInterval(redirectTimer)
 })
 </script>
 
+<style scoped>
+.background-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 确保内容在背景之上 */
+.flex {
+  position: relative;
+  z-index: 1;
+}
+</style>

@@ -11,11 +11,7 @@ export default defineNuxtConfig({
     "nuxt-lucide-icons"
   ],
 
-  shadcn: {
-    prefix: '',
-    componentDir: './components/ui',
-    priority: 100,
-  },
+  shadcn: { prefix: '', componentDir: './components/ui' },
 
   googleFonts: {
     display: 'swap',
