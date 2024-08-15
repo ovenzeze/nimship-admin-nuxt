@@ -9,7 +9,8 @@ export default defineNuxtConfig({
     "nuxt-icons",
     "@nuxtjs/i18n",
     "nuxt-lucide-icons",
-    '@nuxt/content'
+    '@nuxt/content',
+    "@nuxt/icon"
   ],
 
   shadcn: { prefix: '', componentDir: './components/ui' },
@@ -33,6 +34,10 @@ export default defineNuxtConfig({
       callback: '/confirm',
       exclude: ['/terms', '/privacy'],
     }
+  },
+
+  build: {
+    transpile: ['vee-validate'],
   },
 
   imports: { dirs: ['composables', '~/components/ui/**'] },

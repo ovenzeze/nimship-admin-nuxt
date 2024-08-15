@@ -1,11 +1,13 @@
 <script setup lang="ts">
+definePageMeta({
+  layout: 'public',
+  ssr: false
+})
+
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { useToast } from '~/components/ui/toast'
-import { Loader2, Mail, Lock, Github, User } from 'lucide-vue-next'
-
-definePageMeta({ layout: 'public' })
 
 const supabase = useSupabaseClient()
 const { toast } = useToast()
@@ -22,30 +24,30 @@ const route = useRoute()
 const loginMethods = [
   {
     id: 'magic-link',
-    label: 'Sign in with Magic link',
+    label: 'Sign in with Magic Link',
     altLabel: 'Sign in with Password',
-    icon: Mail,
-    altIcon: Lock,
+    icon: 'ph:envelope-simple',
+    altIcon: 'ph:lock-simple',
     action: signInWithMagicLink
   },
   {
     id: 'google',
     label: 'Sign in with Google',
-    icon: Github,
+    icon: 'ph:google-logo',
     action: signInWithGoogle
   },
   {
     id: 'github',
     label: 'Sign in with GitHub',
-    icon: Github,
+    icon: 'ph:github-logo',
     action: signInWithGithub
   }
 ]
 
 const formSchema = toTypedSchema(z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(6, '密码至少需要6个字符').optional(),
-  agreedToTerms: z.boolean().refine(val => val === true, '请同意服务条款和隐私政策'),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters long').optional(),
+  agreedToTerms: z.boolean().refine(val => val === true, 'Please agree to the Terms of Service and Privacy Policy'),
 }))
 
 const { handleSubmit, values } = useForm({
@@ -58,10 +60,9 @@ const { handleSubmit, values } = useForm({
 })
 
 const onSubmit = handleSubmit(async (formValues) => {
-  email.value = formValues.email
-  password.value = formValues.password
+  email.value = formValues.email || ''
+  password.value = formValues.password || ''
   agreedToTerms.value = formValues.agreedToTerms
-
   await signIn()
 })
 
@@ -112,14 +113,14 @@ async function signInWithGithub() {
 function handleSignInResult(error: any, isMagicLink = false) {
   isLoading.value = false
   if (error) {
-    toast({ title: 'Error', description: 'An error occurred during sign in.', variant: 'destructive' })
+    toast({ title: 'Error', description: 'An error occurred during sign in. Please try again.', variant: 'destructive' })
     console.error(error)
   } else if (isMagicLink) {
-    toast({ title: 'Email Sent', description: 'Please check your inbox and click the login link.', variant: 'success' })
+    toast({ title: 'Email Sent', description: 'Please check your inbox and click the login link to complete sign in.' })
     isSent.value = true
     startCountdown()
   } else {
-    toast({ title: 'Success', description: 'You have been signed in.', variant: 'success' })
+    toast({ title: 'Success', description: 'You have successfully signed in.' })
     navigateTo('/')
   }
 }
@@ -185,64 +186,60 @@ const navigateToPrivacy = () => {
           {{ isSent ? 'Check your email' : 'Sign in to your account' }}
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <form @submit="onSubmit">
-          <div class="grid gap-4">
-            <FormField v-slot="{ value, handleChange, errorMessage }" name="email">
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <div class="relative">
-                    <Input :value="value" @input="handleChange" type="email" placeholder="Email address" required />
-                    <Mail class="absolute right-3 top-3 h-4 w-4 text-gray-400" />
-                  </div>
-                </FormControl>
-                <FormMessage>{{ errorMessage }}</FormMessage>
-              </FormItem>
-            </FormField>
-
-            <FormField v-if="!isSent && loginMethod === 'password'" v-slot="{ value, handleChange, errorMessage }" name="password">
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <div class="relative">
-                    <Input :value="value" @input="handleChange" type="password" placeholder="Password" required />
-                    <Lock class="absolute right-3 top-3 h-4 w-4 text-gray-400" />
-                  </div>
-                </FormControl>
-                <FormMessage>{{ errorMessage }}</FormMessage>
-              </FormItem>
-            </FormField>
-
-            <div v-if="isSent" class="text-center text-sm text-gray-600">
-              <p class="mb-2">We've sent a login link to {{ email }}.</p>
-              <p>Please check your inbox (including spam folder) and click the link to complete login.</p>
-            </div>
-
-            <FormField v-slot="{ value, handleChange, errorMessage }" name="agreedToTerms">
-              <FormItem class="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox :checked="value" @update:checked="handleChange" />
-                </FormControl>
-                <div class="space-y-1 leading-none">
-                  <FormLabel>
-                    I agree to the 
-                    <NuxtLink to="/terms" target="_blank" class="text-blue-600 hover:underline cursor-pointer">Terms of Service</NuxtLink> 
-                    and 
-                    <NuxtLink to="/privacy" target="_blank" class="text-blue-600 hover:underline cursor-pointer">Privacy Policy</NuxtLink>
-                  </FormLabel>
-                  <FormMessage>{{ errorMessage }}</FormMessage>
+      <CardContent class="space-y-4">
+        <form @submit="onSubmit" class="space-y-4">
+          <FormField v-slot="{ value, handleChange, errorMessage }" name="email">
+            <FormItem>
+              <FormControl>
+                <div class="relative">
+                  <Input :value="value" @input="handleChange" type="email" placeholder="Email" required />
+                  <Icon name="ph:envelope-simple" class="absolute right-3 top-3 h-4 w-4 text-gray-400" />
                 </div>
-              </FormItem>
-            </FormField>
+              </FormControl>
+              <FormMessage>{{ errorMessage }}</FormMessage>
+            </FormItem>
+          </FormField>
 
-            <Button type="submit" :disabled="isLoginButtonDisabled" class="w-full">
-              {{ isLoading ? 'Signing in...' : (loginMethod === 'password' ? 'Sign in' : 'Send Magic Link') }}
-            </Button>
+          <FormField v-if="!isSent && loginMethod === 'password'" v-slot="{ value, handleChange, errorMessage }" name="password">
+            <FormItem>
+              <FormControl>
+                <div class="relative">
+                  <Input :value="value" @input="handleChange" type="password" placeholder="Password" required />
+                  <Icon name="ph:lock-simple" class="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                </div>
+              </FormControl>
+              <FormMessage>{{ errorMessage }}</FormMessage>
+            </FormItem>
+          </FormField>
+
+          <div v-if="isSent" class="text-center text-sm text-gray-600">
+            <p class="mb-2">We've sent a login link to {{ email }}.</p>
+            <p>Please check your inbox (including spam folder) and click the link to complete sign in.</p>
           </div>
+
+          <FormField v-slot="{ value, handleChange, errorMessage }" name="agreedToTerms">
+            <FormItem class="flex flex-row items-center justify-start space-x-2 space-y-0">
+              <FormControl>
+                <Checkbox @update:checked="handleChange" />
+              </FormControl>
+              <div class="space-y-1 leading-none">
+                <FormLabel class="text-sm">
+                  I agree to the 
+                  <NuxtLink to="/terms" target="_blank" class="text-blue-600 hover:underline cursor-pointer">Terms of Service</NuxtLink> 
+                  and 
+                  <NuxtLink to="/privacy" target="_blank" class="text-blue-600 hover:underline cursor-pointer">Privacy Policy</NuxtLink>
+                </FormLabel>
+              </div>
+            </FormItem>
+          </FormField>
+
+          <Button type="submit" :disabled="isLoginButtonDisabled" class="w-full">
+            <Icon v-if="isLoading" name="ph:spinner" class="mr-2 h-4 w-4 animate-spin" />
+            {{ isLoading ? 'Signing in...' : (loginMethod === 'password' ? 'Sign in' : 'Send Magic Link') }}
+          </Button>
         </form>
 
-        <div class="relative my-4">
+        <div class="relative">
           <div class="absolute inset-0 flex items-center">
             <span class="w-full border-t"></span>
           </div>
@@ -250,6 +247,7 @@ const navigateToPrivacy = () => {
             <span class="bg-white px-2 text-gray-500">Or</span>
           </div>
         </div>
+
         <div class="grid gap-2">
           <Button 
             v-for="method in loginMethods" 
@@ -258,7 +256,7 @@ const navigateToPrivacy = () => {
             variant="outline" 
             class="w-full"
           >
-            <component :is="method.id === loginMethod ? method.altIcon : method.icon" class="mr-2 h-4 w-4" />
+            <Icon :name="method.id === loginMethod ? (method.altIcon ?? '') : (method.icon ?? '')" class="mr-2 h-4 w-4" />
             {{ method.id === loginMethod ? method.altLabel : method.label }}
           </Button>
         </div>
