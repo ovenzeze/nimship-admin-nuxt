@@ -1,87 +1,129 @@
 <template>
-  <main class="container mx-auto px-4 py-8 max-w-4xl">
-    <article class="prose prose-sm sm:prose lg:prose-lg xl:prose-xl mx-auto">
-      <ContentDoc />
+  <main class="container mx-auto px-4 py-8 max-w-3xl">
+    <article class="prose prose-sm sm:prose lg:prose-base mx-auto">
+      <CustomContent />
     </article>
   </main>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
+
 definePageMeta({
   layout: "public",
   auth: false,
   title: "Privacy Policy",
-  description: "Learn how we protect your privacy and personal information",
+  description: "Learn about how we collect, use, and protect your personal information",
+});
+
+useHead({
+  title: 'Privacy Policy | NIMSHIP',
+  meta: [
+    { name: 'description', content: 'Learn about how we collect, use, and protect your personal information at NIMSHIP.' },
+    { property: 'og:title', content: 'Privacy Policy | NIMSHIP' },
+    { property: 'og:description', content: 'Learn about how we collect, use, and protect your personal information at NIMSHIP.' },
+    { name: 'twitter:title', content: 'Privacy Policy | NIMSHIP' },
+    { name: 'twitter:description', content: 'Learn about how we collect, use, and protect your personal information at NIMSHIP.' },
+  ],
 });
 </script>
 
-<style>
+<style lang="postcss">
 .prose {
-  @apply text-gray-800 dark:text-gray-200;
-}
+  @apply text-zinc-700 leading-relaxed text-sm sm:text-base;
 
-.prose h1 {
-  @apply text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 pb-2 border-b-2 border-gray-200 dark:border-gray-700;
-}
-
-.prose h2 {
-  @apply text-2xl font-bold text-gray-800 dark:text-gray-200 mt-8 mb-4;
-}
-
-.prose h3 {
-  @apply text-xl font-semibold text-gray-700 dark:text-gray-300 mt-6 mb-3;
-}
-
-.prose h4 {
-  @apply text-lg font-medium text-gray-600 dark:text-gray-400 mt-4 mb-2;
-}
-
-.prose h5, .prose h6 {
-  @apply text-base font-medium text-gray-500 dark:text-gray-500 mt-3 mb-2;
-}
-
-.prose a {
-  @apply text-blue-600 dark:text-blue-400 hover:underline;
-}
-
-.prose ul, .prose ol {
-  @apply my-4 list-disc list-inside;
-}
-
-.prose li {
-  @apply mb-2;
-}
-
-.prose blockquote {
-  @apply border-l-4 border-gray-300 dark:border-gray-700 pl-4 italic my-6;
-}
-
-.prose code {
-  @apply bg-gray-100 dark:bg-gray-800 rounded px-1 py-0.5;
-}
-
-.prose pre {
-  @apply bg-gray-100 dark:bg-gray-800 rounded p-4 my-6 overflow-x-auto;
-}
-
-@media (max-width: 640px) {
-  .prose {
-    @apply text-sm;
+  /* Headings */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-zinc-700;
   }
-  
-  .prose h1 {
-    @apply text-2xl;
+
+  h1 {
+    @apply text-2xl sm:text-3xl font-bold mb-6 pb-1 border-b border-zinc-200;
   }
-  
-  .prose h2 {
-    @apply text-xl;
+
+  h2 {
+    @apply text-xl sm:text-2xl font-semibold mt-8 mb-4;
   }
-  
-  .prose h3 {
-    @apply text-lg;
+
+  h3 {
+    @apply text-lg sm:text-xl font-medium mt-6 mb-3;
   }
-  
-  .prose h4, .prose h5, .prose h6 {
+
+  /* Paragraphs and lists */
+  p, ul, ol {
+    @apply my-4;
+  }
+
+  ul, ol {
+    @apply pl-6;
+  }
+
+  ul {
+    @apply list-disc;
+  }
+
+  ol {
+    @apply list-decimal;
+  }
+
+  li {
+    @apply mb-1;
+  }
+
+  /* Links */
+  a {
+    @apply text-zinc-600 transition-colors duration-200 ease-in-out;
+    &:hover {
+      @apply text-zinc-800;
+    }
+  }
+
+  /* Blockquotes */
+  blockquote {
+    @apply border-l-4 border-zinc-300 pl-4 italic my-6 py-1 text-zinc-600;
+  }
+
+  /* Code blocks */
+  code {
+    @apply bg-zinc-100 px-1.5 py-0.5 rounded text-sm font-mono text-zinc-800;
+  }
+
+  pre {
+    @apply bg-zinc-100 p-3 rounded-lg my-6 overflow-x-auto text-sm;
+    code {
+      @apply bg-transparent p-0 text-zinc-800;
+    }
+  }
+
+  /* Tables */
+  table {
+    @apply w-full my-6 border-collapse;
+    th, td {
+      @apply border border-zinc-300 px-3 py-1 text-left;
+    }
+    th {
+      @apply bg-zinc-100 font-semibold;
+    }
+  }
+
+  /* Images */
+  img {
+    @apply max-w-full h-auto rounded-lg my-6;
+  }
+
+  /* Custom content */
+  .notice {
+    @apply bg-zinc-50 border-l-4 border-zinc-500 p-3 my-4 rounded-r-lg;
+    p {
+      @apply text-zinc-700 m-0;
+    }
+  }
+
+  /* Responsive adjustments */
+  @screen sm {
+    @apply text-base;
+  }
+
+  @screen lg {
     @apply text-base;
   }
 }

@@ -8,7 +8,6 @@ export default defineNuxtConfig({
     "@nuxtjs/google-fonts",
     "nuxt-icons",
     "@nuxtjs/i18n",
-    "nuxt-lucide-icons",
     '@nuxt/content',
     "@nuxt/icon"
   ],
