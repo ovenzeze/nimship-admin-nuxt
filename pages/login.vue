@@ -111,16 +111,24 @@ async function signInWithGithub() {
 }
 
 function handleSignInResult(error: any, isMagicLink = false) {
+  if (devMode.value) {
+    // In dev mode, we don't change the state, but instead control it through the state switcher
+    return
+  }
+  
   isLoading.value = false
   if (error) {
     toast({ title: 'Error', description: 'An error occurred during sign in. Please try again.', variant: 'destructive' })
     console.error(error)
+    currentState.value = 'error'
   } else if (isMagicLink) {
     toast({ title: 'Email Sent', description: 'Please check your inbox and click the login link to complete sign in.' })
     isSent.value = true
     startCountdown()
+    currentState.value = 'magic-link-sent'
   } else {
     toast({ title: 'Success', description: 'You have successfully signed in.' })
+    currentState.value = 'success'
     navigateTo('/')
   }
 }
@@ -134,6 +142,19 @@ const isLoginButtonDisabled = computed(() => {
 })
 
 const signIn = async () => {
+  if (devMode.value) {
+    // In dev mode, we don't perform the actual login, but instead set the state directly
+    currentState.value = 'loading'
+    setTimeout(() => {
+      if (loginMethod.value === 'password') {
+        currentState.value = 'success'
+      } else {
+        currentState.value = 'magic-link-sent'
+      }
+    }, 1000) // Simulate network delay
+    return
+  }
+
   if (!values.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
     toast({ title: 'Error', description: 'Please enter a valid email address', variant: 'destructive' })
     return
@@ -175,10 +196,79 @@ const navigateToTerms = () => {
 const navigateToPrivacy = () => {
   navigateTo('/privacy')
 }
+
+// Added code for dev mode state switcher
+const devMode = ref(process.dev)
+const currentState = ref('default')
+
+const states = [
+  { value: 'default', label: 'Default login state', icon: 'ph:user' },
+  { value: 'loading', label: 'Loading', icon: 'ph:spinner' },
+  { value: 'magic-link-sent', label: 'Magic link sent', icon: 'ph:envelope-simple' },
+  { value: 'password', label: 'Password login', icon: 'ph:lock-simple' },
+  { value: 'error', label: 'Error state', icon: 'ph:x-circle' },
+  { value: 'success', label: 'Login successful', icon: 'ph:check-circle' },
+]
+
+watch(currentState, (newState) => {
+  switch (newState) {
+    case 'loading':
+      isLoading.value = true
+      isSent.value = false
+      break
+    case 'magic-link-sent':
+      isLoading.value = false
+      isSent.value = true
+      email.value = values.email || '' // Use empty string as default value
+      startCountdown()
+      toast({ title: 'Email Sent', description: 'Please check your inbox and click the login link to complete sign in.' })
+      break
+    case 'password':
+      loginMethod.value = 'password'
+      isLoading.value = false
+      isSent.value = false
+      break
+    case 'error':
+      isLoading.value = false
+      isSent.value = false
+      toast({ title: 'Error', description: 'An error occurred during sign in. Please try again.', variant: 'destructive' })
+      break
+    case 'success':
+      isLoading.value = false
+      isSent.value = false
+      toast({ title: 'Success', description: 'You have successfully signed in.' })
+      break
+    default:
+      isLoading.value = false
+      isSent.value = false
+      loginMethod.value = 'password'
+      break
+  }
+})
+
+const switchToEmailLogin = () => {
+  currentState.value = 'default'
+  loginMethod.value = 'magic-link'
+  isSent.value = false
+}
 </script>
 
 <template>
   <div class="flex min-h-screen w-full items-center justify-center bg-gradient-to-r from-indigo-200 to-yellow-100 p-4">
+    <!-- Added dev mode state switcher -->
+    <div v-if="devMode" class="absolute top-4 right-4 z-10">
+      <Select v-model="currentState">
+        <SelectTrigger class="w-[200px]">
+          <SelectValue placeholder="Select state" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem v-for="state in states" :key="state.value" :value="state.value">
+            {{ state.label }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+
     <Card class="w-full max-w-md bg-white rounded-lg shadow-md">
       <CardHeader class="space-y-1">
         <CardTitle class="text-2xl font-bold text-center">NIMSHIP</CardTitle>
@@ -187,7 +277,25 @@ const navigateToPrivacy = () => {
         </CardDescription>
       </CardHeader>
       <CardContent class="space-y-4">
-        <form @submit="onSubmit" class="space-y-4">
+        <div v-if="currentState === 'magic-link-sent' || isSent" class="text-center space-y-4">
+          <Icon name="ph:envelope-simple" class="w-16 h-16 mx-auto text-blue-500" />
+          <p class="text-sm text-gray-600 pb-8">
+            We've sent a login link to {{ email }}.
+            Please check your inbox (including spam folder) and click the link to complete sign in.
+          </p>
+          <div class="space-y-2">
+            <Button @click="resendEmail" :disabled="countdown > 0" variant="outline" class="w-full">
+              <Icon name="ph:envelope-simple" class="mr-2 h-4 w-4" />
+              {{ countdown > 0 ? `Resend email (${countdown}s)` : 'Resend email' }}
+            </Button>
+            <Button @click="switchToEmailLogin" variant="outline" class="w-full">
+              <Icon name="ph:arrow-left" class="mr-2 h-4 w-4" />
+              Use another email to login
+            </Button>
+          </div>
+        </div>
+
+        <form v-else @submit="onSubmit" class="space-y-4">
           <FormField v-slot="{ value, handleChange, errorMessage }" name="email">
             <FormItem>
               <FormControl>
@@ -200,7 +308,7 @@ const navigateToPrivacy = () => {
             </FormItem>
           </FormField>
 
-          <FormField v-if="!isSent && loginMethod === 'password'" v-slot="{ value, handleChange, errorMessage }" name="password">
+          <FormField v-if="!isSent && (loginMethod === 'password' || currentState === 'password')" v-slot="{ value, handleChange, errorMessage }" name="password">
             <FormItem>
               <FormControl>
                 <div class="relative">
@@ -211,11 +319,6 @@ const navigateToPrivacy = () => {
               <FormMessage>{{ errorMessage }}</FormMessage>
             </FormItem>
           </FormField>
-
-          <div v-if="isSent" class="text-center text-sm text-gray-600">
-            <p class="mb-2">We've sent a login link to {{ email }}.</p>
-            <p>Please check your inbox (including spam folder) and click the link to complete sign in.</p>
-          </div>
 
           <FormField v-slot="{ value, handleChange, errorMessage }" name="agreedToTerms">
             <FormItem class="flex flex-row items-center justify-start space-x-2 space-y-0">
@@ -233,13 +336,14 @@ const navigateToPrivacy = () => {
             </FormItem>
           </FormField>
 
-          <Button type="submit" :disabled="isLoginButtonDisabled" class="w-full">
-            <Icon v-if="isLoading" name="ph:spinner" class="mr-2 h-4 w-4 animate-spin" />
-            {{ isLoading ? 'Signing in...' : (loginMethod === 'password' ? 'Sign in' : 'Send Magic Link') }}
+          <Button type="submit" :disabled="isLoginButtonDisabled || currentState === 'loading'" variant="outline" class="w-full">
+            <Icon v-if="isLoading || currentState === 'loading'" name="ph:spinner" class="mr-2 h-4 w-4 animate-spin" />
+            <Icon v-else :name="loginMethod === 'password' ? 'ph:sign-in' : 'ph:envelope-simple'" class="mr-2 h-4 w-4" />
+            {{ (isLoading || currentState === 'loading') ? 'Signing in...' : (loginMethod === 'password' ? 'Sign in' : 'Send Magic Link') }}
           </Button>
         </form>
 
-        <div class="relative">
+        <div class="relative my-10" v-if="!isSent">
           <div class="absolute inset-0 flex items-center">
             <span class="w-full border-t"></span>
           </div>
@@ -248,7 +352,7 @@ const navigateToPrivacy = () => {
           </div>
         </div>
 
-        <div class="grid gap-2">
+        <div class="grid gap-2" v-if="!isSent">
           <Button 
             v-for="method in loginMethods" 
             :key="method.id"
@@ -261,11 +365,6 @@ const navigateToPrivacy = () => {
           </Button>
         </div>
       </CardContent>
-      <CardFooter v-if="isSent" class="flex justify-center">
-        <Button @click="resendEmail" :disabled="countdown > 0" variant="link">
-          {{ countdown > 0 ? `Resend email (${countdown}s)` : 'Resend email' }}
-        </Button>
-      </CardFooter>
     </Card>
   </div>
 </template>
