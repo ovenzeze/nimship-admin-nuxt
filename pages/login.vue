@@ -1,14 +1,18 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: 'public',
-})
-
+import { createClient } from '@supabase/supabase-js'
+import { ref, computed, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { useToast } from '~/components/ui/toast'
+import { useRouter, useRoute } from 'vue-router'
 
-const supabase = useSupabaseClient()
+definePageMeta({
+  layout: 'public',
+})
+
+const config = useRuntimeConfig()
+const supabase = createClient(config.public.supabaseUrl, config.public.supabaseKey)
 const { toast } = useToast()
 const email = ref('')
 const password = ref('')
@@ -19,10 +23,15 @@ const loginMethod = ref('password')
 const agreedToTerms = ref(false)
 
 const route = useRoute()
+const router = useRouter()
 
-const user = useSupabaseUser()
+const user = ref(null)
+const fetchUser = async () => {
+  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  user.value = currentUser
+}
+fetchUser()
 
-// 添加一个计算属性来格式化用户信息
 const userInfo = computed(() => {
   if (!user.value) return 'Not logged in'
   return `ID: ${user.value.id}\nEmail: ${user.value.email}`
@@ -33,7 +42,6 @@ console.log(user.value)
 watch(user, (newValue) => {
   console.log(newValue)
 })
-// debug login status in Local  
 
 const loginMethods = [
   {
@@ -86,7 +94,7 @@ async function signInWithPassword() {
     return
   }
   isLoading.value = true
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: email.value,
     password: password.value,
   })
@@ -94,24 +102,28 @@ async function signInWithPassword() {
 }
 
 async function signInWithMagicLink() {
-  // 设置加载状态
   isLoading.value = true;
 
   try {
-    // 尝试使用 magic link 进行登录
+    // Add logs
+    console.log('Attempting to send magic link to:', email.value);
     const { error } = await supabase.auth.signInWithOtp({
       email: email.value,
       options: { emailRedirectTo: `${window.location.origin}/confirm` },
     });
 
-    // 处理登录结果
+    // Add more logs
+    if (error) {
+      console.error('Error sending magic link:', error);
+    } else {
+      console.log('Magic link sent successfully');
+    }
+
     handleSignInResult(error, true);
   } catch (error) {
-    // 如果出现异常，记录错误并调用错误处理函数
     console.error('An error occurred during sign in:', error);
     handleSignInResult(error, true);
   } finally {
-    // 无论成功或失败，都重置加载状态
     isLoading.value = false;
   }
 }
@@ -140,16 +152,18 @@ async function signInWithGithub() {
 
 function handleSignInResult(error: any, isMagicLink = false) {
   if (devMode.value) {
-    // In dev mode, we don't change the state, but instead control it through the state switcher
     return
   }
   
   isLoading.value = false
   if (error) {
-    toast({ title: 'Error', description: 'An error occurred during sign in. Please try again.', variant: 'destructive' })
-    console.error(error)
+    // Add more detailed error logs
+    console.error('Sign in error details:', error);
+    toast({ title: 'Error', description: error.message || 'An error occurred during sign in. Please try again.', variant: 'destructive' })
     currentState.value = 'error'
   } else if (isMagicLink) {
+    // Add success logs
+    console.log('Magic link process completed successfully');
     toast({ title: 'Email Sent', description: 'Please check your inbox and click the login link to complete sign in.' })
     isSent.value = true
     startCountdown()
@@ -161,17 +175,8 @@ function handleSignInResult(error: any, isMagicLink = false) {
   }
 }
 
-const isLoginButtonDisabled = computed(() => {
-  if (isLoading.value) return true
-  if (!values.agreedToTerms) return true
-  if (loginMethod.value === 'password' && !values.password) return true
-  if (!values.email) return true
-  return false
-})
-
 const signIn = async () => {
   if (devMode.value) {
-    // In dev mode, we don't perform the actual login, but instead set the state directly
     currentState.value = 'loading'
     setTimeout(() => {
       if (loginMethod.value === 'password') {
@@ -179,26 +184,40 @@ const signIn = async () => {
       } else {
         currentState.value = 'magic-link-sent'
       }
-    }, 1000) // Simulate network delay
+    }, 1000)
     return
   }
 
+  // Validate email
   if (!values.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
     toast({ title: 'Error', description: 'Please enter a valid email address', variant: 'destructive' })
     return
   }
 
+  // Validate terms agreement
   if (!values.agreedToTerms) {
     toast({ title: 'Error', description: 'Please agree to the Terms of Service and Privacy Policy', variant: 'destructive' })
     return
   }
 
+  // If password login, validate password
+  if (loginMethod.value === 'password' && !values.password) {
+    toast({ title: 'Error', description: 'Please enter your password', variant: 'destructive' })
+    return
+  }
+
   const cookieName = useRuntimeConfig().public.supabase.cookieName
-  useCookie(`${cookieName}-redirect-path`).value = route.query.redirect as string || '/'
+  const redirectPath = route.query.redirect as string || '/'
+  useCookie<string>(`${cookieName}-redirect-path`).value = redirectPath
 
   const method = loginMethods.find(m => m.id === loginMethod.value)
+  
   if (method) {
-    await method.action()
+    if (method.id === 'password') {
+      await signInWithPassword()
+    } else {
+      await method.action()
+    }
   }
 }
 
@@ -217,7 +236,6 @@ const resendEmail = () => {
   signIn()
 }
 
-// Added code for dev mode state switcher
 const devMode = ref(process.env.NODE_ENV === 'development') 
 const currentState = ref('default')
 
@@ -230,7 +248,7 @@ const states = [
   { value: 'success', label: 'Login successful', icon: 'ph:check-circle' },
 ]
 
-watch(currentState, (newState) => {
+watch(currentState, (newState: string) => {
   switch (newState) {
     case 'loading':
       isLoading.value = true
@@ -239,7 +257,7 @@ watch(currentState, (newState) => {
     case 'magic-link-sent':
       isLoading.value = false
       isSent.value = true
-      email.value = values.email || '' // Use empty string as default value
+      email.value = values.email || ''
       startCountdown()
       toast({ title: 'Email Sent', description: 'Please check your inbox and click the login link to complete sign in.' })
       break
@@ -272,23 +290,22 @@ const switchToEmailLogin = () => {
   isSent.value = false
 }
 
-const router = useRouter()
-
-// 监听用户状态
 watch(user, (newUser) => {
   if (newUser) {
-    // 用户已登录，重定向到首页或指定的重定向路径
     const redirectPath = route.query.redirect as string || '/'
     router.push(redirectPath)
   }
 }, { immediate: true })
+
+supabase.auth.onAuthStateChange((event, session) => {
+  user.value = session?.user || null
+})
 </script>
 
 <template>
   <ClientOnly> 
   <div class="flex min-h-screen w-full items-center justify-center bg-gradient-to-r from-indigo-200 to-yellow-100 p-4">
 
-    <!-- 开发模式状态选择器 -->
     <Card v-if="devMode" class="absolute top-4 right-4 z-10 w-64 scale-90 opacity-80">
       <CardHeader class="space-y-1">
         <CardTitle class="text-sm flex items-center text-gray-500">
@@ -312,7 +329,6 @@ watch(user, (newUser) => {
       </CardContent>
     </Card>
 
-    <!-- 登录表单或已登录提示 -->
     <Card v-if="!user || devMode" class="w-full max-w-md bg-white rounded-lg shadow-md">
       <CardHeader class="space-y-1">
         <CardTitle class="text-2xl font-bold text-center">NIMSHIP</CardTitle>
@@ -380,7 +396,7 @@ watch(user, (newUser) => {
             </FormItem>
           </FormField>
 
-          <Button type="submit" :disabled="isLoginButtonDisabled || currentState === 'loading'" variant="outline" class="w-full">
+          <Button type="submit" variant="outline" class="w-full" @click="signIn">
             <Icon v-if="isLoading || currentState === 'loading'" name="ph:spinner" class="mr-2 h-4 w-4 animate-spin" />
             <Icon v-else :name="loginMethod === 'password' ? 'ph:sign-in' : 'ph:envelope-simple'" class="mr-2 h-4 w-4" />
             {{ (isLoading || currentState === 'loading') ? 'Signing in...' : (loginMethod === 'password' ? 'Sign in' : 'Send Magic Link') }}
@@ -411,12 +427,11 @@ watch(user, (newUser) => {
       </CardContent>
     </Card>
 
-    <!-- 已登录提示（非开发模式） -->
     <Card v-else class="w-full max-w-md bg-white rounded-lg shadow-md">
       <CardContent class="space-y-4 text-center">
         <Icon name="ph:check-circle" class="w-16 h-16 mx-auto text-green-500" />
-        <CardTitle>已登录</CardTitle>
-        <CardDescription>您已经登录，正在重定向...</CardDescription>
+        <CardTitle>Logged In</CardTitle>
+        <CardDescription>You are already logged in. Redirecting...</CardDescription>
       </CardContent>
     </Card>
   </div>

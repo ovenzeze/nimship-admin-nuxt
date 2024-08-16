@@ -4,7 +4,6 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
-    "@nuxtjs/supabase",
     "@nuxtjs/google-fonts",
     "nuxt-icons",
     "@nuxtjs/i18n",
@@ -27,21 +26,17 @@ export default defineNuxtConfig({
     }
   },
 
-  supabase: {
-    redirectOptions: {
-      login: '/login',
-      callback: '/confirm',
-      exclude: ['/terms', '/privacy'],
-      cookieRedirect: true
-    }
-  },
-
   build: {
     transpile: ['vee-validate'],
   },
 
   imports: { dirs: ['composables', '~/components/ui/**'] },
-  runtimeConfig: { public: {} },
+  runtimeConfig: {
+    public: {
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKey: process.env.SUPABASE_KEY,
+    }
+  },
   compatibilityDate: '2024-07-28',
   components: [{ path: '~/components', pathPrefix: false, extensions: ['vue'], priority: 99 }],
 })
