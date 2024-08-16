@@ -100,8 +100,8 @@ importers:
         specifier: ^0.5.14
         version: 0.5.14(tailwindcss@3.4.10)
       lucide-vue-next:
-        specifier: ^0.416.0
-        version: 0.416.0(vue@3.4.37(typescript@5.5.4))
+        specifier: ^0.427.0
+        version: 0.427.0(vue@3.4.37(typescript@5.5.4))
       nuxt:
         specifier: ^3.12.4
         version: 3.12.4(@parcel/watcher@2.4.1)(@types/node@22.3.0)(ioredis@5.4.1)(magicast@0.3.4)(rollup@4.20.0)(terser@5.31.6)(typescript@5.5.4)(vite@5.4.0(@types/node@22.3.0)(terser@5.31.6))
@@ -4098,6 +4098,11 @@ packages:
 
   lucide-vue-next@0.416.0:
     resolution: {integrity: sha512-oNjClUpOTRhLGN0UDvtjGAWBJzYj+rJPr3DxR5aXd2eD6tIuEuF7iaofkvT220VGXAVoXKCqmgk826OJ1M6T6A==}
+    peerDependencies:
+      vue: '>=3.0.1'
+
+  lucide-vue-next@0.427.0:
+    resolution: {integrity: sha512-zI1FhbfQ3Wl0SgPKnOWhTDC6yAC5TTjSC9FSZ61ULg3U36e+GVK+RT1qfkU9Q5BjeBuwmsHWKsXKptKMjUAwFA==}
     peerDependencies:
       vue: '>=3.0.1'
 
@@ -11141,6 +11146,10 @@ snapshots:
       es5-ext: 0.10.64
 
   lucide-vue-next@0.416.0(vue@3.4.37(typescript@5.5.4)):
+    dependencies:
+      vue: 3.4.37(typescript@5.5.4)
+
+  lucide-vue-next@0.427.0(vue@3.4.37(typescript@5.5.4)):
     dependencies:
       vue: 3.4.37(typescript@5.5.4)
 

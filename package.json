@@ -43,7 +43,7 @@
     "@nuxtjs/i18n": "^8.3.3",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@tailwindcss/typography": "^0.5.14",
-    "lucide-vue-next": "^0.416.0",
+    "lucide-vue-next": "^0.427.0",
     "nuxt": "^3.12.4",
     "nuxt-icons": "^3.2.1",
     "nuxt-lucide-icons": "^1.0.5"
