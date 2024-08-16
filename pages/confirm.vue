@@ -84,7 +84,7 @@ const verifyLoginStatus = () => {
     // Clear cookie
     useCookie(`${cookieName}-redirect-path`).value = null
     // Show success toast
-    toast({ title: 'Login Successful', description: 'Welcome back!', variant: 'success' })
+    toast({ title: 'Login Successful', description: 'Welcome back!' })
   } else {
     status.value = 'error'
   }

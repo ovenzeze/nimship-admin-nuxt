@@ -30,7 +30,7 @@
           <Typography variant="h4" class="text-center mb-2">
             Verification Successful
           </Typography>
-          <Alert variant="success" class="mb-4">
+          <Alert variant="default" class="mb-4">
             <AlertDescription>
               Redirecting to homepage in {{ redirectCountdown }}s
             </AlertDescription>
@@ -116,4 +116,3 @@ onUnmounted(() => {
   clearInterval(redirectTimer)
 })
 </script>
-
