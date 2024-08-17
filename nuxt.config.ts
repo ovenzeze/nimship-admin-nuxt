@@ -8,7 +8,8 @@ export default defineNuxtConfig({
     "nuxt-icons",
     "@nuxtjs/i18n",
     '@nuxt/content',
-    "@nuxt/icon"
+    "@nuxt/icon",
+    '@nuxtjs/supabase'
   ],
 
   shadcn: { prefix: '', componentDir: './components/ui' },
@@ -35,6 +36,14 @@ export default defineNuxtConfig({
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY,
+    }
+  },
+  supabase: {
+    redirectOptions: {
+      login: '/login',
+      callback: '/confirm',
+      exclude: ['/terms', '/privacy', '/invoice'],
+      cookieRedirect: true
     }
   },
   compatibilityDate: '2024-07-28',

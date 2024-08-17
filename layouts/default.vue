@@ -1,22 +1,5 @@
 <script setup lang="ts">
-import {
-  CircleUser,
-  Copy,
-  CreditCard,
-  File,
-  Home,
-  LineChart,
-  ListFilter,
-  MoreVertical,
-  Package,
-  Package2,
-  PanelLeft,
-  Search,
-  Settings,
-  ShoppingCart,
-  Truck,
-  Users2,
-} from 'lucide-vue-next'
+// 不需要任何导入，Nuxt 会自动处理
 </script>
 
 <template>
@@ -27,7 +10,7 @@ import {
           href="#"
           class="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
         >
-          <Package2 class="h-4 w-4 transition-all group-hover:scale-110" />
+          <Icon name="ph:package-duotone" class="h-4 w-4 transition-all group-hover:scale-110" />
           <span class="sr-only">Acme Inc</span>
         </a>
         <TooltipProvider>
@@ -37,7 +20,7 @@ import {
                 href="#"
                 class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <Home class="h-5 w-5" />
+                <Icon name="ph:house" class="h-5 w-5" />
                 <span class="sr-only">Dashboard</span>
               </a>
             </TooltipTrigger>
@@ -53,7 +36,7 @@ import {
                 href="#"
                 class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <ShoppingCart class="h-5 w-5" />
+                <Icon name="ph:shopping-cart" class="h-5 w-5" />
                 <span class="sr-only">Orders</span>
               </a>
             </TooltipTrigger>
@@ -70,7 +53,7 @@ import {
                 href="#"
                 class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <Package class="h-5 w-5" />
+                <Icon name="ph:package" class="h-5 w-5" />
                 <span class="sr-only">Products</span>
               </a>
             </TooltipTrigger>
@@ -87,7 +70,7 @@ import {
                 href="#"
                 class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <Users2 class="h-5 w-5" />
+                <Icon name="ph:users" class="h-5 w-5" />
                 <span class="sr-only">Customers</span>
               </a>
             </TooltipTrigger>
@@ -104,7 +87,7 @@ import {
                 href="#"
                 class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <LineChart class="h-5 w-5" />
+                <Icon name="ph:chart-line" class="h-5 w-5" />
                 <span class="sr-only">Analytics</span>
               </a>
             </TooltipTrigger>
@@ -122,7 +105,7 @@ import {
                 href="#"
                 class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <Settings class="h-5 w-5" />
+                <Icon name="ph:gear" class="h-5 w-5" />
                 <span class="sr-only">Settings</span>
               </a>
             </TooltipTrigger>
@@ -138,7 +121,7 @@ import {
         <Sheet>
           <SheetTrigger as-child>
             <Button size="icon" variant="outline" class="sm:hidden">
-              <PanelLeft class="h-5 w-5" />
+              <Icon name="ph:sidebar-simple" class="h-5 w-5" />
               <span class="sr-only">Toggle Menu</span>
             </Button>
           </SheetTrigger>
@@ -148,42 +131,42 @@ import {
                 href="#"
                 class="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
               >
-                <Package2 class="h-5 w-5 transition-all group-hover:scale-110" />
+                <Icon name="ph:package-duotone" class="h-5 w-5 transition-all group-hover:scale-110" />
                 <span class="sr-only">Acme Inc</span>
               </a>
               <a
                 href="#"
                 class="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
               >
-                <Home class="h-5 w-5" />
+                <Icon name="ph:house" class="h-5 w-5" />
                 Dashboard
               </a>
               <a
                 href="#"
                 class="flex items-center gap-4 px-2.5 text-foreground"
               >
-                <ShoppingCart class="h-5 w-5" />
+                <Icon name="ph:shopping-cart" class="h-5 w-5" />
                 Orders
               </a>
               <a
                 href="#"
                 class="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
               >
-                <Package class="h-5 w-5" />
+                <Icon name="ph:package" class="h-5 w-5" />
                 Products
               </a>
               <a
                 href="#"
                 class="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
               >
-                <Users2 class="h-5 w-5" />
+                <Icon name="ph:users" class="h-5 w-5" />
                 Customers
               </a>
               <a
                 href="#"
                 class="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
               >
-                <LineChart class="h-5 w-5" />
+                <Icon name="ph:chart-line" class="h-5 w-5" />
                 Settings
               </a>
             </nav>
@@ -209,7 +192,7 @@ import {
           </BreadcrumbList>
         </Breadcrumb>
         <div class="relative ml-auto flex-1 md:grow-0">
-          <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Icon name="ph:magnifying-glass" class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
             placeholder="Search..."
@@ -219,7 +202,7 @@ import {
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
             <Button variant="secondary" size="icon" class="rounded-full">
-              <CircleUser class="h-5 w-5" />
+              <Icon name="ph:user" class="h-5 w-5" />
               <span class="sr-only">Toggle user menu</span>
             </Button>
           </DropdownMenuTrigger>
