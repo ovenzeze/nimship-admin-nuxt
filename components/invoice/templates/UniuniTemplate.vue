@@ -1,8 +1,9 @@
 <template>
+  <ClientOnly>  
   <div class="space-y-6">
     <div class="space-y-2">
       <h3 class="text-lg font-medium">Uniuni Invoice Template</h3>
-      <p class="text-sm text-gray-500">Fill in the details to generate a Uniuni invoice.</p>
+      <p class="text-sm text-muted-foreground">Fill in the details to generate a Uniuni invoice.</p>
     </div>
 
     <Form @submit="onSubmit" :validation-schema="schema" v-slot="{ errors }">
@@ -11,11 +12,9 @@
           <FormItem>
             <FormLabel>Payment Cycle</FormLabel>
             <Select v-bind="field">
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Payment Cycle" />
-                </SelectTrigger>
-              </FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Payment Cycle" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem v-for="cycle in paymentCycles" :key="cycle" :value="cycle">
                   {{ cycle }}
@@ -30,13 +29,11 @@
           <FormItem>
             <FormLabel>Team</FormLabel>
             <Select v-bind="field">
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Team" />
-                </SelectTrigger>
-              </FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Team" />
+              </SelectTrigger>
               <SelectContent>
-                <SelectItem v-for="team in teams" :key="team.id" :value="team.value">
+                <SelectItem v-for="team in teams" :key="team.id" :value="team.value || team.id">
                   {{ team.label }}
                 </SelectItem>
               </SelectContent>
@@ -49,13 +46,11 @@
           <FormItem>
             <FormLabel>Customer</FormLabel>
             <Select v-bind="field">
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Customer" />
-                </SelectTrigger>
-              </FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Customer" />
+              </SelectTrigger>
               <SelectContent>
-                <SelectItem v-for="customer in customers" :key="customer.id" :value="customer.value">
+                <SelectItem v-for="customer in customers" :key="customer.id" :value="customer.value || customer.id">
                   {{ customer.label }}
                 </SelectItem>
               </SelectContent>
@@ -68,13 +63,11 @@
           <FormItem>
             <FormLabel>Warehouse</FormLabel>
             <Select v-bind="field">
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Warehouse" />
-                </SelectTrigger>
-              </FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Warehouse" />
+              </SelectTrigger>
               <SelectContent>
-                <SelectItem v-for="warehouse in warehouses" :key="warehouse.id" :value="warehouse.value">
+                <SelectItem v-for="warehouse in warehouses" :key="warehouse.id" :value="warehouse.value || warehouse.id">
                   {{ warehouse.label }}
                 </SelectItem>
               </SelectContent>
@@ -84,10 +77,21 @@
         </FormField>
 
         <Button type="submit" class="w-full" :disabled="isSubmitLoading">
+          <Icon v-if="isSubmitLoading" name="ph:spinner" class="w-4 h-4 mr-2 animate-spin" />
           {{ isSubmitLoading ? 'Checking...' : 'Generate Invoice' }}
         </Button>
       </div>
     </Form>
+
+    <Alert v-if="error" variant="destructive">
+      <AlertTitle>Error</AlertTitle>
+      <AlertDescription>{{ error }}</AlertDescription>
+    </Alert>
+
+    <Alert v-if="noInvoiceAvailable" variant="warning">
+      <AlertTitle>No Invoice Available</AlertTitle>
+      <AlertDescription>There is no available invoice for the selected criteria.</AlertDescription>
+    </Alert>
 
     <Card v-if="availableInvoice" class="mt-6">
       <CardHeader>
@@ -104,7 +108,6 @@
             <span class="font-medium">Total Amount:</span>
             <span>{{ availableInvoice.total }}</span>
           </div>
-          <!-- Add more invoice details as needed -->
         </div>
       </CardContent>
       <CardFooter>
@@ -112,10 +115,10 @@
       </CardFooter>
     </Card>
   </div>
+</ClientOnly>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -138,11 +141,18 @@ const teams = computed(() => getEnumsByType('TEAM_NAME'))
 const customers = computed(() => getEnumsByType('CUSTOM_ID'))
 const warehouses = computed(() => getEnumsByType('WAREHOUSE_CODE'))
 
+const noInvoiceAvailable = ref(false)
+
 onMounted(async () => {
-  if (!isLoaded.value && !isEnumLoading.value) {
-    await fetchEnums()
+  try {
+    await Promise.all([
+      !isLoaded.value && !isEnumLoading.value ? fetchEnums() : Promise.resolve(),
+      fetchPaymentCycles().then(cycles => paymentCycles.value = cycles)
+    ])
+  } catch (err) {
+    console.error('Error fetching initial data:', err)
+    error.value = 'Failed to load initial data. Please refresh the page.'
   }
-  paymentCycles.value = await fetchPaymentCycles()
 })
 
 const schema = toTypedSchema(z.object({
@@ -160,6 +170,8 @@ const isSubmitLoading = ref(false)
 
 const onSubmit = handleSubmit(async (values) => {
   isSubmitLoading.value = true
+  noInvoiceAvailable.value = false
+  error.value = null
   try {
     await checkAvailableInvoice(
       values.payment_cycle,
@@ -167,11 +179,10 @@ const onSubmit = handleSubmit(async (values) => {
       values.customer_id,
       values.warehouse
     )
-    if (!availableInvoice.value) {
-      console.log('No available invoice found')
-    }
-  } catch (error) {
-    console.error('Error checking available invoice:', error)
+    noInvoiceAvailable.value = !availableInvoice.value
+  } catch (err) {
+    console.error('Error checking available invoice:', err)
+    error.value = 'An error occurred while checking for available invoices. Please try again.'
   } finally {
     isSubmitLoading.value = false
   }

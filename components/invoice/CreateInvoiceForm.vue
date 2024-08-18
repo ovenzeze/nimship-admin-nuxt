@@ -11,8 +11,15 @@
             <FormItem :error="errors.invoice_number">
               <FormControl>
                 <div class="relative">
-                  <Icon name="ph:hash-bold" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Input v-bind="field" placeholder="Invoice number" class="pl-10" />
+                  <Icon
+                    name="ph:hash-bold"
+                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  />
+                  <Input
+                    v-bind="field"
+                    placeholder="Invoice number"
+                    class="pl-10"
+                  />
                 </div>
               </FormControl>
             </FormItem>
@@ -22,8 +29,16 @@
             <FormItem :error="errors.invoice_date">
               <FormControl>
                 <div class="relative">
-                  <Icon name="ph:calendar-bold" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Input v-bind="field" type="date" placeholder="Invoice date" class="pl-10" />
+                  <Icon
+                    name="ph:calendar-bold"
+                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  />
+                  <Input
+                    v-bind="field"
+                    type="date"
+                    placeholder="Invoice date"
+                    class="pl-10"
+                  />
                 </div>
               </FormControl>
             </FormItem>
@@ -33,8 +48,16 @@
             <FormItem :error="errors.due_date">
               <FormControl>
                 <div class="relative">
-                  <Icon name="ph:clock-countdown-bold" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Input v-bind="field" type="date" placeholder="Due date" class="pl-10" />
+                  <Icon
+                    name="ph:clock-countdown-bold"
+                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  />
+                  <Input
+                    v-bind="field"
+                    type="date"
+                    placeholder="Due date"
+                    class="pl-10"
+                  />
                 </div>
               </FormControl>
             </FormItem>
@@ -44,8 +67,17 @@
             <FormItem :error="errors.total">
               <FormControl>
                 <div class="relative">
-                  <Icon name="ph:currency-dollar-bold" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Input v-bind="field" type="number" step="0.01" placeholder="Total amount" class="pl-10" />
+                  <Icon
+                    name="ph:currency-dollar-bold"
+                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  />
+                  <Input
+                    v-bind="field"
+                    type="number"
+                    step="0.01"
+                    placeholder="Total amount"
+                    class="pl-10"
+                  />
                 </div>
               </FormControl>
             </FormItem>
@@ -54,13 +86,17 @@
           <FormField v-slot="{ field }" name="recipient_id">
             <FormItem :error="errors.recipient_id">
               <FormControl>
-                <Select v-bind="field">
+                <Select v-model="field.value">
                   <SelectTrigger class="w-full">
                     <Icon name="ph:user-bold" class="mr-2 h-4 w-4" />
                     <SelectValue placeholder="Select recipient" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem v-for="customer in customers" :key="customer.id" :value="customer.id">
+                  <SelectContent v-if="computedCustomers.length > 1">
+                    <SelectItem
+                      v-for="customer in computedCustomers"
+                      :key="customer.id"
+                      :value="customer.id"
+                    >
                       {{ customer.name }}
                     </SelectItem>
                   </SelectContent>
@@ -72,13 +108,17 @@
           <FormField v-slot="{ field }" name="sender_id">
             <FormItem :error="errors.sender_id">
               <FormControl>
-                <Select v-bind="field">
+                <Select v-model="field.value">
                   <SelectTrigger class="w-full">
                     <Icon name="ph:user-circle-bold" class="mr-2 h-4 w-4" />
                     <SelectValue placeholder="Select sender" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem v-for="customer in customers" :key="customer.id" :value="customer.id">
+                    <SelectItem
+                      v-for="customer in computedCustomers"
+                      :key="customer.id"
+                      :value="customer.id"
+                    >
                       {{ customer.name }}
                     </SelectItem>
                   </SelectContent>
@@ -110,8 +150,17 @@
             <FormItem :error="errors.amount_paid">
               <FormControl>
                 <div class="relative">
-                  <Icon name="ph:money-bold" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Input v-bind="field" type="number" step="0.01" placeholder="Amount paid" class="pl-10" />
+                  <Icon
+                    name="ph:money-bold"
+                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  />
+                  <Input
+                    v-bind="field"
+                    type="number"
+                    step="0.01"
+                    placeholder="Amount paid"
+                    class="pl-10"
+                  />
                 </div>
               </FormControl>
             </FormItem>
@@ -119,10 +168,16 @@
         </div>
 
         <DialogFooter class="flex justify-end mt-10">
-          <Button type="button" variant="outline" @click="$emit('cancel')">Cancel</Button>
+          <Button type="button" variant="outline" @click="$emit('cancel')"
+            >Cancel</Button
+          >
           <Button type="submit" :disabled="isSubmitting">
-            <Spinner v-if="isSubmitting" class="mr-2 h-4 w-4" />
-            {{ isSubmitting ? 'Creating...' : 'Create Invoice' }}
+            <Icon
+              name="ph:spinner"
+              v-if="isSubmitting"
+              class="mr-2 h-4 w-4 animate-spin"
+            />
+            {{ isSubmitting ? "Creating..." : "Create Invoice" }}
           </Button>
         </DialogFooter>
       </Form>
@@ -134,12 +189,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
 import type { Database } from '~/types/database'
 import UniuniTemplate from '~/components/invoice/templates/UniuniTemplate.vue'
+import type { UniuniTemplateData } from '~/types/invoice.js'
 
 type Invoice = Database['public']['Tables']['invoices']['Row']
 type Customer = Database['public']['Tables']['customers']['Row']
@@ -158,25 +213,27 @@ const schema = toTypedSchema(z.object({
   invoice_date: z.string().min(1, 'Invoice date is required'),
   due_date: z.string().min(1, 'Due date is required'),
   total: z.number().min(0, 'Total amount must be positive'),
-  recipient_id: z.number().nullable(),
-  sender_id: z.number().nullable(),
+  recipient_id: z.string().nullable(),
+  sender_id: z.string().nullable(),
   status: z.enum(['DRAFT', 'SEND', 'PAID', 'CANCEL']),
   amount_paid: z.number().min(0, 'Amount paid must be positive'),
 }))
 
-const { handleSubmit, errors } = useForm({
-  validationSchema: schema,
+const computedCustomers = computed(() => {
+  return props.customers.filter((customer: { id: null }) => customer.id != null)
 })
+
+const form = useForm({ validationSchema: schema })
 
 const isSubmitting = ref(false)
 
-const onSubmit = handleSubmit((values) => {
+const onSubmit = form.handleSubmit((values: Partial<{ adjustment: number|null; amount_paid: number; created_at: string|null; due_balance: number; due_date: string; id: number; invoice_date: string; invoice_number: string; recipient_id: number|null; sender_id: number|null; status: "DRAFT"|"SEND"|"PAID"|"CANCEL"; tax: number; total: number }>) => {
   isSubmitting.value = true
   emit('submit', values as Partial<Invoice>)
   isSubmitting.value = false
 })
 
-const useTemplate = (templateData: Partial<Invoice>) => {
-  emit('submit', templateData)
+const useTemplate = (templateData: UniuniTemplateData) => {
+  emit('submit', templateData as unknown as Partial<Invoice>)
 }
 </script>

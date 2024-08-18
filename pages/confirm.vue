@@ -56,9 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'nuxt/app'
 import { useToast } from '@/components/ui/toast/use-toast'
-import { LucideCheckCircle, LucideAlertTriangle, LucideHome, LucideLoader, LucideArrowLeft } from 'lucide-vue-next'
 
 definePageMeta({ layout: 'public' })
 

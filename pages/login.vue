@@ -1,18 +1,18 @@
+// Updated imports and removed supabase-js client creation
+// Replaced supabase client usage with Nuxt Supabase composables
+// Adjusted auth methods to use Nuxt Supabase module
+
 <script setup lang="ts">
-import { createClient } from '@supabase/supabase-js'
 import { ref, computed, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { useToast } from '~/components/ui/toast'
-import { useRouter, useRoute } from 'vue-router'
 
 definePageMeta({
   layout: 'public',
 })
 
-const config = useRuntimeConfig()
-const supabase = createClient(config.public.supabaseUrl, config.public.supabaseKey)
 const { toast } = useToast()
 const email = ref('')
 const password = ref('')
@@ -25,12 +25,8 @@ const agreedToTerms = ref(false)
 const route = useRoute()
 const router = useRouter()
 
-const user = ref(null)
-const fetchUser = async () => {
-  const { data: { user: currentUser } } = await supabase.auth.getUser()
-  user.value = currentUser
-}
-fetchUser()
+const user = useSupabaseUser()
+const client = useSupabaseClient()
 
 const userInfo = computed(() => {
   if (!user.value) return 'Not logged in'
@@ -94,7 +90,7 @@ async function signInWithPassword() {
     return
   }
   isLoading.value = true
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { error } = await client.auth.signInWithPassword({
     email: email.value,
     password: password.value,
   })
@@ -105,14 +101,12 @@ async function signInWithMagicLink() {
   isLoading.value = true;
 
   try {
-    // Add logs
     console.log('Attempting to send magic link to:', email.value);
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await client.auth.signInWithOtp({
       email: email.value,
       options: { emailRedirectTo: `${window.location.origin}/confirm` },
     });
 
-    // Add more logs
     if (error) {
       console.error('Error sending magic link:', error);
     } else {
@@ -130,7 +124,7 @@ async function signInWithMagicLink() {
 
 async function signInWithGoogle() {
   isLoading.value = true
-  const { error } = await supabase.auth.signInWithOAuth({
+  const { error } = await client.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: `${window.location.origin}/auth/callback`
@@ -141,7 +135,7 @@ async function signInWithGoogle() {
 
 async function signInWithGithub() {
   isLoading.value = true
-  const { error } = await supabase.auth.signInWithOAuth({
+  const { error } = await client.auth.signInWithOAuth({
     provider: 'github',
     options: {
       redirectTo: `${window.location.origin}/auth/callback`
@@ -157,12 +151,10 @@ function handleSignInResult(error: any, isMagicLink = false) {
   
   isLoading.value = false
   if (error) {
-    // Add more detailed error logs
     console.error('Sign in error details:', error);
     toast({ title: 'Error', description: error.message || 'An error occurred during sign in. Please try again.', variant: 'destructive' })
     currentState.value = 'error'
   } else if (isMagicLink) {
-    // Add success logs
     console.log('Magic link process completed successfully');
     toast({ title: 'Email Sent', description: 'Please check your inbox and click the login link to complete sign in.' })
     isSent.value = true
@@ -188,19 +180,16 @@ const signIn = async () => {
     return
   }
 
-  // Validate email
   if (!values.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
     toast({ title: 'Error', description: 'Please enter a valid email address', variant: 'destructive' })
     return
   }
 
-  // Validate terms agreement
   if (!values.agreedToTerms) {
     toast({ title: 'Error', description: 'Please agree to the Terms of Service and Privacy Policy', variant: 'destructive' })
     return
   }
 
-  // If password login, validate password
   if (loginMethod.value === 'password' && !values.password) {
     toast({ title: 'Error', description: 'Please enter your password', variant: 'destructive' })
     return
@@ -297,10 +286,8 @@ watch(user, (newUser) => {
   }
 }, { immediate: true })
 
-supabase.auth.onAuthStateChange((event, session) => {
-  user.value = session?.user || null
-})
 </script>
+
 
 <template>
   <ClientOnly> 

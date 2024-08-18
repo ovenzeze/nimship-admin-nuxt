@@ -28,7 +28,7 @@
           @delete="handleDeleteInvoice" 
         />
         <div v-else class="flex justify-center items-center h-64">
-          <Spinner class="w-8 h-8" />
+          <Icon name="ph:spinner" class="w-8 h-8 animate-spin" />
         </div>
       </CardContent>
     </Card>
@@ -72,7 +72,7 @@ const { toast } = useToast()
 
 const invoices = ref<InvoiceWithCustomer[]>([])
 const customers = ref<Customer[]>([])
-const showCreateModal = ref(false)
+const showCreateModal = ref(true)
 const searchQuery = ref('')
 const statusFilter = ref('')
 const isLoading = ref(true)
