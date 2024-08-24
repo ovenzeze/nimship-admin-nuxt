@@ -1,23 +1,23 @@
 <template>
   <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">Invoice Management</h1>
+    <h1 class="text-2xl font-bold mb-4 hidden md:block">Invoice Management</h1>
     <div class="mb-4 flex justify-between items-center">
-      <div class="flex space-x-2">
-        <Input v-model="searchQuery" placeholder="Search invoices..." class="w-64" />
-        <Select v-model="statusFilter">
-          <SelectTrigger class="w-[180px]">
-            <SelectValue placeholder="Select status" />
+      <div class="w-full grid grid-cols-2 md:grid-cols-6 gap-6">
+        <Select v-model="statusFilter" class="md:col-span-2">
+          <SelectTrigger class="flex items-center min-w-[140px]">
+            <SelectValue placeholder="Status" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">All Statuses</SelectItem>
+          <SelectContent class="uppercase">
+            <SelectItem value="ALL">All Statuses</SelectItem>
             <SelectItem value="DRAFT">Draft</SelectItem>
             <SelectItem value="SEND">Sent</SelectItem>
             <SelectItem value="PAID">Paid</SelectItem>
             <SelectItem value="CANCEL">Cancelled</SelectItem>
           </SelectContent>
         </Select>
+        <Input v-model="searchQuery" placeholder="Search invoices..." class="col-span-1 md:col-span-2" />
+        <Button @click="showCreateModal = true" class="col-span-1 md:col-end-7"> <Icon name="ph:yarn-duotone" class="w-5 h-5 mr-2" /> New Invoice</Button>
       </div>
-      <Button @click="showCreateModal = true">Create New Invoice</Button>
     </div>
     <Card class="overflow-hidden">
       <CardContent class="p-0">
@@ -34,12 +34,12 @@
     </Card>
 
     <Dialog v-model:open="showCreateModal">
-      <DialogContent class="sm:max-w-[500px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Create New Invoice</DialogTitle>
-          <DialogDescription>Fill in the details or use a template to create a new invoice.</DialogDescription>
+          <DialogDescription class="text-gray-500 mb-4">Fill in the details or use a template to create a new invoice.</DialogDescription>
         </DialogHeader>
-        <CreateInvoiceForm 
+        <CreateInvoice 
           v-if="showCreateModal"
           :customers="customers" 
           @submit="handleCreateInvoice" 
@@ -51,12 +51,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { useToast } from '~/components/ui/toast'
 import { useInvoice } from '~/composables/useInvoice'
 import { useCustomer } from '~/composables/useCustomer'
 import type { Database } from '~/types/database'
-import CreateInvoiceForm from '~/components/invoice/CreateInvoiceForm.vue'
 
 type Invoice = Database['public']['Tables']['invoices']['Row']
 type Customer = Database['public']['Tables']['customers']['Row']
@@ -72,7 +70,7 @@ const { toast } = useToast()
 
 const invoices = ref<InvoiceWithCustomer[]>([])
 const customers = ref<Customer[]>([])
-const showCreateModal = ref(true)
+const showCreateModal = ref(false)
 const searchQuery = ref('')
 const statusFilter = ref('')
 const isLoading = ref(true)

@@ -78,7 +78,7 @@ export function useInvoice() {
         .eq('warehouse', warehouse)
         .gte('payment_cycle_start', cycleStart)
         .lte('payment_cycle_end', cycleEnd)
-        .single()
+        .maybeSingle()
 
       if (queryError) throw queryError
 

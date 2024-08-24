@@ -1,25 +1,19 @@
 <template>
-  <Tabs default-value="custom" class="w-full">
+  <ClientOnly>  
+  <Tabs default-value="uniuni" class="w-full">
     <TabsList class="grid w-full grid-cols-2">
       <TabsTrigger value="custom">Custom Invoice</TabsTrigger>
       <TabsTrigger value="uniuni">Uniuni Template</TabsTrigger>
     </TabsList>
     <TabsContent value="custom">
       <Form @submit="onSubmit" :validation-schema="schema" v-slot="{ errors }">
-        <div class="space-y-4">
+        <div class="space-y-8">
           <FormField v-slot="{ field }" name="invoice_number">
             <FormItem :error="errors.invoice_number">
               <FormControl>
                 <div class="relative">
-                  <Icon
-                    name="ph:hash-bold"
-                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  />
-                  <Input
-                    v-bind="field"
-                    placeholder="Invoice number"
-                    class="pl-10"
-                  />
+                  <Icon name="ph:hash-bold" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Input v-bind="field" placeholder="Invoice number" class="pl-10" />
                 </div>
               </FormControl>
             </FormItem>
@@ -91,11 +85,11 @@
                     <Icon name="ph:user-bold" class="mr-2 h-4 w-4" />
                     <SelectValue placeholder="Select recipient" />
                   </SelectTrigger>
-                  <SelectContent v-if="computedCustomers.length > 1">
+                  <SelectContent v-if="computedCustomers.length > 0">
                     <SelectItem
                       v-for="customer in computedCustomers"
                       :key="customer.id"
-                      :value="customer.id"
+                      :value="String(customer.id)"
                     >
                       {{ customer.name }}
                     </SelectItem>
@@ -113,11 +107,12 @@
                     <Icon name="ph:user-circle-bold" class="mr-2 h-4 w-4" />
                     <SelectValue placeholder="Select sender" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent v-if="computedCustomers.length > 0">
+                    <!-- Ensure only non-empty values are shown -->
                     <SelectItem
                       v-for="customer in computedCustomers"
                       :key="customer.id"
-                      :value="customer.id"
+                      :value="String(customer.id)"
                     >
                       {{ customer.name }}
                     </SelectItem>
@@ -127,6 +122,7 @@
             </FormItem>
           </FormField>
 
+          <!-- Status Field -->
           <FormField v-slot="{ field }" name="status">
             <FormItem :error="errors.status">
               <FormControl>
@@ -146,14 +142,12 @@
             </FormItem>
           </FormField>
 
+          <!-- Amount Paid Field -->
           <FormField v-slot="{ field }" name="amount_paid">
             <FormItem :error="errors.amount_paid">
               <FormControl>
                 <div class="relative">
-                  <Icon
-                    name="ph:money-bold"
-                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  />
+                  <Icon name="ph:money-bold" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <Input
                     v-bind="field"
                     type="number"
@@ -165,48 +159,43 @@
               </FormControl>
             </FormItem>
           </FormField>
-        </div>
 
-        <DialogFooter class="flex justify-end mt-10">
-          <Button type="button" variant="outline" @click="$emit('cancel')"
-            >Cancel</Button
-          >
-          <Button type="submit" :disabled="isSubmitting">
-            <Icon
-              name="ph:spinner"
-              v-if="isSubmitting"
-              class="mr-2 h-4 w-4 animate-spin"
-            />
-            {{ isSubmitting ? "Creating..." : "Create Invoice" }}
-          </Button>
-        </DialogFooter>
+          <!-- Submit and Cancel Buttons -->
+          <DialogFooter class="flex justify-end mt-10">
+            <Button type="button" variant="outline" @click="$emit('cancel')">Cancel</Button>
+            <Button type="submit" :disabled="isSubmitting">
+              <Icon
+                name="ph:spinner"
+                v-if="isSubmitting"
+                class="mr-2 h-4 w-4 animate-spin"
+              />
+              {{ isSubmitting ? 'Creating...' : 'Create Invoice' }}
+            </Button>
+          </DialogFooter>
+        </div>
       </Form>
     </TabsContent>
+
+    <!-- Uniuni Template Content -->
     <TabsContent value="uniuni">
       <UniuniTemplate @use-template="useTemplate" />
     </TabsContent>
   </Tabs>
+</ClientOnly>
 </template>
 
-<script setup lang="ts">
+<script setup lang='ts'>
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
 import type { Database } from '~/types/database'
-import UniuniTemplate from '~/components/invoice/templates/UniuniTemplate.vue'
 import type { UniuniTemplateData } from '~/types/invoice.js'
 
 type Invoice = Database['public']['Tables']['invoices']['Row']
 type Customer = Database['public']['Tables']['customers']['Row']
 
-const props = defineProps<{
-  customers: Customer[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'submit', invoice: Partial<Invoice>): void
-  (e: 'cancel'): void
-}>()
+const props = defineProps<{ customers: Customer[] }>()
+const emit = defineEmits<{ (e: 'submit', invoice: Partial<Invoice>): void; (e: 'cancel'): void; }>()
 
 const schema = toTypedSchema(z.object({
   invoice_number: z.string().min(1, 'Invoice number is required'),
@@ -220,16 +209,16 @@ const schema = toTypedSchema(z.object({
 }))
 
 const computedCustomers = computed(() => {
-  return props.customers.filter((customer: { id: null }) => customer.id != null)
+  return props.customers.filter((customer) => customer.id != null && String(customer.id) !== '');
 })
 
 const form = useForm({ validationSchema: schema })
-
 const isSubmitting = ref(false)
 
-const onSubmit = form.handleSubmit((values: Partial<{ adjustment: number|null; amount_paid: number; created_at: string|null; due_balance: number; due_date: string; id: number; invoice_date: string; invoice_number: string; recipient_id: number|null; sender_id: number|null; status: "DRAFT"|"SEND"|"PAID"|"CANCEL"; tax: number; total: number }>) => {
+const onSubmit = form.handleSubmit((values: Partial<{ adjustment: number | null; amount_paid: number; created_at: string | null; due_balance: number; due_date: string; id: number; invoice_date: string; invoice_number: string; recipient_id: string | null; sender_id: string | null; status: 'DRAFT' | 'SEND' | 'PAID' | 'CANCEL'; tax: number; total: number; }>) => {
   isSubmitting.value = true
-  emit('submit', values as Partial<Invoice>)
+  values.recipient_id = String(values.recipient_id);
+  emit('submit', values as unknown as Partial<Invoice>)
   isSubmitting.value = false
 })
 

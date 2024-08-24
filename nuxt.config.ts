@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   pages: true,
   typescript: {
     strict: false,
@@ -20,16 +20,14 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
     "@nuxtjs/google-fonts",
-    "nuxt-icons",
     "@nuxtjs/i18n",
     "@nuxt/content",
     "@nuxt/icon",
     "@nuxtjs/supabase",
-    "@formkit/auto-animate",
-    "dayjs-nuxt",
+    "@formkit/auto-animate"
   ],
 
-  shadcn: { prefix: "", componentDir: "./components/ui" },
+  // shadcn: { prefix: "", componentDir: "~/components/ui"},
 
   googleFonts: {
     display: "swap",
@@ -44,10 +42,6 @@ export default defineNuxtConfig({
     },
   },
 
-  build: {
-    transpile: ["vee-validate"],
-  },
-
   imports: { dirs: ["composables", "~/components/ui/**"] },
 
   runtimeConfig: {
@@ -60,17 +54,23 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: "/login",
       callback: "/confirm",
-      exclude: ["/terms", "/privacy", "/invoice"],
+      exclude: ["/terms", "/privacy", "/invoice", "/"],
       cookieRedirect: true,
     },
   },
   compatibilityDate: "2024-07-28",
   components: [
     {
-      path: "~/components",
+      path: "./components",
       pathPrefix: false,
       extensions: ["vue"],
       priority: 99,
+    },
+    {
+      path: "./components/ui",
+      pathPrefix: false,
+      extensions: ["vue"],
+      priority: 100,
     },
   ],
 });
