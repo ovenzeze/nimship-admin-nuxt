@@ -1,11 +1,5 @@
 <template>
-  <ClientOnly>  
-  <Tabs default-value="uniuni" class="w-full">
-    <TabsList class="grid w-full grid-cols-2">
-      <TabsTrigger value="custom">Custom Invoice</TabsTrigger>
-      <TabsTrigger value="uniuni">Uniuni Template</TabsTrigger>
-    </TabsList>
-    <TabsContent value="custom">
+
       <Form @submit="onSubmit" :validation-schema="schema" v-slot="{ errors }">
         <div class="space-y-8">
           <FormField v-slot="{ field }" name="invoice_number">
@@ -159,29 +153,8 @@
               </FormControl>
             </FormItem>
           </FormField>
-
-          <!-- Submit and Cancel Buttons -->
-          <DialogFooter class="flex justify-end mt-10">
-            <Button type="button" variant="outline" @click="$emit('cancel')">Cancel</Button>
-            <Button type="submit" :disabled="isSubmitting">
-              <Icon
-                name="ph:spinner"
-                v-if="isSubmitting"
-                class="mr-2 h-4 w-4 animate-spin"
-              />
-              {{ isSubmitting ? 'Creating...' : 'Create Invoice' }}
-            </Button>
-          </DialogFooter>
         </div>
       </Form>
-    </TabsContent>
-
-    <!-- Uniuni Template Content -->
-    <TabsContent value="uniuni">
-      <UniuniTemplate @use-template="useTemplate" />
-    </TabsContent>
-  </Tabs>
-</ClientOnly>
 </template>
 
 <script setup lang='ts'>

@@ -24,6 +24,26 @@ import { Toaster } from '@/components/ui/toast'
     Noto Color Emoji;
 }
 
+
+
+.noscrollbar::-webkit-scrollbar {
+  width: 0.125rem;
+  height: 0.125rem;
+}
+*::-webkit-scrollbar {
+  width: 0.125rem;
+  height: 0.125rem;
+}
+.noscrollbar::-webkit-scrollbar-track {
+  border-radius: 9999px;
+  background-color: #f3f4f6;
+}
+
+.noscrollbar::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background-color: #f3f4f6;
+}
+
 body {
   padding-bottom: env(safe-area-inset-bottom);
 }

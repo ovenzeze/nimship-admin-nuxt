@@ -11,7 +11,6 @@
 
 <script setup lang="ts">
 import { useAsyncData } from '#app'
-import type { ParsedContent } from '@nuxt/content/dist/runtime/types'
 
 const { data } = await useAsyncData('privacy-policy', () => queryContent('/privacy').findOne())
 

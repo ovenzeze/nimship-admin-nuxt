@@ -161,5 +161,5 @@ function toast(props: Toast) {
     update,
   }
 }
-
+export const TOAST_POSITION = "top-center" as const // 修改这里的位置
 export { toast, useToast }

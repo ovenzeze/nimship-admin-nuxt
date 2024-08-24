@@ -1,7 +1,10 @@
 import { ref } from 'vue'
 import { useSupabaseClient } from '#imports'
 import type { Database } from '~/types/database'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 
+dayjs.extend(utc)
 type Invoice = Database['public']['Tables']['invoices']['Row']
 type Customer = Database['public']['Tables']['customers']['Row']
 type InvoiceView = Database['public']['Views']['invoice_view']['Row']
@@ -94,25 +97,26 @@ export function useInvoice() {
 
     return availableInvoice.value
   }
-
+  
+  
   const fetchPaymentCycles = async () => {
     isLoading.value = true
     error.value = null
-
+  
     try {
       const { data, error: queryError } = await supabase
         .from('invoice_view')
         .select('payment_cycle_start')
         .order('payment_cycle_start', { ascending: false })
-
+  
       if (queryError) throw queryError
-
+  
       if (data) {
         const uniqueCycles = new Set<string>()
         return data.reduce((acc: string[], item) => {
-          const startDate = new Date(item.payment_cycle_start!)
-          const endDate = new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000) // 6 days later
-          const cycle = formatDateRange(startDate, endDate)
+          const startDate = dayjs.utc(item.payment_cycle_start).format('MM/DD/YY')
+          const endDate = dayjs.utc(item.payment_cycle_start).add(7, 'day').format('MM/DD/YY')
+          const cycle = `${startDate} - ${endDate}`
           if (!uniqueCycles.has(cycle)) {
             uniqueCycles.add(cycle)
             acc.push(cycle)
@@ -126,9 +130,10 @@ export function useInvoice() {
     } finally {
       isLoading.value = false
     }
-
+  
     return []
   }
+  
 
   const formatDateRange = (start: Date, end: Date) => {
     const formatDate = (date: Date) => {

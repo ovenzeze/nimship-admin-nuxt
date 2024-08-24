@@ -17,6 +17,7 @@ const emits = defineEmits<DialogContentEmits>()
 
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props
+
   return delegated
 })
 
@@ -26,22 +27,15 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
 <template>
   <DialogPortal>
     <DialogOverlay
-      class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+      class="fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
     />
     <DialogContent
       v-bind="forwarded"
-      :class="[
+      :class="
         cn(
-          'fixed left-0 bottom-0 md:bottom-10 z-50 w-full border bg-background p-6 shadow-lg',
-          'data-[state=open]:animate-in data-[state=closed]:animate-out',
-          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-          'data-[state=closed]:slide-out-to-bottom-[100%] data-[state=open]:slide-in-from-bottom-[100%]',
-          'duration-300',
-          'min-h-[50vh] max-h-[95vh] overflow-y-auto',
-          'rounded-t-xl md:rounded-xl sm:max-w-lg sm:left-1/2 sm:-translate-x-1/2',
-          props.class
-        )
-      ]"
+          'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg',
+          props.class,
+        )"
     >
       <slot />
 

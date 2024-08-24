@@ -1,502 +1,334 @@
 <template>
   <main class="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-<div class="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
-  <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-    <Card class="sm:col-span-2">
-      <CardHeader class="pb-3">
-        <CardTitle>Your Orders</CardTitle>
-        <CardDescription class="max-w-lg text-balance leading-relaxed">
-          Introducing Our Dynamic Orders Dashboard for Seamless
-          Management and Insightful Analysis.
-        </CardDescription>
-      </CardHeader>
-      <CardFooter>
-        <Button>Create New Order</Button>
-      </CardFooter>
-    </Card>
-    <Card>
-      <CardHeader class="pb-2">
-        <CardDescription>This Week</CardDescription>
-        <CardTitle class="text-4xl">
-          $1329
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div class="text-xs text-muted-foreground">
-          +25% from last week
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Progress :model-value="25" aria-label="25% increase" />
-      </CardFooter>
-    </Card>
-    <Card>
-      <CardHeader class="pb-2">
-        <CardDescription>This Month</CardDescription>
-        <CardTitle class="text-3xl">
-          $5,329
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div class="text-xs text-muted-foreground">
-          +10% from last month
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Progress :model-value="12" aria-label="12% increase" />
-      </CardFooter>
-    </Card>
-  </div>
-  <Tabs default-value="week">
-    <div class="flex items-center">
-      <TabsList>
-        <TabsTrigger value="week">
-          Week
-        </TabsTrigger>
-        <TabsTrigger value="month">
-          Month
-        </TabsTrigger>
-        <TabsTrigger value="year">
-          Year
-        </TabsTrigger>
-      </TabsList>
-      <div class="ml-auto flex items-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger as-child>
-            <Button variant="outline" size="sm" class="h-7 gap-1 rounded-md px-3">
-              <ListFilter class="h-3.5 w-3.5" />
-              <span class="sr-only sm:not-sr-only">Filter</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <div class="items-top flex space-x-2">
-                <Checkbox id="terms1" />
-                <label
-                  for="terms2"
-                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Fulfilled
-                </label>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div class="items-top flex space-x-2">
-                <Checkbox id="terms1" />
-                <label
-                  for="terms2"
-                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Declined
-                </label>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div class="items-top flex space-x-2">
-                <Checkbox id="terms1" />
-                <label
-                  for="terms2"
-                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Refunded
-                </label>
-              </div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button variant="outline" size="sm" class="h-7 gap-1 rounded-md px-3">
-          <File class="h-3.5 w-3.5" />
-          <span class="sr-only sm:not-sr-only">Export</span>
-        </Button>
+    <div class="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
+      <!-- Summary Cards -->
+      <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+        <Card v-for="card in dashboardData.summaryCards" :key="card.title">
+          <CardHeader class="pb-2">
+            <CardDescription>{{ card.title }}</CardDescription>
+            <CardTitle class="text-4xl">{{ card.value }}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="text-xs text-muted-foreground">{{ card.change }}</div>
+          </CardContent>
+          <CardFooter>
+            <Progress :model-value="card.progressValue" :aria-label="`${card.progressValue}% increase`" />
+          </CardFooter>
+        </Card>
       </div>
-    </div>
-    <TabsContent value="week">
+
+      <!-- Orders Overview -->
       <Card>
-        <CardHeader class="px-7">
-          <CardTitle>Orders</CardTitle>
-          <CardDescription>
-            Recent orders from your store.
-          </CardDescription>
+        <CardHeader class="pb-3">
+          <CardTitle>{{ dashboardData.ordersOverview.title }}</CardTitle>
+          <CardDescription>{{ dashboardData.ordersOverview.description }}</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead class="hidden sm:table-cell">
-                  Type
-                </TableHead>
-                <TableHead class="hidden sm:table-cell">
-                  Status
-                </TableHead>
-                <TableHead class="hidden md:table-cell">
-                  Date
-                </TableHead>
-                <TableHead class="text-right">
-                  Amount
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow class="bg-accent">
-                <TableCell>
-                  <div class="font-medium">
-                    Liam Johnson
-                  </div>
-                  <div class="hidden text-sm text-muted-foreground md:inline">
-                    liam@example.com
-                  </div>
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  Sale
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  <Badge class="text-xs" variant="secondary">
-                    Fulfilled
-                  </Badge>
-                </TableCell>
-                <TableCell class="hidden md:table-cell">
-                  2023-06-23
-                </TableCell>
-                <TableCell class="text-right">
-                  $250.00
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <div class="font-medium">
-                    Olivia Smith
-                  </div>
-                  <div class="hidden text-sm text-muted-foreground md:inline">
-                    olivia@example.com
-                  </div>
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  Refund
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  <Badge class="text-xs" variant="outline">
-                    Declined
-                  </Badge>
-                </TableCell>
-                <TableCell class="hidden md:table-cell">
-                  2023-06-24
-                </TableCell>
-                <TableCell class="text-right">
-                  $150.00
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <div class="font-medium">
-                    Noah Williams
-                  </div>
-                  <div class="hidden text-sm text-muted-foreground md:inline">
-                    noah@example.com
-                  </div>
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  Subscription
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  <Badge class="text-xs" variant="secondary">
-                    Fulfilled
-                  </Badge>
-                </TableCell>
-                <TableCell class="hidden md:table-cell">
-                  2023-06-25
-                </TableCell>
-                <TableCell class="text-right">
-                  $350.00
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <div class="font-medium">
-                    Emma Brown
-                  </div>
-                  <div class="hidden text-sm text-muted-foreground md:inline">
-                    emma@example.com
-                  </div>
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  Sale
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  <Badge class="text-xs" variant="secondary">
-                    Fulfilled
-                  </Badge>
-                </TableCell>
-                <TableCell class="hidden md:table-cell">
-                  2023-06-26
-                </TableCell>
-                <TableCell class="text-right">
-                  $450.00
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <div class="font-medium">
-                    Liam Johnson
-                  </div>
-                  <div class="hidden text-sm text-muted-foreground md:inline">
-                    liam@example.com
-                  </div>
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  Sale
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  <Badge class="text-xs" variant="secondary">
-                    Fulfilled
-                  </Badge>
-                </TableCell>
-                <TableCell class="hidden md:table-cell">
-                  2023-06-23
-                </TableCell>
-                <TableCell class="text-right">
-                  $250.00
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <div class="font-medium">
-                    Liam Johnson
-                  </div>
-                  <div class="hidden text-sm text-muted-foreground md:inline">
-                    liam@example.com
-                  </div>
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  Sale
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  <Badge class="text-xs" variant="secondary">
-                    Fulfilled
-                  </Badge>
-                </TableCell>
-                <TableCell class="hidden md:table-cell">
-                  2023-06-23
-                </TableCell>
-                <TableCell class="text-right">
-                  $250.00
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <div class="font-medium">
-                    Olivia Smith
-                  </div>
-                  <div class="hidden text-sm text-muted-foreground md:inline">
-                    olivia@example.com
-                  </div>
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  Refund
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  <Badge class="text-xs" variant="outline">
-                    Declined
-                  </Badge>
-                </TableCell>
-                <TableCell class="hidden md:table-cell">
-                  2023-06-24
-                </TableCell>
-                <TableCell class="text-right">
-                  $150.00
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <div class="font-medium">
-                    Emma Brown
-                  </div>
-                  <div class="hidden text-sm text-muted-foreground md:inline">
-                    emma@example.com
-                  </div>
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  Sale
-                </TableCell>
-                <TableCell class="hidden sm:table-cell">
-                  <Badge class="text-xs" variant="secondary">
-                    Fulfilled
-                  </Badge>
-                </TableCell>
-                <TableCell class="hidden md:table-cell">
-                  2023-06-26
-                </TableCell>
-                <TableCell class="text-right">
-                  $450.00
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </CardContent>
+        <CardFooter>
+          <Button>{{ dashboardData.ordersOverview.buttonText }}</Button>
+        </CardFooter>
       </Card>
-    </TabsContent>
-  </Tabs>
-</div>
-<div>
-  <Card class="overflow-hidden">
-    <CardHeader class="flex flex-row items-start bg-muted/50">
-      <div class="grid gap-0.5">
-        <CardTitle class="group flex items-center gap-2 text-lg">
-          Order ID: Oe31b70H
-          <Button
-            size="icon"
-            variant="outline"
-            class="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-          >
-            <Copy class="h-3 w-3" />
-            <span class="sr-only">Copy Order ID</span>
-          </Button>
-        </CardTitle>
-        <CardDescription>Date: November 23, 2023</CardDescription>
-      </div>
-      <div class="ml-auto flex items-center gap-1">
-        <Button size="sm" variant="outline" class="h-8 gap-1">
-          <Truck class="h-3.5 w-3.5" />
-          <span class="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
-            Track Order
-          </span>
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger as-child>
-            <Button size="icon" variant="outline" class="h-8 w-8">
-              <MoreVertical class="h-3.5 w-3.5" />
-              <span class="sr-only">More</span>
+
+      <!-- Orders Table -->
+      <Tabs :default-value="dashboardData.ordersTabs.defaultTab">
+        <div class="flex items-center">
+          <TabsList>
+            <TabsTrigger v-for="tab in dashboardData.ordersTabs.tabs" :key="tab" :value="tab">
+              {{ tab }}
+            </TabsTrigger>
+          </TabsList>
+          <div class="ml-auto flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <Button variant="outline" size="sm" class="h-7 gap-1 rounded-md px-3">
+                  <Icon name="ph:list-filter" class="h-3.5 w-3.5" />
+                  <span class="sr-only sm:not-sr-only">Filter</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem v-for="filter in dashboardData.ordersTabs.filters" :key="filter">
+                  <div class="items-top flex space-x-2">
+                    <Checkbox :id="filter" />
+                    <label :for="filter" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      {{ filter }}
+                    </label>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" size="sm" class="h-7 gap-1 rounded-md px-3">
+              <Icon name="ph:file" class="h-3.5 w-3.5" />
+              <span class="sr-only sm:not-sr-only">Export</span>
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Export</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Trash</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </CardHeader>
-    <CardContent class="p-6 text-sm">
-      <div class="grid gap-3">
-        <div class="font-semibold">
-          Order Details
-        </div>
-        <ul class="grid gap-3">
-          <li class="flex items-center justify-between">
-            <span class="text-muted-foreground">
-              Glimmer Lamps x <span>2</span>
-            </span>
-            <span>$250.00</span>
-          </li>
-          <li class="flex items-center justify-between">
-            <span class="text-muted-foreground">
-              Aqua Filters x <span>1</span>
-            </span>
-            <span>$49.00</span>
-          </li>
-        </ul>
-        <Separator class="my-2" />
-        <ul class="grid gap-3">
-          <li class="flex items-center justify-between">
-            <span class="text-muted-foreground">Subtotal</span>
-            <span>$299.00</span>
-          </li>
-          <li class="flex items-center justify-between">
-            <span class="text-muted-foreground">Shipping</span>
-            <span>$5.00</span>
-          </li>
-          <li class="flex items-center justify-between">
-            <span class="text-muted-foreground">Tax</span>
-            <span>$25.00</span>
-          </li>
-          <li class="flex items-center justify-between font-semibold">
-            <span class="text-muted-foreground">Total</span>
-            <span>$329.00</span>
-          </li>
-        </ul>
-      </div>
-      <Separator class="my-4" />
-      <div class="grid grid-cols-2 gap-4">
-        <div class="grid gap-3">
-          <div class="font-semibold">
-            Shipping Information
-          </div>
-          <address class="grid gap-0.5 not-italic text-muted-foreground">
-            <span>Liam Johnson</span>
-            <span>1234 Main St.</span>
-            <span>Anytown, CA 12345</span>
-          </address>
-        </div>
-        <div class="grid auto-rows-max gap-3">
-          <div class="font-semibold">
-            Billing Information
-          </div>
-          <div class="text-muted-foreground">
-            Same as shipping address
           </div>
         </div>
-      </div>
-      <Separator class="my-4" />
-      <div class="grid gap-3">
-        <div class="font-semibold">
-          Customer Information
-        </div>
-        <dl class="grid gap-3">
-          <div class="flex items-center justify-between">
-            <dt class="text-muted-foreground">
-              Customer
-            </dt>
-            <dd>Liam Johnson</dd>
+        <TabsContent v-for="tab in dashboardData.ordersTabs.tabs" :key="tab" :value="tab">
+          <Card>
+            <CardHeader class="px-7">
+              <CardTitle>Orders</CardTitle>
+              <CardDescription>Recent orders from your store.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead v-for="header in dashboardData.ordersTable.headers" :key="header" :class="{ 'hidden sm:table-cell': header !== 'Customer', 'hidden md:table-cell': header === 'Date' }">
+                      {{ header }}
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow v-for="(order, index) in dashboardData.ordersTable.orders" :key="index">
+                    <TableCell>
+                      <div class="font-medium">{{ order.customer }}</div>
+                      <div class="hidden text-sm text-muted-foreground md:inline">{{ order.email }}</div>
+                    </TableCell>
+                    <TableCell class="hidden sm:table-cell">{{ order.type }}</TableCell>
+                    <TableCell class="hidden sm:table-cell">
+                      <Badge class="text-xs" :variant="order.status === 'Fulfilled' ? 'secondary' : 'outline'">
+                        {{ order.status }}
+                      </Badge>
+                    </TableCell>
+                    <TableCell class="hidden md:table-cell">{{ order.date }}</TableCell>
+                    <TableCell class="text-right">{{ order.amount }}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+
+    <!-- Order Details -->
+    <div>
+      <Card class="overflow-hidden">
+        <CardHeader class="flex flex-row items-start bg-muted/50">
+          <div class="grid gap-0.5">
+            <CardTitle class="group flex items-center gap-2 text-lg">
+              Order ID: {{ dashboardData.orderDetails.id }}
+              <Button size="icon" variant="outline" class="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100">
+                <Icon name="ph:copy" class="h-3 w-3" />
+                <span class="sr-only">Copy Order ID</span>
+              </Button>
+            </CardTitle>
+            <CardDescription>Date: {{ dashboardData.orderDetails.date }}</CardDescription>
           </div>
-          <div class="flex items-center justify-between">
-            <dt class="text-muted-foreground">
-              Email
-            </dt>
-            <dd>
-              <a href="mailto:">liam@acme.com</a>
-            </dd>
+          <div class="ml-auto flex items-center gap-1">
+            <Button size="sm" variant="outline" class="h-8 gap-1">
+              <Icon name="ph:truck" class="h-3.5 w-3.5" />
+              <span class="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">Track Order</span>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <Button size="icon" variant="outline" class="h-8 w-8">
+                  <Icon name="ph:dots-three-vertical" class="h-3.5 w-3.5" />
+                  <span class="sr-only">More</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem v-for="action in dashboardData.orderDetails.actions" :key="action">{{ action }}</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <div class="flex items-center justify-between">
-            <dt class="text-muted-foreground">
-              Phone
-            </dt>
-            <dd>
-              <a href="tel:">+1 234 567 890</a>
-            </dd>
+        </CardHeader>
+        <CardContent class="p-6 text-sm">
+          <!-- Order Details content -->
+          <div class="grid gap-3">
+            <div class="font-semibold">Order Details</div>
+            <ul class="grid gap-3">
+              <li v-for="item in dashboardData.orderDetails.items" :key="item.name" class="flex items-center justify-between">
+                <span class="text-muted-foreground">{{ item.name }} x {{ item.quantity }}</span>
+                <span>{{ item.price }}</span>
+              </li>
+            </ul>
+            <Separator class="my-2" />
+            <ul class="grid gap-3">
+              <li v-for="summary in dashboardData.orderDetails.summary" :key="summary.label" class="flex items-center justify-between" :class="{ 'font-semibold': summary.label === 'Total' }">
+                <span class="text-muted-foreground">{{ summary.label }}</span>
+                <span>{{ summary.value }}</span>
+              </li>
+            </ul>
           </div>
-        </dl>
-      </div>
-      <Separator class="my-4" />
-      <div class="grid gap-3">
-        <div class="font-semibold">
-          Payment Information
-        </div>
-        <dl class="grid gap-3">
-          <div class="flex items-center justify-between">
-            <dt class="flex items-center gap-1 text-muted-foreground">
-              <CreditCard class="h-4 w-4" />
-              Visa
-            </dt>
-            <dd>**** **** **** 4532</dd>
+          <!-- Additional sections like Shipping, Billing, Customer, and Payment Information -->
+        </CardContent>
+        <CardFooter class="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
+          <div class="text-xs text-muted-foreground">
+            Updated <time :dateTime="dashboardData.orderDetails.updatedAt">{{ dashboardData.orderDetails.updatedAt }}</time>
           </div>
-        </dl>
-      </div>
-    </CardContent>
-    <CardFooter class="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
-      <div class="text-xs text-muted-foreground">
-        Updated <time dateTime="2023-11-23">November 23, 2023</time>
-      </div>
-      <Pagination class="ml-auto mr-0 w-auto">
-        <PaginationList class="gap-1">
-          <PaginationPrev variant="outline" class="h-6 w-6" />
-          <PaginationNext variant="outline" class="h-6 w-6" />
-        </PaginationList>
-      </Pagination>
-    </CardFooter>
-  </Card>
-</div>
-</main>
+          <Pagination class="ml-auto mr-0 w-auto">
+            <PaginationList class="gap-1">
+              <PaginationPrev variant="outline" class="h-6 w-6" />
+              <PaginationNext variant="outline" class="h-6 w-6" />
+            </PaginationList>
+          </Pagination>
+        </CardFooter>
+      </Card>
+    </div>
+  </main>
 </template>
+
+<script setup lang="ts">
+
+interface DashboardData {
+  summaryCards: Array<{
+    title: string;
+    value: string;
+    change: string;
+    progressValue: number;
+  }>;
+  ordersOverview: {
+    title: string;
+    description: string;
+    buttonText: string;
+  };
+  ordersTabs: {
+    defaultTab: string;
+    tabs: string[];
+    filters: string[];
+  };
+  ordersTable: {
+    headers: string[];
+    orders: Array<{
+      customer: string;
+      email: string;
+      type: string;
+      status: string;
+      date: string;
+      amount: string;
+    }>;
+  };
+  orderDetails: {
+    id: string;
+    date: string;
+    actions: string[];
+    items: Array<{
+      name: string;
+      quantity: number;
+      price: string;
+    }>;
+    summary: Array<{
+      label: string;
+      value: string;
+    }>;
+    updatedAt: string;
+  };
+}
+
+const dashboardData = ref({
+  summaryCards: [
+    {
+      title: "This Week",
+      value: "$1329",
+      change: "+25% from last week",
+      progressValue: 25
+    },
+    {
+      title: "This Month",
+      value: "$5,329",
+      change: "+10% from last month",
+      progressValue: 10
+    },
+    {
+      title: "Total Revenue",
+      value: "$45,231.89",
+      change: "+20.1% from last month",
+      progressValue: 20
+    },
+    {
+      title: "Active Users",
+      value: "2,350",
+      change: "+180.1% from last month",
+      progressValue: 80
+    }
+  ],
+  ordersOverview: {
+    title: "Your Orders",
+    description: "Introducing Our Dynamic Orders Dashboard for Seamless Management and Insightful Analysis.",
+    buttonText: "Create New Order"
+  },
+  ordersTabs: {
+    defaultTab: "week",
+    tabs: ["Week", "Month", "Year"],
+    filters: ["Fulfilled", "Declined", "Refunded"]
+  },
+  ordersTable: {
+    headers: ["Customer", "Type", "Status", "Date", "Amount"],
+    orders: [
+      {
+        customer: "Liam Johnson",
+        email: "liam@example.com",
+        type: "Sale",
+        status: "Fulfilled",
+        date: "2023-06-23",
+        amount: "$250.00"
+      },
+      {
+        customer: "Olivia Smith",
+        email: "olivia@example.com",
+        type: "Refund",
+        status: "Declined",
+        date: "2023-06-24",
+        amount: "$150.00"
+      },
+      {
+        customer: "Noah Williams",
+        email: "noah@example.com",
+        type: "Subscription",
+        status: "Fulfilled",
+        date: "2023-06-25",
+        amount: "$350.00"
+      },
+      {
+        customer: "Emma Brown",
+        email: "emma@example.com",
+        type: "Sale",
+        status: "Fulfilled",
+        date: "2023-06-26",
+        amount: "$450.00"
+      },
+      {
+        customer: "Liam Johnson",
+        email: "liam@example.com",
+        type: "Sale",
+        status: "Fulfilled",
+        date: "2023-06-23",
+        amount: "$250.00"
+      }
+    ]
+  },
+  orderDetails: {
+    id: "Oe31b70H",
+    date: "November 23, 2023",
+    actions: ["Edit", "Export", "Trash"],
+    items: [
+      { name: "Glimmer Lamps", quantity: 2, price: "$250.00" },
+      { name: "Aqua Filters", quantity: 1, price: "$49.00" }
+    ],
+    summary: [
+      { label: "Subtotal", value: "$299.00" },
+      { label: "Shipping", value: "$5.00" },
+      { label: "Tax", value: "$25.00" },
+      { label: "Total", value: "$329.00" }
+    ],
+    shippingInfo: {
+      name: "Liam Johnson",
+      address: "1234 Main St.",
+      city: "Anytown, CA 12345"
+    },
+    billingInfo: "Same as shipping address",
+    customerInfo: {
+      name: "Liam Johnson",
+      email: "liam@acme.com",
+      phone: "+1 234 567 890"
+    },
+    paymentInfo: {
+      method: "Visa",
+      cardNumber: "**** **** **** 4532"
+    },
+    updatedAt: "2023-11-23T12:00:00Z"
+  }
+});
+
+</script>

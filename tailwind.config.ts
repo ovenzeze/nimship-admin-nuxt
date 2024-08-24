@@ -3,7 +3,7 @@ module.exports = {
   darkMode: ["class"],
   safelist: ["dark"],
   prefix: "",
-  
+
   theme: {
     container: {
       center: true,
@@ -83,6 +83,7 @@ module.exports = {
   content: [
     './pages/**/*.{vue,js,ts,jsx,tsx}',
     './components/**/*.{vue,js,ts,jsx,tsx}',
+    './components/ui/**/*.{vue,js,ts,jsx,tsx}',
   ],
-  plugins: ["tailwindcss-animate", "@tailwindcss/typography"],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")]
 }

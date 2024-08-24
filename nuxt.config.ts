@@ -1,18 +1,20 @@
 export default defineNuxtConfig({
-  devtools: { enabled: false },
+  devtools: { enabled: true },
   pages: true,
   typescript: {
     strict: false,
     builder: 'vite',
     typeCheck: false, 
     tsConfig: {
-      compilerOptions: {
-        skipLibCheck: true,
-        forceConsistentCasingInFileNames: true,
-        moduleResolution: "node",
-        resolveJsonModule: true,
-        isolatedModules: true,
-        noEmit: true,
+      "compilerOptions": {
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "noEmit": true
       },
     },
   },
@@ -24,10 +26,11 @@ export default defineNuxtConfig({
     "@nuxt/content",
     "@nuxt/icon",
     "@nuxtjs/supabase",
-    "@formkit/auto-animate"
+    "@formkit/auto-animate",
   ],
 
-  // shadcn: { prefix: "", componentDir: "~/components/ui"},
+
+  shadcn: { prefix: "", componentDir: "./components/ui"},
 
   googleFonts: {
     display: "swap",
@@ -42,7 +45,6 @@ export default defineNuxtConfig({
     },
   },
 
-  imports: { dirs: ["composables", "~/components/ui/**"] },
 
   runtimeConfig: {
     public: {
@@ -54,7 +56,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: "/login",
       callback: "/confirm",
-      exclude: ["/terms", "/privacy", "/invoice", "/"],
+      exclude: ["/terms", "/privacy", "/invoice", "/*"],
       cookieRedirect: true,
     },
   },
