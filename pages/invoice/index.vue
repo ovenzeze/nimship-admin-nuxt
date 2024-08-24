@@ -65,14 +65,6 @@
               </TabsContent>
             </Tabs>
           </div>
-          <!-- <DialogFooter class="z-50">
-            <Button class="w-full" :disabled="isSubmitLoading" @click="handleSubmit">
-              <Icon v-if="isSubmitLoading" name="ph:spinner" class="w-4 h-4 mr-2 animate-spin" />
-              <Icon v-else-if="activeTab === 'custom'" name="ph:check-circle" class="w-4 h-4 mr-2" />
-              <Icon v-else name="ph:magnifying-glass" class="w-4 h-4 mr-2" />
-              {{ isSubmitLoading ? 'Processing...' : (activeTab === 'custom' ? 'Create Invoice' : 'Check Invoice') }}
-            </Button>
-          </DialogFooter> -->
         </DialogContent>
       </Dialog>
     </div>

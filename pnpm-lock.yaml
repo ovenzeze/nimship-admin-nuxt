@@ -29,6 +29,9 @@ importers:
       '@unovis/vue':
         specifier: ^1.4.3
         version: 1.4.4(@unovis/ts@1.4.4)(vue@3.4.38(typescript@5.5.4))
+      '@vue/devtools-api':
+        specifier: ^6.6.3
+        version: 6.6.3
       '@vueuse/core':
         specifier: ^11.0.0
         version: 11.0.1(vue@3.4.38(typescript@5.5.4))
