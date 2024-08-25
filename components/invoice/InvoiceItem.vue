@@ -1,5 +1,5 @@
 <template>
-  <TableRow>
+  <TableRow class="hover:bg-muted/50 dark:hover:bg-muted/20">
     <TableCell class="px-3 py-2 text-center">{{ invoice.invoice_number }}</TableCell>
     <TableCell class="px-3 py-2 text-center">
       <Badge variant="secondary">{{ formatDate(invoice.invoice_date) }}</Badge>
@@ -16,7 +16,7 @@
     <TableCell class="px-3 py-2">
       <HoverCard>
         <HoverCardTrigger>
-          <div class="text-xs text-gray-600 text-center line-clamp-2 uppercase">
+          <div class="text-xs text-muted-foreground text-center line-clamp-2 uppercase">
             {{ invoice.recipient?.name || 'N/A' }}
           </div>
         </HoverCardTrigger>
@@ -28,7 +28,7 @@
     <TableCell class="px-3 py-2">
       <HoverCard>
         <HoverCardTrigger>
-          <div class="text-xs text-gray-600 text-center line-clamp-2 uppercase">
+          <div class="text-xs text-muted-foreground text-center line-clamp-2 uppercase">
             {{ invoice.sender?.name || 'N/A' }}
           </div>
         </HoverCardTrigger>
@@ -37,7 +37,7 @@
         </HoverCardContent>
       </HoverCard>
     </TableCell>
-    <TableCell class="px-3 py-2 text-center sticky right-0 bg-white z-10">
+    <TableCell class="px-3 py-2 text-center sticky right-0 bg-background dark:bg-background z-10">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -53,7 +53,7 @@
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button @click="$emit('delete', invoice.id)" variant="ghost" class="p-1 text-red-500">
+            <Button @click="$emit('delete', invoice.id)" variant="ghost" class="p-1 text-destructive">
               <Icon name="ph:trash" class="w-5 h-5" />
             </Button>
           </TooltipTrigger>

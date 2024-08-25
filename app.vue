@@ -1,8 +1,10 @@
 <template>
+  <div class="color-mode">
   <NuxtLayout>
     <NuxtPage />
   <Toaster />
   </NuxtLayout>
+</div>
 </template>
 
 <script setup lang="ts">

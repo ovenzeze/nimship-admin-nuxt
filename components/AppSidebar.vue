@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const props = defineProps<{
   navItems: Array<{
     name: string;
@@ -18,9 +17,15 @@ const props = defineProps<{
 const emit = defineEmits(['logout', 'login']);
 
 const isSidebarOpen = ref(false);
+const colorMode = useColorMode();
 
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
+};
+console.log(colorMode.preference)
+
+const toggleTheme = () => {
+  colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark';
 };
 
 const languages = [
@@ -46,9 +51,9 @@ const filteredNavItems = computed(() => {
     <!-- Mobile top bar -->
     <header class="fixed top-0 left-0 right-0 z-20 bg-background shadow-sm sm:hidden">
       <div class="flex items-center justify-between px-4 py-2">
-        <button @click="toggleSidebar" class="text-muted-foreground">
+        <Button @click="toggleSidebar" class="text-muted-foreground" variant="ghost">
           <Icon name="ph:list" class="h-6 w-6" />
-        </button>
+        </Button>
         <a href="/" class="flex items-center gap-2">
           <Icon name="ph:package-duotone" class="h-6 w-6 text-primary" />
           <span class="font-semibold">DETH</span>
@@ -94,6 +99,17 @@ const filteredNavItems = computed(() => {
         </TooltipProvider>
       </nav>
       <div class="mt-auto flex flex-col items-center gap-4 px-2 py-5">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <Button @click="toggleTheme" variant="ghost" size="icon" class="h-9 w-9">
+                <Icon v-if="colorMode.value === 'dark'" name="ph:sun" class="h-5 w-5" />
+                <Icon v-else name="ph:moon" class="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Toggle theme</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <DropdownMenu>
           <DropdownMenuTrigger class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
             <Icon name="ph:globe" class="h-5 w-5" />
@@ -138,6 +154,11 @@ const filteredNavItems = computed(() => {
           </a>
         </nav>
         <div class="mt-auto flex flex-col gap-4">
+          <Button @click="toggleTheme" variant="outline" class="w-full">
+            <Icon v-if="colorMode.value === 'dark'" name="ph:sun" class="h-5 w-5 mr-2" />
+            <Icon v-else name="ph:moon" class="h-5 w-5 mr-2" />
+            {{ colorMode.value === 'dark' ? 'Light Mode' : 'Dark Mode' }}
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger class="flex items-center gap-2 p-2 rounded-lg text-muted-foreground hover:text-foreground">
               <Icon name="ph:globe" class="h-5 w-5" />

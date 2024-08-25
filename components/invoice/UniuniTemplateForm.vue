@@ -3,7 +3,7 @@
     <div class="flex flex-col h-full">
       <div class="flex-grow overflow-y-auto px-4 pb-4">
         <div class="space-y-4">
-          <div class="grid grid-cols-3 md:grid-cols-3 gap-y-4 mt-4">
+          <div class="grid grid-cols-3 md:grid-cols-3 gap-y-4 mt-2">
             <div class="col-span-3">
               <div class="mb-2">
                 <span class="text-base text-gray-500 font-thin">Customer</span>
@@ -16,7 +16,7 @@
             </div>
 
             <div class="col-span-1">
-              <div class="mb-2">
+              <div class="mb-1">
                 <span class="text-base text-gray-500 font-thin">Pay Cycle</span>
               </div>
               <div>
@@ -25,7 +25,7 @@
             </div>
 
             <div class="col-span-1">
-              <div class="mb-2">
+              <div class="mb-1">
                 <span class="text-base text-gray-500 font-thin">Status</span>
               </div>
               <div>
@@ -34,7 +34,7 @@
             </div>
 
             <div>
-              <div class="mb-2">
+              <div class="mb-1">
                 <span class="text-base text-gray-500 font-thin">Last Used</span>
               </div>
               <div>
@@ -44,7 +44,7 @@
           </div>
 
           <blockquote
-            class="mt-2 mb-4 border-blue-500 text-base font-medium text-gray-700 bg-gray-50 pl-3 pr-4 py-2 rounded-lg"
+            class="mt-2 mb-4 border-blue-500 text-base font-medium text-gray-700  pl-3 pr-4 py-2 rounded-lg"
           >
             This template check any available invoice for the selected criteria and
             generate a new invoice if there is no available invoice. Work with
@@ -137,7 +137,7 @@
         </div>
       </div>
 
-      <div class="flex-shrink-0 px-4 pb-0 bg-background border-t">
+      <div class="flex-shrink-0 px-4 pb-0 bg-background border-t pt-4">
         <Button
           class="w-full"
           :disabled="isSubmitLoading"
@@ -159,11 +159,12 @@
 <script setup lang="ts">
 import { useForm } from "vee-validate";
 import * as z from "zod";
+import { h } from 'vue'
 import { toTypedSchema } from "@vee-validate/zod";
 import type { Database } from "~/types/database";
 import { useEnums } from "~/composables/useEnums";
 import { useInvoice } from "~/composables/useInvoice";
-import { useToast } from "~/components/ui/toast";
+import { useToast, ToastAction } from "~/components/ui/toast";
 
 type Invoice = Database["public"]["Tables"]["invoices"]["Row"];
 type InvoiceView = Database["public"]["Views"]["invoice_view"]["Row"];
@@ -248,7 +249,7 @@ const onSubmit = handleSubmit(async (values) => {
       toast({
         title: "No invoice available",
         description:
-          "No invoice available for the selected criteria. A new invoice will be generated.",
+          "No invoice available for the selected criteria.",
       });
     else confirmInvoice();
   } catch (err) {
@@ -267,7 +268,7 @@ const confirmInvoice = () => {
   toast({
         title: 'Confirm Draft Invoice',
         description: 'Do you want to generate available invoice as draft?',
-        action: h(confirmGenerateInvoice, { altText: 'Confirm' }),
+        action: h(ToastAction, { altText: 'Confirm', onClick: () => confirmGenerateInvoice() }),
       });
 };
 

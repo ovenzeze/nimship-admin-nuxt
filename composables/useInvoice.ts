@@ -71,7 +71,8 @@ export function useInvoice() {
 
     try {
       // 解析支付周期为开始和结束日期
-      const [cycleStart, cycleEnd] = paymentCycle.split(' - ')
+      const [cycleStart] = paymentCycle.split(' - ')
+      const cycleStartDate = dayjs.utc(cycleStart).format('YYYY-MM-DD')
 
       const { data, error: queryError } = await supabase
         .from('invoice_view')
@@ -79,8 +80,7 @@ export function useInvoice() {
         .eq('custom_id', customId)
         .eq('team_name', teamName)
         .eq('warehouse', warehouse)
-        .gte('payment_cycle_start', cycleStart)
-        .lte('payment_cycle_end', cycleEnd)
+        .eq('payment_cycle_start', cycleStartDate)
         .maybeSingle()
 
       if (queryError) throw queryError
@@ -114,8 +114,8 @@ export function useInvoice() {
       if (data) {
         const uniqueCycles = new Set<string>()
         return data.reduce((acc: string[], item) => {
-          const startDate = dayjs.utc(item.payment_cycle_start).format('MM/DD/YY')
-          const endDate = dayjs.utc(item.payment_cycle_start).add(7, 'day').format('MM/DD/YY')
+          const startDate = dayjs.utc(item.payment_cycle_start).format('MM/DD/YYYY')
+          const endDate = dayjs.utc(item.payment_cycle_start).add(6, 'day').format('MM/DD/YYYY')
           const cycle = `${startDate} - ${endDate}`
           if (!uniqueCycles.has(cycle)) {
             uniqueCycles.add(cycle)
@@ -126,7 +126,6 @@ export function useInvoice() {
       }
     } catch (e) {
       console.error('Error fetching payment cycles:', e)
-      error.value = '获取支付周期时出错'
     } finally {
       isLoading.value = false
     }
@@ -135,14 +134,35 @@ export function useInvoice() {
   }
   
 
-  const formatDateRange = (start: Date, end: Date) => {
-    const formatDate = (date: Date) => {
-      const mm = String(date.getMonth() + 1).padStart(2, '0')
-      const dd = String(date.getDate()).padStart(2, '0')
-      const yy = String(date.getFullYear()).slice(-2)
-      return `${mm}/${dd}/${yy}`
-    }
-    return `${formatDate(start)} - ${formatDate(end)}`
+  const generateInvoice = async () => {
+  //  查找条件: team_name custom_id warehouse payment_cycle_start
+// 根据这个条件找到所有符合要求的invoice_view中的record, 
+
+    // Invoice的值和默认值如下
+    // Insert: {
+    //   adjustment?: number | null
+    //   amount_paid: number
+    //   created_at?: string | null
+    //   due_balance: number
+    //   due_date: 当前时间+7天
+    //   id?: number 数据库自增ID
+    //   invoice_date: 当前时间
+    //   invoice_number: string
+    //   recipient_id?: number | null 6
+    //   sender_id?: number | null 
+    //   status?: DRAFT
+    //   tax: 0
+    //   total: 需要计算
+    // }  
+    // Row: {
+    //   amount: number
+    //   id: number
+    //   invoice_number: string
+    //   item_name: string
+    //   quantity: number
+    //   rate: number | null
+    // }
+
   }
 
   return {

@@ -1,6 +1,6 @@
 <template>
   <AppSidebar 
-    :nav-items="navItems" 
+    :nav-items="menuItems" 
     :user="user" 
     :is-authenticated="isAuthenticated"
     @logout="handleLogout"
@@ -12,14 +12,8 @@
 
 <script setup>
 
-const navItems = ref([
-  { name: 'Dashboard', icon: 'ph:house', href: '/', active: true, requiresAuth: false },
-  { name: 'Invoice', icon: 'ph:invoice-light', href: '/invoice', active: false, requiresAuth: false },
-  { name: 'Driver', icon: 'ph:car-simple', href: '/driver', active: false, requiresAuth: false },
-  { name: 'Settings', icon: 'ph:gear-six-light', href: '/settings', active: false, requiresAuth: false },
-  
-  // ... 其他导航项
-]);
+const { menuItems } = useMenu()
+
 
 const user = ref(null);
 const isAuthenticated = ref(false);

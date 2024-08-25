@@ -1,13 +1,5 @@
 <template>
   <div>
-    <Retool model="driver-management" />
+    <Retool module="driver-management" title="Driver Management"/>
   </div>
 </template>
-
-<script lang="ts" setup>
-
-</script>
-
-<style>
-
-</style>

@@ -27,8 +27,15 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "@nuxtjs/supabase",
     "@formkit/auto-animate",
+    "@nuxtjs/color-mode"
   ],
 
+  colorMode: {
+    preference: 'dark', // default value of $colorMode.preference
+    fallback: 'dark', // fallback value if not system preference found
+    classSuffix: '',
+    storageKey: 'nuxt-color-mode'
+  },
 
   shadcn: { prefix: "", componentDir: "./components/ui"},
 
