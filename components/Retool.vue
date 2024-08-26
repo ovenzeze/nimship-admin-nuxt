@@ -1,8 +1,8 @@
 <template>
-  <div class="noscrollbar flex flex-row justify-start items-start relative min-h-[calc(100svh-20px)] overscroll-none">
+  <div class="noscrollbar flex flex-row justify-start items-start relative min-h-[calc(100svh-60px)] md:min-h-[calc(100svh-20px)] overscroll-none overflow-x-auto">
     <iframe 
       :src="iframeSrc"
-      class="absolute flex-1 no-scrollbar overflow-y-scroll overscroll-none min-h-[calc(100svh-20px)] w-full dark:filter dark:brightness-90"
+      class="flex-none no-scrollbar overflow-y-scroll overscroll-none min-h-[calc(100svh-60px)] md:min-h-[calc(100svh-20px)] w-[1024px] md:w-full dark:filter dark:brightness-90"
     />
   </div>
 </template>

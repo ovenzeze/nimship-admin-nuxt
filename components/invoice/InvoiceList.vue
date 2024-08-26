@@ -7,9 +7,10 @@
           <TableHead class="px-3 py-2 text-center uppercase text-muted-foreground">Invoice Date</TableHead>
           <TableHead class="px-3 py-2 text-center uppercase text-muted-foreground">Due Date</TableHead>
           <TableHead class="px-3 py-2 text-center uppercase text-muted-foreground">Total Amount</TableHead>
+                    <TableHead class="px-3 py-2 text-center uppercase text-muted-foreground">Invoice Items</TableHead>
           <TableHead class="px-3 py-2 text-center uppercase text-muted-foreground">Status</TableHead>
-          <TableHead class="px-3 py-2 text-left uppercase text-muted-foreground">Recipient</TableHead>
-          <TableHead class="px-3 py-2 text-left uppercase text-muted-foreground">Sender</TableHead>
+          <TableHead class="px-3 py-2 text-center uppercase text-muted-foreground">Recipient</TableHead>
+          <TableHead class="px-3 py-2 text-center uppercase text-muted-foreground">Sender</TableHead>
           <TableHead class="px-3 py-2 text-center sticky right-0 bg-background dark:bg-background z-10 uppercase text-muted-foreground">Actions</TableHead>
         </TableRow>
       </TableHeader>

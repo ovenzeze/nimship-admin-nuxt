@@ -10,26 +10,38 @@
     <TableCell class="px-3 py-2 text-center">
       <Badge variant="outline">{{ formatCurrency(invoice.total) }}</Badge>
     </TableCell>
+        <TableCell class="px-3 py-2">
+    <HoverCard>
+      <HoverCardTrigger>
+        <div class="text-xs text-muted-foreground text-center line-clamp-2 uppercase cursor-pointer hover:text-primary hover:animate-pulse">
+          {{ invoice.recipient?.name || 'not available' }}
+        </div>
+      </HoverCardTrigger>
+      <HoverCardContent v-if="invoice.recipient" class="min-w-[300px] mt-2 transition-all duration-200 transform opacity-0 translate-y-4 hover-card-enter">
+        <CustomerDetails :customer="invoice.recipient" />
+      </HoverCardContent>
+    </HoverCard>
+    </TableCell>
     <TableCell class="px-3 py-2 text-center">
       <Badge :variant="getStatusVariant(invoice.status)">{{ invoice.status }}</Badge>
     </TableCell>
     <TableCell class="px-3 py-2">
-      <HoverCard>
-        <HoverCardTrigger>
-          <div class="text-xs text-muted-foreground text-center line-clamp-2 uppercase">
-            {{ invoice.recipient?.name || 'N/A' }}
-          </div>
-        </HoverCardTrigger>
-        <HoverCardContent v-if="invoice.recipient">
-          <CustomerDetails :customer="invoice.recipient" />
-        </HoverCardContent>
-      </HoverCard>
+    <HoverCard>
+      <HoverCardTrigger>
+        <div class="text-xs text-muted-foreground text-center line-clamp-2 uppercase cursor-pointer hover:text-primary hover:animate-pulse">
+          {{ invoice.recipient?.name || 'not available' }}
+        </div>
+      </HoverCardTrigger>
+      <HoverCardContent v-if="invoice.recipient" class="min-w-[300px] mt-2 transition-all duration-200 transform opacity-0 translate-y-4 hover-card-enter">
+        <CustomerDetails :customer="invoice.recipient" />
+      </HoverCardContent>
+    </HoverCard>
     </TableCell>
     <TableCell class="px-3 py-2">
       <HoverCard>
         <HoverCardTrigger>
-          <div class="text-xs text-muted-foreground text-center line-clamp-2 uppercase">
-            {{ invoice.sender?.name || 'N/A' }}
+          <div class="text-xs text-muted-foreground text-center line-clamp-2 uppercase cursor-pointer hover:text-primary hover:animate-pulse">
+            {{ invoice.sender?.name || 'not available' }}
           </div>
         </HoverCardTrigger>
         <HoverCardContent v-if="invoice.sender">
@@ -96,7 +108,7 @@ const formatCurrency = (amount: number) => {
 
 const getStatusVariant = (status: string) => {
   switch (status) {
-    case 'DRAFT': return 'default'
+    case 'DRAFT': return 'secondary'
     case 'SEND': return 'secondary'
     case 'PAID': return 'success'
     case 'CANCEL': return 'destructive'
@@ -104,3 +116,18 @@ const getStatusVariant = (status: string) => {
   }
 }
 </script>
+<style>
+.hover-card-enter {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hover-card-enter-active {
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.hover-card-enter-active:hover {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>

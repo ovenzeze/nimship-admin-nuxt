@@ -10,6 +10,7 @@ export default defineNuxtConfig({
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "moduleResolution": "node",
+        "module": "ESNext",
         "resolveJsonModule": true,
         "isolatedModules": true,
         "esModuleInterop": true,

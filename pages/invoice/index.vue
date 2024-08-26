@@ -1,7 +1,6 @@
 <template>
   <ClientOnly>
     <div class="container mx-auto p-4">
-      <h1 class="text-2xl font-bold mb-4 hidden md:block">Invoice Management</h1>
       <div class="mb-4 flex justify-between items-center">
         <div class="w-full grid grid-cols-2 md:grid-cols-6 gap-6">
           <Select v-model="statusFilter" class="md:col-span-2">
@@ -17,7 +16,7 @@
             </SelectContent>
           </Select>
           <Input v-model="searchQuery" placeholder="Search invoices..." class="col-span-1 md:col-span-2" />
-          <Button @click="showCreateModal = true" class="col-span-1 md:col-end-7">
+          <Button @click="showCreateModal = true" class="col-span-1 md:col-end-7 bg-primary-foreground" size="sm" variant="outline">
             <Icon name="ph:plus-circle" class="w-5 h-5 mr-2" />
             New Invoice
           </Button>

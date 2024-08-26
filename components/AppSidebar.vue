@@ -1,11 +1,17 @@
 <script setup lang="ts">
+
+const route = useRoute();
+
 const props = defineProps<{
   navItems: Array<{
     name: string;
     icon: string;
     href: string;
-    active: boolean;
     requiresAuth: boolean;
+    children?: Array<{
+      name: string;
+      href: string;
+    }>;
   }>;
   user: {
     name: string;
@@ -19,10 +25,11 @@ const emit = defineEmits(['logout', 'login']);
 const isSidebarOpen = ref(false);
 const colorMode = useColorMode();
 
-const toggleSidebar = () => {
+const toggleSidebar = async () => {
   isSidebarOpen.value = !isSidebarOpen.value;
+  await nextTick();
+  // 如果这里有其他逻辑，确保不会立即将 isSidebarOpen 设置回 false
 };
-console.log(colorMode.preference)
 
 const toggleTheme = () => {
   colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark';
@@ -42,21 +49,40 @@ const changeLanguage = (lang) => {
 };
 
 const filteredNavItems = computed(() => {
-  return props.navItems.filter(item => !item.requiresAuth || props.isAuthenticated);
+  return props.navItems.filter(item => !item.requiresAuth || props.isAuthenticated).map(item => ({
+    ...item,
+    active: isActiveRoute(item.href)
+  }));
 });
+
+function isActiveRoute(href: string): boolean {
+  return route.path === href || route.path.startsWith(href + '/');
+}
+
+const isMenuOpen = ref(false);
+const activeMenuItem = ref(null);
+
+const toggleMenu = (item) => {
+  if (activeMenuItem.value === item) {
+    activeMenuItem.value = null;
+  } else {
+    activeMenuItem.value = item;
+  }
+  isMenuOpen.value = !!activeMenuItem.value;
+};
 </script>
 
 <template>
-  <div class="flex min-h-screen w-full flex-col bg-muted/40">
+  <div class="flex min-h-screen w-full flex-col">
     <!-- Mobile top bar -->
     <header class="fixed top-0 left-0 right-0 z-20 bg-background shadow-sm sm:hidden">
-      <div class="flex items-center justify-between px-4 py-2">
+      <div class="flex items-center justify-between px-4 py-0">
         <Button @click="toggleSidebar" class="text-muted-foreground" variant="ghost">
-          <Icon name="ph:list" class="h-6 w-6" />
+          <Icon name="ph:list" class="h-5 w-6" />
         </Button>
         <a href="/" class="flex items-center gap-2">
-          <Icon name="ph:package-duotone" class="h-6 w-6 text-primary" />
-          <span class="font-semibold">DETH</span>
+          <Icon name="ph:package-duotone" class="h-5 w-5 text-primary" />
+          <!-- <span class="font-semibold text-lg">DETH</span> -->
         </a>
         <div v-if="isAuthenticated && user">
           <DropdownMenu>
@@ -78,25 +104,37 @@ const filteredNavItems = computed(() => {
 
     <!-- Desktop sidebar -->
     <aside class="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
-      <nav class="flex flex-col items-center gap-4 px-2 py-5">
-        <a href="/" class="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground">
-          <Icon name="ph:package-duotone" class="h-4 w-4 transition-all group-hover:scale-110" />
+      <nav class="flex flex-col items-center gap-4 py-5">
+        <a href="/" class="group flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-semibold text-primary-foreground">
+          <Icon name="ph:package-duotone" class="h-4 w-4 transition-all group-hover:scale-105" />
           <span class="sr-only">DETH</span>
         </a>
-        <TooltipProvider v-for="item in filteredNavItems" :key="item.name">
-          <Tooltip>
-            <TooltipTrigger as-child>
-              <a :href="item.href" :class="[
-                'flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground',
-                item.active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
-              ]">
-                <Icon :name="item.icon" class="h-5 w-5" />
-                <span class="sr-only">{{ item.name }}</span>
-              </a>
-            </TooltipTrigger>
-            <TooltipContent side="right">{{ item.name }}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div v-for="item in filteredNavItems" :key="item.name" class="relative group w-full">
+          <div class="flex items-center">
+            <a :href="item.href" :class="[
+              'flex h-9 w-full items-center justify-center transition-colors hover:text-foreground hover:bg-background hover:border-y hover:border-l',
+              item.active ? 'bg-accent text-accent-foreground scale-105 text-accent-primary' : 'text-muted-foreground'
+            ]">
+              <Icon :name="item.icon" class="h-5 w-5" />
+              <div class="absolute left-[40px] top-0 h-9 hidden group-hover:flex items-center bg-background border-y border-r rounded-r-lg cursor-pointer min-w-[100px]">
+                <div class="animate-in slide-in-from-left-5 duration-300 whitespace-nowrap pl-2 pr-6 py-1 text-foreground text-sm">
+                  {{ item.name }}
+                </div>
+              </div>
+            </a>
+          </div>
+          <div v-if="item.children" class="absolute left-full top-9 hidden group-hover:block">
+            <div class="animate-in slide-in-from-left-5 duration-300 bg-background border rounded-r-lg shadow-lg">
+              <ul class="py-1">
+                <li v-for="child in item.children" :key="child.name">
+                  <a :href="child.href" class="block px-4 py-2 hover:bg-accent hover:text-accent-foreground transition-colors">
+                    {{ child.name }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </nav>
       <div class="mt-auto flex flex-col items-center gap-4 px-2 py-5">
         <TooltipProvider>
@@ -111,7 +149,7 @@ const filteredNavItems = computed(() => {
           </Tooltip>
         </TooltipProvider>
         <DropdownMenu>
-          <DropdownMenuTrigger class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
+          <DropdownMenuTrigger class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
             <Icon name="ph:globe" class="h-5 w-5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -139,7 +177,7 @@ const filteredNavItems = computed(() => {
     </aside>
 
     <!-- Mobile sidebar -->
-    <Transition name="slide">
+    <Transition name="slide-fade">
       <aside v-if="isSidebarOpen" class="fixed inset-0 z-30 flex flex-col bg-background p-4 sm:hidden">
         <button @click="toggleSidebar" class="self-end mb-4">
           <Icon name="ph:x" class="h-6 w-6" />
@@ -182,8 +220,8 @@ const filteredNavItems = computed(() => {
     </Transition>
 
     <!-- Main content area -->
-    <main class="flex-1 sm:pl-14 mt-14 sm:mt-0">
-      <div class="container mx-auto p-2 sm:p-2 lg:p-4">
+    <main class="flex-1 sm:pl-14 sm:mt-0 mt-10">
+      <div class="container mx-auto p-2 sm:p-2 lg:p-4 overflow-y-auto overflow-x-hidden">
         <slot></slot>
       </div>
     </main>
@@ -191,13 +229,14 @@ const filteredNavItems = computed(() => {
 </template>
 
 <style scoped>
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.3s ease;
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
 }
 
-.slide-enter-from,
-.slide-leave-to {
+.slide-fade-enter-from,
+.slide-fade-leave-to {
   transform: translateX(-100%);
+  opacity: 0;
 }
 </style>

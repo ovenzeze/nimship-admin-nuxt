@@ -9,6 +9,96 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      __retool_vector__demo__retool_ai_docs_7fdbd3b3_88f7_43f5_ac8c_1: {
+        Row: {
+          content: string | null
+          embedding: string | null
+          id: number
+          source: string | null
+        }
+        Insert: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
+          source?: string | null
+        }
+        Update: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
+          source?: string | null
+        }
+        Relationships: []
+      }
+      __retool_vector__demo__vector___zemin_lu_78996ac3_f54e_48c4_b0f: {
+        Row: {
+          content: string | null
+          embedding: string | null
+          id: number
+          source: string | null
+        }
+        Insert: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
+          source?: string | null
+        }
+        Update: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
+          source?: string | null
+        }
+        Relationships: []
+      }
+      __retool_vector_deduction_table_struct_cda06ff5_b4bd_49f2_af8b_: {
+        Row: {
+          content: string | null
+          embedding: string | null
+          id: number
+          source: string | null
+        }
+        Insert: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
+          source?: string | null
+        }
+        Update: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
+          source?: string | null
+        }
+        Relationships: []
+      }
+      buildings: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          id: number
+          img_url: string | null
+          name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          id: number
+          img_url?: string | null
+          name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          id?: number
+          img_url?: string | null
+          name?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           bill_address: string
@@ -298,13 +388,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "payment_record"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "delivery_record_uid_fkey"
-            columns: ["uid"]
-            isOneToOne: false
-            referencedRelation: "haulblaze_contact"
-            referencedColumns: ["uid"]
           },
         ]
       }
@@ -1039,24 +1122,17 @@ export type Database = {
             | null
           working_days: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "delivery_record_uid_fkey"
-            columns: ["uid"]
-            isOneToOne: false
-            referencedRelation: "haulblaze_contact"
-            referencedColumns: ["uid"]
-          },
-        ]
+        Relationships: []
       }
       invoice_view: {
         Row: {
           avg_price: number | null
           custom_id: Database["public"]["Enums"]["custom_id_enum"] | null
-          custom_uid: number | null
+          net_salary: number | null
           payment_cycle_end: string | null
           payment_cycle_start: string | null
           team_name: Database["public"]["Enums"]["team_name_enum"] | null
+          total_deductions: number | null
           total_order_cnt: number | null
           total_salary: number | null
           warehouse:
@@ -1386,12 +1462,6 @@ export type Database = {
         | "USA"
       cover_by_enum: "DRIVER" | "UNIUNI" | "COMPANY" | "SHARE" | "OTHERS"
       custom_id_enum: "HAULBLAZE" | "UNIUNI" | "SPEEDX" | "PIGGY" | "OTHERS"
-      custom_id_enum_a251d055:
-        | "HAULBLAZE"
-        | "UNIUNI"
-        | "SPEEDX"
-        | "PIGGY"
-        | "OTHERS"
       driver_type_enum: "HAULER" | "TRUCK" | "FLEET" | "MANAGER" | "OTHERS"
       fin_debt_status_enum: "PROCESSING" | "FINISHED" | "VOID" | "OTHERS"
       fin_payment_status_enum:
@@ -1425,7 +1495,6 @@ export type Database = {
       status_enum: "FINISHED" | "PROCESSING" | "EXPIRED"
       status_enum_31d11e70: "Employed" | "Quit" | "Onboarding"
       team_name_enum: "HAULBLAZE" | "HORIZON"
-      team_name_enum_239892d5: "HAULBLAZE" | "HORIZON"
       warehouse_enum: "LAX" | "LAS" | "SFO" | "SEA" | "SAN" | "PHX" | "IRV"
       warehouse_enum_5de5a3fb:
         | "LAX"

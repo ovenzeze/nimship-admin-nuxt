@@ -142,6 +142,7 @@
           class="w-full"
           :disabled="isSubmitLoading"
           @click="onSubmit"
+          variant="outline"
         >
           <Icon
             v-if="isSubmitLoading"

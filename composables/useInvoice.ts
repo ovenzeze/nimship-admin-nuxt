@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 
 dayjs.extend(utc)
+
 type Invoice = Database['public']['Tables']['invoices']['Row']
 type Customer = Database['public']['Tables']['customers']['Row']
 type InvoiceView = Database['public']['Views']['invoice_view']['Row']
@@ -21,42 +22,62 @@ export function useInvoice() {
   const error = ref<string | null>(null)
 
   const fetchInvoices = async (): Promise<InvoiceWithCustomer[]> => {
-    const { data, error } = await supabase
+    console.log('Fetching invoices...')
+    const { data, error: fetchError } = await supabase
       .from('invoices')
       .select(`
         *,
         recipient:customers!invoices_recipient_id_fkey(id, name, email),
         sender:customers!invoices_sender_id_fkey(id, name, email)
       `)
-    if (error) throw error
-    return data
+    if (fetchError) {
+      console.error('Error fetching invoices:', fetchError)
+      throw fetchError
+    }
+    console.log('Invoices fetched successfully:', data)
+    return data as InvoiceWithCustomer[]
   }
 
   const createInvoice = async (invoice: Partial<Invoice>) => {
-    const { data, error } = await supabase
+    console.log('Creating invoice:', invoice)
+    const { data, error: createError } = await supabase
       .from('invoices')
       .insert(invoice)
       .select()
-    if (error) throw error
+    if (createError) {
+      console.error('Error creating invoice:', createError)
+      throw createError
+    }
+    console.log('Invoice created successfully:', data[0])
     return data[0]
   }
 
   const updateInvoice = async (id: number, invoice: Partial<Invoice>) => {
-    const { data, error } = await supabase
+    console.log(`Updating invoice with ID ${id}:`, invoice)
+    const { data, error: updateError } = await supabase
       .from('invoices')
       .update(invoice)
       .eq('id', id)
       .select()
-    if (error) throw error
+    if (updateError) {
+      console.error('Error updating invoice:', updateError)
+      throw updateError
+    }
+    console.log('Invoice updated successfully:', data[0])
     return data[0]
   }
 
   const deleteInvoice = async (id: number) => {
-    const { error } = await supabase
+    console.log(`Deleting invoice with ID ${id}...`)
+    const { error: deleteError } = await supabase
       .from('invoices')
       .delete()
       .eq('id', id)
-    if (error) throw error
+    if (deleteError) {
+      console.error('Error deleting invoice:', deleteError)
+      throw deleteError
+    }
+    console.log(`Invoice with ID ${id} deleted successfully.`)
   }
 
   const checkAvailableInvoice = async (
@@ -70,10 +91,12 @@ export function useInvoice() {
     availableInvoice.value = null
 
     try {
-      // 解析支付周期为开始和结束日期
+      // Parse payment cycle into start and end dates
       const [cycleStart] = paymentCycle.split(' - ')
       const cycleStartDate = dayjs.utc(cycleStart).format('YYYY-MM-DD')
 
+      console.log(`Checking available invoice for customId ${customId}, teamName ${teamName}, warehouse ${warehouse}, cycleStartDate ${cycleStartDate}...`)
+      
       const { data, error: queryError } = await supabase
         .from('invoice_view')
         .select('*')
@@ -87,23 +110,30 @@ export function useInvoice() {
 
       if (data) {
         availableInvoice.value = data
+        console.log('Available invoice found:', availableInvoice.value)
+      } else {
+        console.log('No available invoice found.')
       }
+      
     } catch (e) {
       console.error('Error checking available invoice:', e)
       error.value = '查询可用发票时出错'
+      
     } finally {
       isLoading.value = false
     }
 
     return availableInvoice.value
   }
-  
+
   
   const fetchPaymentCycles = async () => {
     isLoading.value = true
     error.value = null
   
     try {
+      console.log('Fetching payment cycles...')
+      
       const { data, error: queryError } = await supabase
         .from('invoice_view')
         .select('payment_cycle_start')
@@ -113,67 +143,49 @@ export function useInvoice() {
   
       if (data) {
         const uniqueCycles = new Set<string>()
+        
         return data.reduce((acc: string[], item) => {
           const startDate = dayjs.utc(item.payment_cycle_start).format('MM/DD/YYYY')
           const endDate = dayjs.utc(item.payment_cycle_start).add(6, 'day').format('MM/DD/YYYY')
           const cycle = `${startDate} - ${endDate}`
+          
           if (!uniqueCycles.has(cycle)) {
             uniqueCycles.add(cycle)
             acc.push(cycle)
           }
           return acc
         }, [])
-      }
-    } catch (e) {
-      console.error('Error fetching payment cycles:', e)
-    } finally {
-      isLoading.value = false
-    }
+        
+        console.log(`Payment cycles fetched successfully:` , uniqueCycles);
+        
+       }
+       
+     } catch (e) {
+       console.error('Error fetching payment cycles:', e)
+
+     } finally {
+       isLoading.value = false
+      
+     }
   
-    return []
-  }
+     return []
+   }
   
 
-  const generateInvoice = async () => {
-  //  查找条件: team_name custom_id warehouse payment_cycle_start
-// 根据这个条件找到所有符合要求的invoice_view中的record, 
+   const generateInvoice = async () => {
+     // Logic for generating the invoice goes here.
+     // Add logging as needed.
+   }
 
-    // Invoice的值和默认值如下
-    // Insert: {
-    //   adjustment?: number | null
-    //   amount_paid: number
-    //   created_at?: string | null
-    //   due_balance: number
-    //   due_date: 当前时间+7天
-    //   id?: number 数据库自增ID
-    //   invoice_date: 当前时间
-    //   invoice_number: string
-    //   recipient_id?: number | null 6
-    //   sender_id?: number | null 
-    //   status?: DRAFT
-    //   tax: 0
-    //   total: 需要计算
-    // }  
-    // Row: {
-    //   amount: number
-    //   id: number
-    //   invoice_number: string
-    //   item_name: string
-    //   quantity: number
-    //   rate: number | null
-    // }
-
-  }
-
-  return {
-    availableInvoice,
-    isLoading,
-    error,
-    fetchInvoices,
-    createInvoice,
-    updateInvoice,
-    deleteInvoice,
-    checkAvailableInvoice,
-    fetchPaymentCycles
-  }
+   return {
+     availableInvoice,
+     isLoading,
+     error,
+     fetchInvoices,
+     createInvoice,
+     updateInvoice,
+     deleteInvoice,
+     checkAvailableInvoice,
+     fetchPaymentCycles,
+   }
 }
