@@ -17,7 +17,7 @@
             Card Info Not Provided</p>
         </slot>
       </div>
-      <div class="primary-action flex-grow p-4  ">
+      <div class="primary-action flex-grow p-4">
         <slot name="PrimaryAction">
           <p class="text-muted-foreground text-right flex items-center justify-end">
             <Icon name="ph:acorn" class="w-5 h-5 mr-2" />

@@ -1,7 +1,7 @@
 <template>
   <div class="w-full">
     <!-- 概览卡片 -->
-    <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+    <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 mb-10">
       <Card v-for="card in overviewCards" :key="card.title">
         <CardHeader v-if="card.title" class="pb-3">
           <CardTitle>{{ card.title }}</CardTitle>
