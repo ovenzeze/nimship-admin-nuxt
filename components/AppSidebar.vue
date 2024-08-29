@@ -73,6 +73,7 @@ const toggleMenu = (item) => {
 </script>
 
 <template>
+<ClientOnly>
   <div class="flex min-h-screen w-full flex-col">
     <!-- Mobile top bar -->
     <header class="fixed top-0 left-0 right-0 z-20 bg-background shadow-sm sm:hidden">
@@ -226,6 +227,7 @@ const toggleMenu = (item) => {
       </div>
     </main>
   </div>
+</ClientOnly>
 </template>
 
 <style scoped>

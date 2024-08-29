@@ -2,13 +2,13 @@
   <div>
     <FixedCard :otherElementsHeight="30" :footerHeight="50">
       <template #CardInfo>
-        <h2 class="text-xl flex items-center">
+        <h2 class="text-xl flex items-center ml-4 py-2">
           <Icon name="ph:bank" class="w-5 h-5 mr-2" />
           Payroll
         </h2>
       </template>
       <template #PrimaryAction>
-        <div class="flex flex-row items-center justify-end ">
+        <div class="flex flex-row items-center justify-end py-2 mr-4">
           <div class="w-40">
             <Select v-model="selectedTeam" @update:modelValue="handleTeamChange">
               <SelectTrigger>
@@ -28,13 +28,15 @@
         </div>
       </template>
       <template #body>
-        <DriverCardList 
-          :paymentRecords="paymentRecords" 
+        <div class="flex flex-col w-full h-full">
+          <DriverCardList 
+            :paymentRecords="paymentRecords" 
           :loading="loading" 
           :error="error"
           @select-driver="handleDriverSelection"
         />
-        <Payroll v-if="selectedDriver" :record="selectedDriver" />
+          <Payroll v-if="selectedDriver" :record="selectedDriver" />
+        </div>
       </template>
       <template #footer>
         <p>Footer</p>

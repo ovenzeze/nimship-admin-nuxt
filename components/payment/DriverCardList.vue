@@ -76,8 +76,8 @@ const handleDriverSelect = (driver: DriverPaymentRecord) => {
               {{ record.net_pay.toFixed(2) }}
             </p>
             <Badge :variant="record.payment_method ? 'default' : 'outline'">
-              <p class="text-xs">
-                {{ record.payment_status }}
+              <p class="text-xs uppercase">
+                {{ record.actual_payment_date ? record.actual_payment_date : 'Pending' }}
               </p>
             </Badge>
           </div>

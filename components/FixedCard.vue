@@ -1,53 +1,37 @@
 <template>
-  <div 
-    :class="[
-      'fixed-card w-full transition-colors duration-300 ease-in-out border border-border rounded-lg',
-      theme === 'dark' ? 'bg-background text-foreground' : 'bg-background text-foreground'
-    ]"
-    :style="{ height: cardHeight }"
-    ref="cardRef"
-  >
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row animate-in fade-in duration-300 border-b border-border" :style="{ height: headerHeightStyle }">
-      <div class="card-info md:min-w-[200px] md:max-w-[300px] p-4">
-        <slot name="CardInfo">
-          <p class="text-muted-foreground flex items-center">
-                        <Icon name="ph:airplay" class="w-5 h-5 mr-2" />
-
-            Card Info Not Provided</p>
-        </slot>
-      </div>
-      <div class="primary-action flex-grow p-4">
-        <slot name="PrimaryAction">
-          <p class="text-muted-foreground text-right flex items-center justify-end">
-            <Icon name="ph:acorn" class="w-5 h-5 mr-2" />
-            Primary Action Not Provided
-          </p>
-        </slot>
-      </div>
-    </div>
-    <!-- body  -->
+  <ClientOnly>
     <div 
-      class="body overflow-y-auto transition-all duration-300 ease-in-out"
-      :style="{ height: bodyHeight }"
+      :class="[
+        'fixed-card w-full transition-colors duration-300 ease-in-out border border-border rounded-lg',
+        theme === 'dark' ? 'bg-background text-foreground' : 'bg-background text-foreground'
+      ]"
+      :style="{ height: cardHeight }"
+      ref="cardRef"
     >
-      <slot name="body">
-        <p class="text-muted-foreground bg-muted-foreground/0 w-full h-full flex items-center justify-center">Body Content Not Provided</p>
-      </slot>
+      <!-- Header -->
+      <div class="w-full flex flex-col md:flex-row items-center justify-between animate-in fade-in duration-300 border-b border-border" :style="{ height: headerHeightStyle }">
+        <slot name="CardInfo" class="max-w-[300px]"></slot>
+        <slot name="PrimaryAction" class="flex-1 flex flex-row items-center justify-end"></slot>
+      </div>
+      <!-- body  -->
+      <div 
+        class="body overflow-y-auto transition-all duration-300 ease-in-out"
+        :style="{ height: bodyHeight }"
+      >
+        <slot name="body"></slot>
+      </div>
+      <!-- Footer -->
+      <div class="footer border-t border-border min-h-[50px] flex items-center justify-center" :style="{ height: footerHeightStyle }">
+        <slot name="footer"></slot>
+      </div>
     </div>
-    <!-- Footer -->
-    <div class="footer border-t border-border min-h-[50px] flex items-center justify-center" :style="{ height: footerHeightStyle }">
-      <slot name="footer">
-        <p class="text-muted-foreground/70 text-sm flex items-center justify-center">
-            <Icon name="ph:wheelchair-motion" class="w-5 h-5 mr-1" />
-        Footer Not Provided</p>
-      </slot>
-    </div>
-  </div>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted, watch } from 'vue'
 import { useWindowSize, useResizeObserver } from '@vueuse/core'
+
 const props = defineProps({
   otherElementsHeight: {
     type: Number,
@@ -74,8 +58,7 @@ const cardRef = ref<HTMLElement | null>(null)
 const { height: windowHeight } = useWindowSize()
 const measuredHeaderHeight = ref(0)
 const measuredFooterHeight = ref(0)
-
-const cardHeight = computed(() => `${windowHeight.value - props.otherElementsHeight}px`)
+const cardHeight = ref('0px')
 
 const headerHeightStyle = computed(() => props.headerHeight ? `${props.headerHeight}px` : 'auto')
 const footerHeightStyle = computed(() => props.footerHeight ? `${props.footerHeight}px` : 'auto')
@@ -84,8 +67,8 @@ const actualHeaderHeight = computed(() => props.headerHeight || measuredHeaderHe
 const actualFooterHeight = computed(() => props.footerHeight || measuredFooterHeight.value)
 
 const bodyHeight = computed(() => {
-  const totalHeight = windowHeight.value - props.otherElementsHeight
-  return `${totalHeight - actualHeaderHeight.value - actualFooterHeight.value}px`
+  const totalHeight = parseInt(cardHeight.value) - actualHeaderHeight.value - actualFooterHeight.value
+  return `${totalHeight}px`
 })
 
 const updateHeight = () => {
@@ -94,6 +77,7 @@ const updateHeight = () => {
     const footerEl = cardRef.value.querySelector('.footer')
     measuredHeaderHeight.value = headerEl?.clientHeight || 0
     measuredFooterHeight.value = footerEl?.clientHeight || 0
+    cardHeight.value = `${windowHeight.value - props.otherElementsHeight}px`
     emit('resize', { 
       cardHeight: cardRef.value.clientHeight, 
       bodyHeight: parseFloat(bodyHeight.value)
