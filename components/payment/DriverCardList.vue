@@ -3,43 +3,21 @@ import { ref, computed } from "vue";
 import type { DriverPaymentRecord } from "../../composables/usePaymentRecords";
 
 const props = defineProps<{
-  paymentRecords: DriverPaymentRecord[]
-  loading: boolean
-  error: string | null
-}>()
+  records: DriverPaymentRecord[];
+  idx: number | 0;
+  loading: boolean;
+  error: string | null;
+}>();
 
 const emit = defineEmits<{
-  (e: 'select-driver', driver: DriverPaymentRecord): void
-}>()
+  (e: "select-driver", driver: DriverPaymentRecord): void;
+}>();
 
-const page = ref(1);
-const itemsPerPage = 10;
+const page = ref(props.idx);
 
-const paginatedRecords = computed(() => {
-  const start = (page.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return props.paymentRecords.slice(start, end);
-});
-
-const activeDriver = computed(() => {
-  return paginatedRecords.value[0];
-});
-
-const activeDriverId = computed(() => {
-  return activeDriver.value?.id;
-});
-
-const totalPages = computed(() => {
-  return Math.ceil(props.paymentRecords.length / itemsPerPage);
-});
-
-const handlePageChange = (newPage: number) => {
-  page.value = newPage;
+const handleDriverSelect = (idx: number) => {
+  emit("select-driver", idx);
 };
-
-const handleDriverSelect = (driver: DriverPaymentRecord) => {
-  emit('select-driver', driver)
-}
 </script>
 
 <template>
@@ -48,38 +26,48 @@ const handleDriverSelect = (driver: DriverPaymentRecord) => {
   <Pagination
     v-else
     v-model="page"
-    :total="totalPages"
     :sibling-count="1"
-    class="min-w-full"
-    @update:model-value="handlePageChange"
+    class="p-0 m-0 overflow-x-scroll scrollbar-hide overscroll-none border-b border-b-border"
   >
     <PaginationList
-      class="flex flex-nowrap items-center justify-start px-4 overflow-x-scroll scrollbar-hide overscroll-none divide-x divide-surface"
+      class="flex flex-nowrap group items-center justify-start p-0 m-0 overflow-x-scroll scrollbar-hide overscroll-none divide-surface"
     >
-      <template v-for="record in paginatedRecords" :key="record.id">
+      <template v-for="(record, index) in records" :key="record.id">
         <PaginationListItem
           :value="record.id"
           as-child
-          class="p-0 flex flex-col items-center justify-center max-w-40 gap-y-2 min-w-40 cursor-pointer hover:opacity-100 hover:shadow-lg hover:border-y-2 hover:border-y-accent-foreground/50 transition-all duration-300 rounded-none py-4 px-2"
+          class="p-0 flex flex-col items-center justify-center max-w-40 gap-y-1 md:gap-y-2 min-w-32 cursor-pointer transition-all duration-300 rounded-none py-3 md:py-4 px-1 md:px-6 group-last:border-r ring-accent-foreground/50"
           :class="{
-            'opacity-100 border-y-2 border-y-accent-foreground shadow-lg': record.id == activeDriverId,
-            'opacity-50 border-b border-b-surface': record.id != activeDriverId,
+            'opacity-100 border-y border-y-accent-foreground/80':
+              index == idx,
+            'opacity-50': index != idx,
           }"
-          @click="handleDriverSelect(record)"
+          @click="handleDriverSelect(index)"
         >
-          <div class="p-0 flex flex-col items-center justify-center gap-y-2">
-            <p class="text-sm text-foreground uppercase truncate max-w-full">
+          <div
+            class="p-0 flex flex-col items-center justify-center gap-y-1 md:gap-y-2 text-xs md:text-sm"
+          >
+            <p class="uppercase truncate text-xs max-w-full">
               {{ record.haulblaze_contact?.first_name }}
               {{ record.haulblaze_contact?.last_name }}
             </p>
-            <p class="text-sm text-foreground lining-nums leading-relaxed">
-              {{ record.net_pay.toFixed(2) }}
+            <p
+              class="text-foreground uppercase truncate max-w-full text-xs md:text-sm"
+            >
+              {{ record?.custom_uid }}
             </p>
-            <Badge :variant="record.payment_method ? 'default' : 'outline'">
-              <p class="text-xs uppercase">
-                {{ record.actual_payment_date ? record.actual_payment_date : 'Pending' }}
+            <p
+              class="lining-nums leading-relaxed text-xs md:text-sm "
+            >
+              $ {{ record.net_pay.toFixed(2) }}
+            </p>
+              <p class="uppercase text-xs bg-red-500/20 rounded-full px-3 py-1 opacity-70 scale-90">
+                {{
+                  record.actual_payment_date
+                    ? record.actual_payment_date
+                    : "Pending"
+                }}
               </p>
-            </Badge>
           </div>
         </PaginationListItem>
       </template>

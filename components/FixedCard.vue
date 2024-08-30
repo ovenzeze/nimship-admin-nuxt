@@ -35,7 +35,7 @@ import { useWindowSize, useResizeObserver } from '@vueuse/core'
 const props = defineProps({
   otherElementsHeight: {
     type: Number,
-    default: 80
+    default: 10
   },
   theme: {
     type: String,
@@ -43,11 +43,11 @@ const props = defineProps({
     validator: (value: string) => ['light', 'dark'].includes(value)
   },
   headerHeight: {
-    type: Number,
+    type: [Number, String],
     default: undefined
   },
   footerHeight: {
-    type: Number,
+    type: [Number, String],
     default: undefined
   }
 })
@@ -58,7 +58,7 @@ const cardRef = ref<HTMLElement | null>(null)
 const { height: windowHeight } = useWindowSize()
 const measuredHeaderHeight = ref(0)
 const measuredFooterHeight = ref(0)
-const cardHeight = ref('0px')
+const cardHeight = ref('h-full')
 
 const headerHeightStyle = computed(() => props.headerHeight ? `${props.headerHeight}px` : 'auto')
 const footerHeightStyle = computed(() => props.footerHeight ? `${props.footerHeight}px` : 'auto')
@@ -67,7 +67,7 @@ const actualHeaderHeight = computed(() => props.headerHeight || measuredHeaderHe
 const actualFooterHeight = computed(() => props.footerHeight || measuredFooterHeight.value)
 
 const bodyHeight = computed(() => {
-  const totalHeight = parseInt(cardHeight.value) - actualHeaderHeight.value - actualFooterHeight.value
+  const totalHeight = parseInt(cardHeight.value) - parseInt(props.headerHeight as string) - parseInt(props.footerHeight as string)
   return `${totalHeight}px`
 })
 

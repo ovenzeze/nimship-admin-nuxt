@@ -29,12 +29,12 @@ import { Toaster } from '@/components/ui/toast'
 
 
 .noscrollbar::-webkit-scrollbar {
-  width: 0.125rem;
-  height: 0.125rem;
+  width: 0;
+  height: 0;
 }
 *::-webkit-scrollbar {
-  width: 0.125rem;
-  height: 0.125rem;
+  width: 0;
+  height: 0;
 }
 .noscrollbar::-webkit-scrollbar-track {
   border-radius: 9999px;

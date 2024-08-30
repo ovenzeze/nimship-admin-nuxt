@@ -37,7 +37,10 @@ export function useEnums() {
     }
   }
 
-  const getEnumsByType = (type: string) => {
+  const getEnumsByType = async (type: string) => {
+    if (!isLoaded.value && !isLoading.value) {
+      await fetchEnums()
+    }
     return enumItems.value.filter(item => item.type === type)
   }
 
