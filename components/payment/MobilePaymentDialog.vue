@@ -1,16 +1,10 @@
 <template>
-  <!-- <Dialog :open="open" @update:open="$emit('update:open', $event)">
+  <Dialog v-model:open="open">
     <DialogContent class="sm:max-w-[425px]">
-      <DialogHeader>
-        <DialogTitle>Payment Review</DialogTitle>
-        <DialogDescription>
-          Review and confirm payment details
-        </DialogDescription>
-      </DialogHeader>
       <PaymentPanel :record="record" />
     </DialogContent>
-  </Dialog> -->
-        <Dialog v-model:open="isOpen">
+  </Dialog>
+        <!-- <Dialog v-model:open="isOpen">
         <DialogContent class="sm:max-w-[600px] px-4 pt-8 max-h-[96dvh]">
           <DialogHeader>
             <DialogTitle>Create New Invoice</DialogTitle>
@@ -39,21 +33,21 @@
             </Tabs>
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> -->
 </template>
 
 <script setup lang="ts">
-import  PaymentPanel  from './PaymentPanel.vue';
-import type { DriverPaymentRecord } from '~/composables/usePaymentRecords';
+import PaymentPanel from './PaymentPanel.vue';
+import type { ReadablePaymentRecord } from '~/utils/driver';
 
 const props = defineProps<{
-  isOpen: boolean;
-  record: DriverPaymentRecord;
+  open: boolean;
+  record: ReadablePaymentRecord;
 }>();
+const open = ref(false);
+const record = computed(() => props.record)
+watch(props.open, (newVal) => {
+  open.value = newVal;
+}, { immediate: true });
 
-const isOpen = ref(props.isOpen);
-
-defineEmits<{
-  'update:open': [value: boolean];
-}>();
 </script>

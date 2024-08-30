@@ -18,19 +18,18 @@
 <script setup lang="ts">
 import InfoCardGroup from './InfoCardGroup.vue';
 import InfoCard from './InfoCard.vue';
-import type { DriverPaymentRecord } from '../../composables/usePaymentRecords';
+import type { ReadablePaymentRecord } from '~/utils/driver';
 
 const props = defineProps<{
-  record: DriverPaymentRecord;
+  record: ReadablePaymentRecord;
 }>();
 
-const record = computed(() => readableDriver(props.record));
 const bankItems = computed(() => [
-  { label: "Account Type", value: record.value.payment_method, icon: "ph:bank" },
-  { label: "Routing Number", value: record.value.routing_ending ? `****${record.value.routing_ending}` : "N/A", icon: "ph:hash" },
-  { label: "Account Number", value: record.value.account_ending ? `****${record.value.account_ending}` : "N/A", icon: "ph:credit-card" },
-  { label: "Zelle", value: record.value.zelle || "N/A", icon: "ph:currency-circle-dollar" },
-  { label: "Venmo", value: record.value.zelle || "N/A", icon: "ph:credit-card", class: "hidden md:block" },
+  { label: "Account Type", value: props.record.payment_method, icon: "ph:bank" },
+  { label: "Routing Number", value: props.record.routing_ending ? `****${props.record.routing_ending}` : "N/A", icon: "ph:hash" },
+  { label: "Account Number", value: props.record.account_ending ? `****${props.record.account_ending}` : "N/A", icon: "ph:credit-card" },
+  { label: "Zelle", value: props.record.zelle || "N/A", icon: "ph:currency-circle-dollar" },
+  { label: "Venmo", value: props.record.zelle || "N/A", icon: "ph:credit-card", class: "hidden md:block" },
 ]);
 
 </script>

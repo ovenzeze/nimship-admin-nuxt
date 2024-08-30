@@ -19,17 +19,17 @@
 import { computed } from 'vue';
 import InfoCardGroup from './InfoCardGroup.vue';
 import InfoCard from './InfoCard.vue';
-import type { DriverPaymentRecord } from '../../composables/usePaymentRecords';
+import type { ReadablePaymentRecord } from '~/utils/driver';
 
 const props = defineProps<{
-  record: DriverPaymentRecord;
+  record: ReadablePaymentRecord;
 }>();
 
 const statusItems = computed(() => [
-  { label: "Status", value: props.record.payment_status, icon: "ph:stamp-light" },
-  { label: "Time", value: props.record.payment_date || "N/A", icon: "ph:clock" },
-  { label: "Method", value: props.record.payment_method || "N/A", icon: "ph:credit-card" },
-  { label: "Amount", value: `$${props.record.net_pay.toFixed(2)}`, icon: "ph:currency-circle-dollar" },
+  { label: "Status", value: props.record.paymentStatus.status, icon: "ph:stamp-light" },
+  { label: "Time", value: props.record.payment_time || "N/A", icon: "ph:clock" },
+  { label: "Method", value: props.record.paymentStatus.name || "N/A", icon: "ph:credit-card" },
+  { label: "Amount", value: `$${props.record.actual_amount_paid.toFixed(2)}`, icon: "ph:currency-circle-dollar" },
   { label: "Notes", value: "N/A", icon: "ph:note-duotone" },
   { label: "Employee", value: props.record.name, icon: "ph:user", class: "md:hidden" },
 ]);

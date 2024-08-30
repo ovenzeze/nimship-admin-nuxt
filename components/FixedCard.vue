@@ -5,50 +5,55 @@
         'fixed-card w-full transition-colors duration-300 ease-in-out border border-border rounded-lg',
         theme === 'dark' ? 'bg-background text-foreground' : 'bg-background text-foreground'
       ]"
-      :style="{ height: cardHeight }"
+      :style="{ height: heightStyl.cardHeight }"
       ref="cardRef"
     >
       <!-- Header -->
-      <div class="w-full flex flex-col md:flex-row items-center justify-between animate-in fade-in duration-300 border-b border-border" :style="{ height: headerHeightStyle }">
-        <slot name="CardInfo" class="max-w-[300px]"></slot>
-        <slot name="PrimaryAction" class="flex-1 flex flex-row items-center justify-end"></slot>
+      <div class="w-full flex flex-col md:flex-row items-center justify-between animate-in fade-in duration-300 border-b border-border header" :style="{ height: heightStyl.headerHeight }">
+        <slot name="CardInfo" class="max-w-[300px]">
+          <p class="text-sm text-muted-foreground text-center">Card Info</p>
+        </slot>
+        <slot name="PrimaryAction" class="flex-1 flex flex-row items-center justify-end">
+        </slot>
       </div>
       <!-- body  -->
       <div 
-        class="body overflow-y-auto transition-all duration-300 ease-in-out"
-        :style="{ height: bodyHeight }"
+        class="flex body overflow-hidden transition-all duration-300 ease-in-out overscroll-none"
+        :style="{ height: heightStyl.bodyHeight }"
       >
-        <slot name="body"></slot>
+        <slot name="body">
+          <p class="text-sm text-muted-foreground text-center h-full flex-1 content-center">Body</p>
+        </slot>
       </div>
       <!-- Footer -->
-      <div class="footer border-t border-border min-h-[50px] flex items-center justify-center" :style="{ height: footerHeightStyle }">
-        <slot name="footer"></slot>
+      <div class="footer border-t border-border min-h-[50px] flex items-center justify-center" :style="{ height: heightStyl.footerHeight }" v-if="footerHeight != 0">
+        <slot name="footer">
+          <p class="text-sm text-muted-foreground">Development Only Time: {{ new Date().toLocaleTimeString() }}</p>
+        </slot>
       </div>
     </div>
   </ClientOnly>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
 import { useWindowSize, useResizeObserver } from '@vueuse/core'
 
 const props = defineProps({
   otherElementsHeight: {
     type: Number,
-    default: 10
+    default: 80
+  },
+  headerHeight: {
+    type: Number,
+    default: 50
+  },
+  footerHeight: {
+    type: Number,
+    default: 50
   },
   theme: {
     type: String,
-    default: 'light',
-    validator: (value: string) => ['light', 'dark'].includes(value)
-  },
-  headerHeight: {
-    type: [Number, String],
-    default: undefined
-  },
-  footerHeight: {
-    type: [Number, String],
-    default: undefined
+    default: 'light'
   }
 })
 
@@ -58,36 +63,42 @@ const cardRef = ref<HTMLElement | null>(null)
 const { height: windowHeight } = useWindowSize()
 const measuredHeaderHeight = ref(0)
 const measuredFooterHeight = ref(0)
-const cardHeight = ref('h-full')
+const cardHeight = ref('100%')
 
-const headerHeightStyle = computed(() => props.headerHeight ? `${props.headerHeight}px` : 'auto')
-const footerHeightStyle = computed(() => props.footerHeight ? `${props.footerHeight}px` : 'auto')
+const heightStyl = ref({
+  headerHeight: `${props.headerHeight}px`,
+  footerHeight: `${props.footerHeight}px`,
+  cardHeight: 'auto',
+  bodyHeight: `calc(100vh - ${props.headerHeight}px - ${props.footerHeight}px)`
+})
 
 const actualHeaderHeight = computed(() => props.headerHeight || measuredHeaderHeight.value)
 const actualFooterHeight = computed(() => props.footerHeight || measuredFooterHeight.value)
 
 const bodyHeight = computed(() => {
-  const totalHeight = parseInt(cardHeight.value) - parseInt(props.headerHeight as string) - parseInt(props.footerHeight as string)
+  const totalHeight = cardHeight.value - props.headerHeight - props.footerHeight
   return `${totalHeight}px`
 })
 
 const updateHeight = () => {
   if (cardRef.value) {
-    const headerEl = cardRef.value.querySelector('.flex')
+    const headerEl = cardRef.value.querySelector('.header')
     const footerEl = cardRef.value.querySelector('.footer')
     measuredHeaderHeight.value = headerEl?.clientHeight || 0
     measuredFooterHeight.value = footerEl?.clientHeight || 0
-    cardHeight.value = `${windowHeight.value - props.otherElementsHeight}px`
-    emit('resize', { 
-      cardHeight: cardRef.value.clientHeight, 
-      bodyHeight: parseFloat(bodyHeight.value)
-    })
+    console.log('measuredHeaderHeight', measuredHeaderHeight.value)
+    console.log('measuredFooterHeight', measuredFooterHeight.value)
+    console.log('windowHeight', windowHeight.value)
+    console.log('props.otherElementsHeight', props.otherElementsHeight)
+    cardHeight.value = windowHeight.value - props.otherElementsHeight
+    heightStyl.value.cardHeight = `${cardHeight.value}px`
+    heightStyl.value.bodyHeight = `${cardHeight.value - props.headerHeight - props.footerHeight}px`
+    console.log('heightStyl', heightStyl.value)
+    emit('resize', heightStyl.value)
   }
 }
 
-onMounted(() => {
-  updateHeight()
-})
+onMounted(() => updateHeight())
 
 watch(windowHeight, updateHeight)
 

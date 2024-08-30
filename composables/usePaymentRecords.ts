@@ -2,36 +2,13 @@ import { ref, computed } from 'vue'
 import { useSupabaseClient } from '#imports'
 import type { Database } from '~/types/database'
 
+type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
+type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
+
 // Define the DriverPaymentRecord type
-export type DriverPaymentRecord = {
-  id: string
-  team_name: Database['public']['Enums']['team_name_enum']
-  warehouse: string
-  custom_id: Database['public']['Enums']['custom_id_enum']
-  cycle_start: string
-  cycle_end: string
-  gross_pay: number
-  net_pay: number
-  deduction_amount: number
-  allowance: number
-  bonus: number
-  payment_status: 'PAID' | 'UNPAID'
-  payment_method: string
-  routing_number?: string
-  account_number?: string
-  zelle?: string
-  haulblaze_contact?: {
-    first_name: string
-    last_name: string
-    email: string
-    phone: string
-    driver_license_no: string
-  }
-  deductions?: Array<{
-    amount: number
-    reason: string
-    status: string
-  }>
+export type DriverPaymentRecord = PaymentRecord & {
+  haulblaze_contact?: HaulblazeContact
+  deductions?: any[]
 }
 
 export const usePayment = () => {

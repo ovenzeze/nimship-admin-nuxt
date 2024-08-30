@@ -1,7 +1,7 @@
 <template>
   <div v-if="record" class="w-full min-h-full max-h-full flex flex-col md:flex-row antialiased">
-    <div class="flex-1 grid grid-rows-3 overflow-x-auto">
-      <div class="md:min-w-[1000px]">
+    <div class="flex-1 flex overflow-auto">
+      <div class="flex-1 md:min-w-[1000px] md:grid md:grid-rows-4">
         <DriverInfo :record="record" />
         <PayrollDetails :record="record" />
         <BankInfo :record="record" />
@@ -10,22 +10,22 @@
     </div>
     
     <Button
-      @click="openPaymentPanel"
+      @click="() => isPaymentPanelOpen = !isPaymentPanelOpen"
       class="md:hidden fixed bottom-4 right-4 z-50 rounded-full"
       size="icon"
     >
       <Icon name="ph:receipt" class="w-5 h-5 text-primary-foreground" />
     </Button>
     
-    <div class="hidden md:block h-full overflow-y-auto p-4 w-[280px] min-h-[550px] border-l-2 border-red-500/50 rounded-lg">
-      <PaymentPanel :record="record" />
+    <div class="hidden md:block h-full overflow-y-auto p-4 w-[320px] min-h-[550px] border-l-2 border-red-500/50 rounded-lg">
+      <PaymentPanel :record="record" v-if="width > 768" />
     </div>
     
-    <MobilePaymentDialog
-      :isOpen="isPaymentPanelOpen"
-      @update:open="closePaymentPanel"
-      :record="record"
-    />
+    <Dialog v-model:open="isPaymentPanelOpen" v-if="width < 768">
+    <DialogContent class="sm:max-w-[425px]">
+      <PaymentPanel :record="record" />
+    </DialogContent>
+  </Dialog>
   </div>
 </template>
 
@@ -39,21 +39,16 @@ import PaymentStatus from './PaymentStatus.vue';
 import PaymentPanel from './PaymentPanel.vue';
 import MobilePaymentDialog from './MobilePaymentDialog.vue';
 import type { DriverPaymentRecord } from '../../composables/usePaymentRecords';
+import { getReadablePaymentRecord, type ReadablePaymentRecord } from '~/utils/driver';
+import { useWindowSize } from '@vueuse/core';
 
 const props = defineProps<{
-  record: DriverPaymentRecord;
+  record: ReadablePaymentRecord;
 }>();
+const { width } = useWindowSize();
+const record = computed(()=> props.record);
 
-const record = computed(() => readableDriver(props.record));
 const isPaymentPanelOpen = ref(false);
 
-const openPaymentPanel = () => {
-  isPaymentPanelOpen.value = true;
-};
 
-const closePaymentPanel = () => {
-  isPaymentPanelOpen.value = false;
-};
-
-defineExpose({});
 </script>

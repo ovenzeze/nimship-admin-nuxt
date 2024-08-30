@@ -1,7 +1,7 @@
 <template>
   <div class="component-tester">
     <div class="function-area p-4 bg-muted">
-      <UiSelect v-model="selectedComponent" :options="componentOptions" />
+      <!-- <USelect v-model="selectedComponent" :options="componentOptions" /> -->
     </div>
     <div class="component-display mt-4">
       <component :is="selectedComponent" />
