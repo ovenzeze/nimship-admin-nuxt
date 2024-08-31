@@ -11,5 +11,12 @@
         ".cache": true,
         "retool.config.json": true
     },
-    "i18n-ally.localesPaths": []
+    "i18n-ally.localesPaths": [],
+    "files.associations": {
+        "*.css": "tailwindcss"
+    },
+    "editor.quickSuggestions": {
+        "strings": true
+    },
+    "editor.formatOnSave": true
 }

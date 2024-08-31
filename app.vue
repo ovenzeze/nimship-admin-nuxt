@@ -61,60 +61,6 @@ body {
   filter: blur(1rem);
 }
 
-/* CSS */
-.button-27 {
-  appearance: none;
-  background-color: #000000;
-  border: 2px solid #1a1a1a;
-  border-radius: 8px;
-  box-sizing: border-box;
-  color: #ffffff;
-  cursor: pointer;
-  display: inline-block;
-  font-weight: 600;
-  line-height: normal;
-  margin: 0;
-  min-width: 0;
-  outline: none;
-  padding: 8px 20px;
-  text-align: center;
-  text-decoration: none;
-  transition: all 300ms cubic-bezier(0.23, 1, 0.32, 1);
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  width: 100%;
-  will-change: transform;
-}
-
-.button-27:disabled {
-  pointer-events: none;
-}
-
-.button-27:hover {
-  box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
-  transform: translateY(-2px);
-}
-
-.button-27:active {
-  box-shadow: none;
-  transform: translateY(0);
-}
-
-body::-webkit-scrollbar {
-  width: 0.125rem;
-  height: 0.125rem;
-}
-
-body::-webkit-scrollbar-track {
-  border-radius: 9999px;
-  background-color: #f3f4f6;
-}
-
-body::-webkit-scrollbar-thumb {
-  border-radius: 9999px;
-  background-color: #f3f4f6;
-}
 .noscrollbar::-webkit-scrollbar {
   width: 0.125rem;
   height: 0.125rem;

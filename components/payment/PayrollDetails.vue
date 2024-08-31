@@ -1,18 +1,7 @@
- <template>
-  <InfoCardGroup
-    icon="ph:money"
-    label="Payroll"
-    themeColor="purple"
-  >
-    <InfoCard
-      v-for="(item, itemIndex) in payrollItems"
-      :key="itemIndex"
-      :label="item.label"
-      :value="item.value"
-      :icon="item.icon"
-      :class="item.class"
-      :highlight="item.highlight"
-    />
+<template>
+  <InfoCardGroup icon="ph:money" label="Payroll" themeColor="purple">
+    <InfoCard v-for="(item, itemIndex) in payrollItems" :key="itemIndex" :label="item.label" :value="item.value"
+      :icon="item.icon" :class="item.class" :highlight="item.highlight" />
   </InfoCardGroup>
 </template>
 
@@ -31,12 +20,12 @@ const payrollItems = computed(() => [
   { label: "Deductions", value: formatCurrency(props.record.deduction_amount), icon: "ph:minus-circle" },
   { label: "Pre Paid", value: formatCurrency(props.record.pre_paid), icon: "ph:minus-circle" },
   { label: "Allowance", value: formatCurrency(props.record.allowance), icon: "ph:plus-circle" },
-  { label: "Net Pay", value: formatCurrency(props.record.net_pay), icon: "ph:money", highlight: true, class: "hidden md:block" },
+  // { label: "Net Pay", value: formatCurrency(props.record.net_pay), icon: "ph:money", highlight: true, class: "hidden md:block" },
   ...(props.record.payment_status === "PAID"
     ? [
-        { label: "Payment Date", value: formatDate(props.record.payment_date), icon: "ph:calendar-check" },
-        { label: "Payment Method", value: props.record.payment_method, icon: "ph:bank" },
-      ]
+      { label: "Payment Date", value: formatDate(props.record.payment_date), icon: "ph:calendar-check" },
+      { label: "Payment Method", value: props.record.payment_method, icon: "ph:bank" },
+    ]
     : []),
 ]);
 

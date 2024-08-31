@@ -19,18 +19,20 @@ interface ReadablePaymentRecord extends DriverPaymentRecord {
   name: string;
   cycle_start: string;
   cycle_end: string;
+  warehouse: string;
+  driver_id: number;
   routing_ending?: string;
   account_ending?: string;
   routing: string;
   account: string;
-  paymentStatus: PaymentStatusInfo;
+  payment_status: PaymentStatusInfo;
   payment_time: string;
 }
 
 /**
  * Enum representing the payment status
  */
-export enum PaymentStatus {
+enum PaymentStatus {
   PENDING = 0,
   PAID_ACH = 91,
   PAID_CHECK = 92,
@@ -44,7 +46,7 @@ export enum PaymentStatus {
 /**
  * Type representing the payment status information
  */
-export type PaymentStatusInfo = {
+type PaymentStatusInfo = {
   name: string;
   status: string;
   color: string;
@@ -53,7 +55,7 @@ export type PaymentStatusInfo = {
 /**
  * Map of payment status to their corresponding information
  */
-export const paymentStatusMap: Record<PaymentStatus, PaymentStatusInfo> = {
+const paymentStatusMap: Record<PaymentStatus, PaymentStatusInfo> = {
   [PaymentStatus.PENDING]: { name: 'PENDING', status: 'PENDING', color: 'red' },
   [PaymentStatus.PAID_ACH]: { name: 'PAID - ACH', status: 'PAID', color: 'blue' },
   [PaymentStatus.PAID_CHECK]: { name: 'PAID - CHECK', status: 'PAID', color: 'blue' },
@@ -69,7 +71,7 @@ export const paymentStatusMap: Record<PaymentStatus, PaymentStatusInfo> = {
  * @param driver - The original driver payment record
  * @returns A ReadablePaymentRecord object with formatted information
  */
-export const getReadablePaymentRecord = (driver: DriverPaymentRecord): ReadablePaymentRecord => {
+const getReadablePaymentRecord = (driver: DriverPaymentRecord): ReadablePaymentRecord => {
   const { haulblaze_contact, deductions = [] } = driver
   return {
     ...driver,
@@ -77,17 +79,17 @@ export const getReadablePaymentRecord = (driver: DriverPaymentRecord): ReadableP
     cycle_start: dayjs(driver.cycle_start).format('MM/DD/YYYY'),
     cycle_end: dayjs(driver.cycle_end).format('MM/DD/YYYY'),
     warehouse: driver.warehouse,
+    driver_id: Number(driver.custom_uid),
     routing: haulblaze_contact?.routing_number,
     account: haulblaze_contact?.account_number,
     routing_ending: haulblaze_contact?.routing_number?.slice(-4),
     account_ending: haulblaze_contact?.account_number?.slice(-4),
     payment_time: dayjs(driver.payment_time).format('MM/DD/YYYY HH:mm:ss'),
-    paymentStatus: paymentStatusMap[driver.payment_status as PaymentStatus] || paymentStatusMap[PaymentStatus.OTHERS],
+    payment_status: paymentStatusMap[driver.payment_method as PaymentStatus] || paymentStatusMap[PaymentStatus.OTHERS],
   }
 }
 
-const isMobile = () => {
-  return window.innerWidth <= 768;
-}
 
-export type { ReadablePaymentRecord, DriverPaymentRecord }
+export type { ReadablePaymentRecord, DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact }
+export { getReadablePaymentRecord }
+

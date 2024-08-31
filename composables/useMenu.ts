@@ -20,6 +20,7 @@ export function useMenu() {
     { name: 'Customer', icon: 'ph:user-circle-light', href: '/customer', active: false, requiresAuth: false, disabled: false },
     { name: 'Deduction', icon: 'ph:credit-card', href: '/deduction', active: false, requiresAuth: false, disabled: false },
     { name: 'Import', icon: 'ph:cloud-arrow-up-light', href: '/upload', active: false, requiresAuth: false, disabled: false },
+    { name: 'CompTester', icon: 'ph:test-tube-light', href: '/comptester', active: false, requiresAuth: false, disabled: false },
     { name: 'Settings', icon: 'ph:gear-six-light', href: '/config', active: false, requiresAuth: false, disabled: false },
   ]
 

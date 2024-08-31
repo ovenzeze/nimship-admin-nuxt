@@ -1,23 +1,21 @@
 <template>
   <div class="component-tester">
-    <div class="function-area p-4 bg-muted">
-      <!-- <USelect v-model="selectedComponent" :options="componentOptions" /> -->
+    <div class="function-area">
+      <USelectMenu v-model="selectedCompName" :options="componentOptions" />
     </div>
     <div class="component-display mt-4">
-      <component :is="selectedComponent" />
+      <component :is="selectedComp" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { FixedCard } from '#components'
-// Define list of testable components
+import { USelectMenu, FixedCard } from '#components'
 const componentOptions = [
   { value: 'FixedCard', label: 'Fixed Card', component: FixedCard },
-  // Add more components...
 ]
-
-const selectedComponent = ref(componentOptions[0].component)
+const selectedCompName = ref(componentOptions[0].value)
+const selectedComp = componentOptions.find(comp => comp.value === selectedCompName.value)?.component
 </script>
 
 <style scoped>

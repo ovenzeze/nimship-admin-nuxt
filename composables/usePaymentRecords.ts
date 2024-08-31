@@ -6,10 +6,6 @@ type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
 type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
 
 // Define the DriverPaymentRecord type
-export type DriverPaymentRecord = PaymentRecord & {
-  haulblaze_contact?: HaulblazeContact
-  deductions?: any[]
-}
 
 export const usePayment = () => {
   const supabase = useSupabaseClient<Database>()
@@ -92,7 +88,7 @@ export const usePayment = () => {
             .order('cycle_start', { ascending: false })
 
           if (samePerioError) throw samePerioError
-          paymentRecords.value = samePerioData || []
+          paymentRecords.value = samePerioData as DriverPaymentRecord[]
         } else {
           paymentRecords.value = data as DriverPaymentRecord[]
         }

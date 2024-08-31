@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   typescript: {
     strict: false,
     builder: 'vite',
-    typeCheck: false, 
+    typeCheck: false,
     tsConfig: {
       "compilerOptions": {
         "skipLibCheck": true,
@@ -20,23 +20,29 @@ export default defineNuxtConfig({
     },
   },
   modules: [
-    "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
     "@nuxtjs/google-fonts",
     "@nuxtjs/i18n",
     "@nuxt/content",
-    "@nuxt/icon",
     "@nuxtjs/supabase",
     "@formkit/auto-animate",
-    "@nuxtjs/color-mode"
+    "@nuxt/ui",
+    '@nuxtjs/tailwindcss',
   ],
-
+  tailwindcss: {
+    config: {
+      plugins: [
+        require('@tailwindcss/forms'),
+        require('tailwindcss-animate'), // 如果您想使用 Tailwind 的动画
+      ],
+    },
+  },
   colorMode: {
     classSuffix: '',
     storageKey: 'nuxt-color-mode'
   },
 
-  shadcn: { prefix: "", componentDir: "./components/ui"},
+  shadcn: { prefix: "", componentDir: "./components/ui" },
 
   googleFonts: {
     display: "swap",
@@ -67,6 +73,7 @@ export default defineNuxtConfig({
     },
   },
   compatibilityDate: "2024-07-28",
+
   components: [
     {
       path: "./components",

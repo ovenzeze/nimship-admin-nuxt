@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import typography from '@tailwindcss/typography';
+
 module.exports = {
   darkMode: ["class"],
   safelist: ["dark"],
@@ -49,7 +51,7 @@ module.exports = {
         },
       },
       borderRadius: {
-      	xl: "calc(var(--radius) + 4px)",
+        xl: "calc(var(--radius) + 4px)",
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
@@ -85,5 +87,5 @@ module.exports = {
     './components/**/*.{vue,js,ts,jsx,tsx}',
     './components/ui/**/*.{vue,js,ts,jsx,tsx}',
   ],
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")]
+  plugins: [require("tailwindcss-animate"), typography]
 }
