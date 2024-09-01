@@ -1,7 +1,7 @@
 <template>
   <div>
     <FixedCard :otherElementsHeight="{ mobile: 60, desktop: 40 }" :footerHeight="{ mobile: 0, desktop: 40 }"
-      :headerHeight="{ mobile: 0, desktop: 50 }">
+      :headerHeight="{ mobile: 10, desktop: 50 }">
       <template #CardInfo>
         <div class="w-full flex-row items-center justify-between hidden md:flex">
           <h2 class="text-xl flex items-center ml-4 py-2 uppercase">
@@ -13,10 +13,6 @@
 
       <template #PrimaryAction>
         <div class="relative md:mr-4">
-          <Button @click="toggleFilterPanel" class="md:hidden fixed bottom-16 right-4 z-50 rounded-full bg-foreground"
-            size="icon">
-            <Icon name="ph:funnel" class="w-5 h-5 text-background" />
-          </Button>
           <FilterOptions :warehouses="warehouses" :teams="teams" :teamsLoading="teamsLoading"
             :is-open="isFilterPanelOpen" @update:is-open="(isOpen) => isFilterPanelOpen = isOpen"
             @update:filter="handleFilterChange" @update:team="handleTeamChange" />
@@ -49,6 +45,10 @@
         </div>
       </template>
     </FixedCard>
+    <Button @click="toggleFilterPanel" class="md:hidden fixed bottom-16 right-4 z-40 rounded-full bg-foreground"
+      size="icon">
+      <Icon name="ph:funnel" class="w-5 h-5 text-background" />
+    </Button>
     <Button v-if="isMobile && selectedDriver" @click="isPaymentPanelOpen = true"
       class="fixed bottom-4 right-4 z-40 rounded-full bg-foreground" size="icon">
       <Icon name="ph:open-ai-logo" class="w-5 h-5 text-background" />

@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-background rounded-xl transition-all duration-300 ease-in-out" :class="{
+  <div class="bg-background rounded-xl transition-all duration-300 ease-in-out shadow-lg" :class="{
     'translate-x-full opacity-0': !isOpen && isMobile,
-    'fixed inset-y-0 right-0 top-[60svh] h-[40svh] w-full backdrop-blur-sm z-50 border-t-2 border-blue-500/50': isMobile,
+    'fixed inset-y-0 right-0 top-[60svh] h-[40svh] w-full backdrop-blur-sm z-50  border-blue-500/50 rounded-t-xl': isMobile,
     'translate-x-0 opacity-100': isMobile && isOpen
   }">
     <div class="flex items-center justify-between p-4 border-b" v-if="isMobile">

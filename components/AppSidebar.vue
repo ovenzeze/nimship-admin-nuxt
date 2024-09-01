@@ -73,135 +73,90 @@ const toggleMenu = (item) => {
 </script>
 
 <template>
-<ClientOnly>
-  <div class="flex min-h-screen w-full flex-col">
-    <!-- Mobile top bar -->
-    <header class="fixed top-0 left-0 right-0 z-20 bg-background shadow-sm sm:hidden">
-      <div class="flex items-center justify-between px-4 py-0">
-        <Button @click="toggleSidebar" class="text-muted-foreground" variant="ghost">
-          <Icon name="ph:list" class="h-5 w-6" />
-        </Button>
-        <a href="/" class="flex items-center gap-2">
-          <Icon name="ph:package-duotone" class="h-5 w-5 text-primary" />
-          <!-- <span class="font-semibold text-lg">DETH</span> -->
-        </a>
-        <div v-if="isAuthenticated && user">
-          <DropdownMenu>
-            <DropdownMenuTrigger class="flex items-center">
-              <img :src="user.avatar" :alt="user.name" class="h-8 w-8 rounded-full" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>{{ user.name }}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem @click="emit('logout')">Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <Button v-else @click="emit('login')" variant="ghost" size="sm">
-          Login
-        </Button>
-      </div>
-    </header>
-
-    <!-- Desktop sidebar -->
-    <aside class="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
-      <nav class="flex flex-col items-center gap-4 py-5">
-        <a href="/" class="group flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-semibold text-primary-foreground">
-          <Icon name="ph:package-duotone" class="h-4 w-4 transition-all group-hover:scale-105" />
-          <span class="sr-only">DETH</span>
-        </a>
-        <div v-for="item in filteredNavItems" :key="item.name" class="relative group w-full">
-          <div class="flex items-center">
-            <a :href="item.href" :class="[
-              'flex h-9 w-full items-center justify-center transition-colors hover:text-foreground hover:bg-background hover:border-y hover:border-l',
-              item.active ? 'bg-accent text-accent-foreground scale-105 text-accent-primary' : 'text-muted-foreground'
-            ]">
-              <Icon :name="item.icon" class="h-5 w-5" />
-              <div class="absolute left-[40px] top-0 h-9 hidden group-hover:flex items-center bg-background border-y border-r rounded-r-lg cursor-pointer min-w-[100px]">
-                <div class="animate-in slide-in-from-left-5 duration-300 whitespace-nowrap pl-2 pr-6 py-1 text-foreground text-sm">
-                  {{ item.name }}
-                </div>
-              </div>
-            </a>
+  <ClientOnly>
+    <div class="flex min-h-screen w-full flex-col">
+      <!-- Mobile top bar -->
+      <header class="fixed top-0 left-0 right-0 z-20 bg-background shadow-sm sm:hidden">
+        <div class="flex items-center justify-between px-4 py-0">
+          <Button @click="toggleSidebar" class="text-muted-foreground" variant="ghost">
+            <Icon name="ph:list" class="h-5 w-6" />
+          </Button>
+          <a href="/" class="flex items-center gap-2">
+            <Icon name="ph:package-duotone" class="h-5 w-5 text-primary" />
+            <!-- <span class="font-semibold text-lg">DETH</span> -->
+          </a>
+          <div v-if="isAuthenticated && user">
+            <DropdownMenu>
+              <DropdownMenuTrigger class="flex items-center">
+                <img :src="user.avatar" :alt="user.name" class="h-8 w-8 rounded-full" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>{{ user.name }}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem @click="emit('logout')">Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <div v-if="item.children" class="absolute left-full top-9 hidden group-hover:block">
-            <div class="animate-in slide-in-from-left-5 duration-300 bg-background border rounded-r-lg shadow-lg">
-              <ul class="py-1">
-                <li v-for="child in item.children" :key="child.name">
-                  <a :href="child.href" class="block px-4 py-2 hover:bg-accent hover:text-accent-foreground transition-colors">
-                    {{ child.name }}
-                  </a>
-                </li>
-              </ul>
+          <Button v-else @click="emit('login')" variant="ghost" size="sm">
+            <Icon name="ph:x-logo-thin" class="h-4 w-4 mr-1 text-foreground" />Login
+          </Button>
+        </div>
+      </header>
+
+      <!-- Desktop sidebar -->
+      <aside class="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
+        <nav class="flex flex-col items-center gap-4 py-5">
+          <a href="/"
+            class="group flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-semibold text-primary-foreground">
+            <Icon name="ph:package-duotone" class="h-4 w-4 transition-all group-hover:scale-105" />
+            <span class="sr-only">DETH</span>
+          </a>
+          <div v-for="item in filteredNavItems" :key="item.name" class="relative group w-full">
+            <div class="flex items-center">
+              <a :href="item.href" :class="[
+                'flex h-9 w-full items-center justify-center transition-colors hover:text-foreground hover:bg-background hover:border-y hover:border-l',
+                item.active ? 'bg-accent text-accent-foreground scale-105 text-accent-primary' : 'text-muted-foreground'
+              ]">
+                <Icon :name="item.icon" class="h-5 w-5" />
+                <div
+                  class="absolute left-[40px] top-0 h-9 hidden group-hover:flex items-center bg-background border-y border-r rounded-r-lg cursor-pointer min-w-[100px]">
+                  <div
+                    class="animate-in slide-in-from-left-5 duration-300 whitespace-nowrap pl-2 pr-6 py-1 text-foreground text-sm">
+                    {{ item.name }}
+                  </div>
+                </div>
+              </a>
+            </div>
+            <div v-if="item.children" class="absolute left-full top-9 hidden group-hover:block">
+              <div class="animate-in slide-in-from-left-5 duration-300 bg-background border rounded-r-lg shadow-lg">
+                <ul class="py-1">
+                  <li v-for="child in item.children" :key="child.name">
+                    <a :href="child.href"
+                      class="block px-4 py-2 hover:bg-accent hover:text-accent-foreground transition-colors">
+                      {{ child.name }}
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
-      </nav>
-      <div class="mt-auto flex flex-col items-center gap-4 px-2 py-5">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger as-child>
-              <Button @click="toggleTheme" variant="ghost" size="icon" class="h-9 w-9">
-                <Icon v-if="colorMode.value === 'dark'" name="ph:sun" class="h-5 w-5" />
-                <Icon v-else name="ph:moon" class="h-5 w-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Toggle theme</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <DropdownMenu>
-          <DropdownMenuTrigger class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
-            <Icon name="ph:globe" class="h-5 w-5" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem v-for="lang in languages" :key="lang.code" @click="changeLanguage(lang)">
-              {{ lang.name }}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <div v-if="isAuthenticated && user">
-          <DropdownMenu>
-            <DropdownMenuTrigger class="flex h-9 w-9 items-center justify-center rounded-lg overflow-hidden">
-              <img :src="user.avatar" :alt="user.name" class="h-full w-full object-cover" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>{{ user.name }}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem @click="emit('logout')">Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <Button v-else @click="emit('login')" variant="ghost" size="sm" class="h-9 w-9 p-0">
-          <Icon name="ph:sign-in" class="h-5 w-5" />
-        </Button>
-      </div>
-    </aside>
-
-    <!-- Mobile sidebar -->
-    <Transition name="slide-fade">
-      <aside v-if="isSidebarOpen" class="fixed inset-0 z-30 flex flex-col bg-background p-4 sm:hidden">
-        <button @click="toggleSidebar" class="self-end mb-4">
-          <Icon name="ph:x" class="h-6 w-6" />
-        </button>
-        <nav class="flex flex-col gap-4">
-          <a v-for="item in filteredNavItems" :key="item.name" :href="item.href" :class="[
-            'flex items-center gap-2 p-2 rounded-lg transition-colors',
-            item.active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground'
-          ]" @click="toggleSidebar">
-            <Icon :name="item.icon" class="h-5 w-5" />
-            <span>{{ item.name }}</span>
-          </a>
         </nav>
-        <div class="mt-auto flex flex-col gap-4">
-          <Button @click="toggleTheme" variant="outline" class="w-full">
-            <Icon v-if="colorMode.value === 'dark'" name="ph:sun" class="h-5 w-5 mr-2" />
-            <Icon v-else name="ph:moon" class="h-5 w-5 mr-2" />
-            {{ colorMode.value === 'dark' ? 'Light Mode' : 'Dark Mode' }}
-          </Button>
+        <div class="mt-auto flex flex-col items-center gap-4 px-2 py-5">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <Button @click="toggleTheme" variant="ghost" size="icon" class="h-9 w-9">
+                  <Icon v-if="colorMode.value === 'dark'" name="ph:sun" class="h-5 w-5" />
+                  <Icon v-else name="ph:moon" class="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">Toggle theme</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <DropdownMenu>
-            <DropdownMenuTrigger class="flex items-center gap-2 p-2 rounded-lg text-muted-foreground hover:text-foreground">
+            <DropdownMenuTrigger
+              class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
               <Icon name="ph:globe" class="h-5 w-5" />
-              <span>{{ currentLanguage.name }}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem v-for="lang in languages" :key="lang.code" @click="changeLanguage(lang)">
@@ -209,25 +164,76 @@ const toggleMenu = (item) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <div v-if="isAuthenticated && user" class="flex items-center gap-2 p-2">
-            <img :src="user.avatar" :alt="user.name" class="h-8 w-8 rounded-full" />
-            <span>{{ user.name }}</span>
+          <div v-if="isAuthenticated && user">
+            <DropdownMenu>
+              <DropdownMenuTrigger class="flex h-9 w-9 items-center justify-center rounded-lg overflow-hidden">
+                <img :src="user.avatar" :alt="user.name" class="h-full w-full object-cover" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>{{ user.name }}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem @click="emit('logout')">Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <Button v-else @click="emit('login')" class="w-full">
-            Login
+          <Button v-else @click="emit('login')" variant="ghost" size="sm" class="h-9 w-9 p-0">
+            <Icon name="ph:sign-in" class="h-5 w-5" />
           </Button>
         </div>
       </aside>
-    </Transition>
 
-    <!-- Main content area -->
-    <main class="flex-1 sm:pl-14 sm:mt-0 mt-10">
-      <div class="container mx-auto p-2 sm:p-2 lg:p-4 overflow-y-auto overflow-x-hidden">
-        <slot></slot>
-      </div>
-    </main>
-  </div>
-</ClientOnly>
+      <!-- Mobile sidebar -->
+      <Transition name="slide-fade">
+        <aside v-if="isSidebarOpen" class="fixed inset-0 z-30 flex flex-col bg-background p-4 sm:hidden">
+          <button @click="toggleSidebar" class="self-end mb-4">
+            <Icon name="ph:x" class="h-6 w-6" />
+          </button>
+          <nav class="flex flex-col gap-4">
+            <a v-for="item in filteredNavItems" :key="item.name" :href="item.href" :class="[
+              'flex items-center gap-2 p-2 rounded-lg transition-colors',
+              item.active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground'
+            ]" @click="toggleSidebar">
+              <Icon :name="item.icon" class="h-5 w-5" />
+              <span>{{ item.name }}</span>
+            </a>
+          </nav>
+          <div class="mt-auto flex flex-col gap-4">
+            <Button @click="toggleTheme" variant="outline" class="w-full">
+              <Icon v-if="colorMode.value === 'dark'" name="ph:sun" class="h-5 w-5 mr-2" />
+              <Icon v-else name="ph:moon" class="h-5 w-5 mr-2" />
+              {{ colorMode.value === 'dark' ? 'Light Mode' : 'Dark Mode' }}
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                class="flex items-center gap-2 p-2 rounded-lg text-muted-foreground hover:text-foreground">
+                <Icon name="ph:globe" class="h-5 w-5" />
+                <span>{{ currentLanguage.name }}</span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem v-for="lang in languages" :key="lang.code" @click="changeLanguage(lang)">
+                  {{ lang.name }}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <div v-if="isAuthenticated && user" class="flex items-center gap-2 p-2">
+              <img :src="user.avatar" :alt="user.name" class="h-8 w-8 rounded-full" />
+              <span>{{ user.name }}</span>
+            </div>
+            <Button v-else @click="emit('login')" class="w-full">
+              Login
+            </Button>
+          </div>
+        </aside>
+      </Transition>
+
+      <!-- Main content area -->
+      <main class="flex-1 sm:pl-14 sm:mt-0 mt-10">
+        <div class="container mx-auto p-2 sm:p-2 lg:p-4 overflow-y-auto overflow-x-hidden">
+          <slot></slot>
+        </div>
+      </main>
+    </div>
+  </ClientOnly>
 </template>
 
 <style scoped>
