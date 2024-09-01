@@ -7,7 +7,7 @@
       <!-- Header -->
       <div
         class="w-full flex flex-col md:flex-row items-center justify-between animate-in fade-in duration-300 border-b border-border header"
-        :style="{ height: heightStyl.headerHeight }">
+        :style="{ height: `${actualHeaderHeight}px` }">
         <slot name="CardInfo" class="max-w-[300px]">
           <DevOnly>
             <p class="text-sm text-muted-foreground text-center px-4">Card Info</p>
@@ -20,8 +20,7 @@
         </slot>
       </div>
       <!-- body  -->
-      <div class="flex body overflow-hidden transition-all duration-300 ease-in-out overscroll-none"
-        :style="{ height: heightStyl.bodyHeight }">
+      <div class="w-full body transition-all duration-300 ease-in-out" :style="{ height: heightStyl.bodyHeight }">
         <slot name="body">
           <DevOnly>
             <p class="text-sm text-muted-foreground text-center h-full flex-1 content-center">
@@ -32,7 +31,7 @@
       </div>
       <!-- Footer -->
       <div class="footer border-t border-border min-h-[50px] flex items-center justify-center"
-        :style="{ height: heightStyl.footerHeight }" v-if="footerHeight != 0">
+        :style="{ height: `${actualFooterHeight}px` }" v-if="actualFooterHeight != 0">
         <slot name="footer">
           <DevOnly>
             <p class="text-sm text-muted-foreground">Development Only Time: {{ new Date().toLocaleTimeString() }}</p>
@@ -45,19 +44,22 @@
 
 <script setup lang="ts">
 import { useWindowSize, useResizeObserver } from '@vueuse/core'
+import { useDevice } from '@/composables/useDevice'
+
+const { isMobile } = useDevice()
 
 const props = defineProps({
   otherElementsHeight: {
-    type: Number,
-    default: 80
+    type: Object,
+    default: () => ({ mobile: 80, desktop: 80 })
   },
   headerHeight: {
-    type: Number,
-    default: 50
+    type: Object,
+    default: () => ({ mobile: 40, desktop: 50 })
   },
   footerHeight: {
-    type: Number,
-    default: 50
+    type: Object,
+    default: () => ({ mobile: 40, desktop: 50 })
   },
   theme: {
     type: String,
@@ -74,17 +76,24 @@ const measuredFooterHeight = ref(0)
 const cardHeight = ref('100%')
 
 const heightStyl = ref({
-  headerHeight: `${props.headerHeight}px`,
-  footerHeight: `${props.footerHeight}px`,
+  headerHeight: `${props.headerHeight.mobile}px`,
+  footerHeight: `${props.footerHeight.mobile}px`,
   cardHeight: 'auto',
-  bodyHeight: `calc(100vh - ${props.headerHeight}px - ${props.footerHeight}px)`
+  bodyHeight: `calc(100svh - ${props.headerHeight.mobile}px - ${props.footerHeight.mobile}px)`
 })
 
-const actualHeaderHeight = computed(() => props.headerHeight || measuredHeaderHeight.value)
-const actualFooterHeight = computed(() => props.footerHeight || measuredFooterHeight.value)
+const actualHeaderHeight = computed(() =>
+  isMobile.value ? props.headerHeight.mobile : props.headerHeight.desktop
+)
+const actualFooterHeight = computed(() =>
+  isMobile.value ? props.footerHeight.mobile : props.footerHeight.desktop
+)
+const actualOtherElementsHeight = computed(() =>
+  isMobile.value ? props.otherElementsHeight.mobile : props.otherElementsHeight.desktop
+)
 
 const bodyHeight = computed(() => {
-  const totalHeight = cardHeight.value - props.headerHeight - props.footerHeight
+  const totalHeight = Number(cardHeight.value) - actualHeaderHeight.value - actualFooterHeight.value
   console.log('totalHeight', totalHeight)
   return `${totalHeight}px`
 })
@@ -95,9 +104,9 @@ const updateHeight = () => {
     const footerEl = cardRef.value.querySelector('.footer')
     measuredHeaderHeight.value = headerEl?.clientHeight || 0
     measuredFooterHeight.value = footerEl?.clientHeight || 0
-    cardHeight.value = windowHeight.value - props.otherElementsHeight
+    cardHeight.value = windowHeight.value - actualOtherElementsHeight.value
     heightStyl.value.cardHeight = `${cardHeight.value}px`
-    heightStyl.value.bodyHeight = `${cardHeight.value - props.headerHeight - props.footerHeight}px`
+    heightStyl.value.bodyHeight = `${Number(cardHeight.value) - actualHeaderHeight.value - actualFooterHeight.value}px`
     console.log('heightStyl', heightStyl.value)
     emit('resize', heightStyl.value)
   }

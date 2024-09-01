@@ -1,6 +1,7 @@
 <template>
   <div>
-    <FixedCard :otherElementsHeight="40" :footerHeight="0" :headerHeight="60">
+    <FixedCard :otherElementsHeight="{ mobile: 60, desktop: 40 }" :footerHeight="{ mobile: 0, desktop: 40 }"
+      :headerHeight="{ mobile: 0, desktop: 50 }">
       <template #CardInfo>
         <div class="w-full flex-row items-center justify-between hidden md:flex">
           <h2 class="text-xl flex items-center ml-4 py-2 uppercase">
@@ -17,34 +18,28 @@
             <Icon name="ph:funnel" class="w-5 h-5 text-background" />
           </Button>
           <FilterOptions :warehouses="warehouses" :teams="teams" :teamsLoading="teamsLoading"
-            @updateFilter="handleFilterChange" @updateTeam="handleTeamChange" />
-
-          <!-- <Dialog v-model:open="isFilterPanelOpen" v-if="width < 768">
-            <DialogContent class="sm:max-w-[425px]">
-              <FilterOptions v-if="width < 768" :warehouses="warehouses" :teams="teams" :teamsLoading="teamsLoading"
-                @updateFilter="handleFilterChange" @updateTeam="handleTeamChange" />
-            </DialogContent>
-          </Dialog> -->
+            :is-open="isFilterPanelOpen" @update:is-open="(isOpen) => isFilterPanelOpen = isOpen"
+            @update:filter="handleFilterChange" @update:team="handleTeamChange" />
         </div>
       </template>
       <template #body>
         <div v-if="loading" class="flex-1 flex items-center justify-center">
           <Icon name="ph:spinner" class="w-8 h-8 animate-spin" />
         </div>
-        <div v-else class="flex-1 flex flex-col">
-          <div class="w-full overflow-x-scroll overscroll-none">
+        <div v-else class="flex-1 flex flex-col items-start justify-center">
+          <div class="w-full overflow-auto">
             <DriverCardList :records="filteredPaymentRecords" :idx="selectedIdx"
               @select-driver="(idx: number) => (selectedIdx = idx)" />
           </div>
-          <div class="flex-1 overflow-hidden">
-            <div v-if="selectedDriver" class="flex flex-col md:flex-row h-full">
-              <div class="md:flex-1 md:grid md:grid-rows-4 overflow-auto">
+          <div class="flex-1 w-full">
+            <div v-if="selectedDriver" class="flex flex-col md:flex-row max-h-full">
+              <div class="max-w-full md:flex-1 md:grid md:grid-rows-4 overflow-auto">
                 <DriverInfo :record="selectedDriver" />
                 <PayrollDetails :record="selectedDriver" />
                 <BankInfo :record="selectedDriver" />
                 <PaymentStatus :record="selectedDriver" />
               </div>
-              <div class="h-full md:w-[300px]">
+              <div class="h-full w-full md:w-[300px]">
                 <PaymentPanel :record="selectedDriver" :is-open="isPaymentPanelOpen"
                   @update:is-open="(isOpen: boolean) => (isPaymentPanelOpen = isOpen)"
                   @close="handlePaymentPanelClose" />
@@ -160,5 +155,3 @@ onMounted(async () => {
 });
 
 </script>
-
-<style scoped></style>

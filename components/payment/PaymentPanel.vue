@@ -1,10 +1,11 @@
 <template>
-  <div v-if="record" class="h-full flex flex-col items-start rounded-md transition-all duration-300 ease-in-out" :class="[
-    isMobile ? 'fixed inset-0 z-50 bg-background' : 'border-l-2 border-l-red-500',
-    isPaid ? 'relative' : '',
+  <div v-if="record" class="flex flex-col items-start transition-all duration-300 ease-in-out rounded-xl" :class="[
+    isMobile ? 'fixed inset-0 z-50 right-0 bg-background top-[30svh] h-[70svh] w-full border-t-2 border-blue-500/50' : 'h-full relative border-l-2 border-l-red-500',
+    isMobile ? isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0' : '',
   ]">
     <div v-if="isPaid && !isUnlocked"
-      class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/75">
+      class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm"
+      :class="[isMobile ? 'fixed' : 'absolute']">
       <p class="text-xl font-semibold text-center">Already Paid</p>
       <p class="text-sm text-center m-4 opacity-75">This payment has already been processed and cannot be edited, unlock
         to
@@ -22,12 +23,12 @@
         <Icon name="ph:receipt" class="w-6 h-6 mr-2 text-primary" />
         Payment Review
       </h2>
-      <Button v-if="isMobile" variant="ghost" size="icon" @click="closePanel">
+      <Button v-if="isMobile" variant="ghost" size="icon" @click="closePanel" class="z-50">
         <Icon name="ph:x" class="w-5 h-5" />
       </Button>
     </div>
     <!-- Scrollable content -->
-    <div class="flex-1 w-full overflow-y-auto p-4">
+    <div class="flex-1 w-full overflow-y-auto p-4 scroll-smooth">
       <p class="text-sm text-primary/70 mb-4">
         All changes made to this payment will be recorded in the payment history. For off-cycle payments, please
         adjust the amount if needed.
@@ -97,6 +98,7 @@ const actualPaymentAmount = ref<number>(props.record.net_pay);
 const paymentDate = ref<string>(new Date().toISOString().split("T")[0]);
 const paymentNotes = ref<string>('');
 const loading = ref<boolean>(false);
+
 const record = computed(() => props.record);
 const isPaid = computed(() => props.record.payment_status.status === "PAID");
 const isUnlocked = ref<boolean>(false);

@@ -4,7 +4,7 @@
       <USelectMenu v-model="selectedCompName" :options="componentOptions" />
     </div>
     <div class="component-display mt-4">
-      <component :is="selectedComp" />
+      <component :is="selectedComp.component" v-bind="selectedComp.props" />
     </div>
   </div>
 </template>
@@ -12,10 +12,10 @@
 <script setup lang="ts">
 import { USelectMenu, FixedCard } from '#components'
 const componentOptions = [
-  { value: 'FixedCard', label: 'Fixed Card', component: FixedCard },
+  { value: 'FixedCard', label: 'Fixed Card', component: FixedCard, props: { headerHeight: { mobile: 40, desktop: 50 }, footerHeight: { mobile: 40, desktop: 40 }, otherElementsHeight: { mobile: 110, desktop: 40 } } },
 ]
 const selectedCompName = ref(componentOptions[0].value)
-const selectedComp = componentOptions.find(comp => comp.value === selectedCompName.value)?.component
+const selectedComp = componentOptions.find(comp => comp.value === selectedCompName.value)
 </script>
 
 <style scoped>

@@ -1,29 +1,15 @@
 <template>
   <div class="app-container">
-    <AppSidebar 
-      :nav-items="menuItems" 
-      :user="user" 
-      :is-authenticated="isAuthenticated"
-      @logout="handleLogout"
-      @login="handleLogin"
-    >
-      <slot></slot>
+    <AppSidebar :nav-items="menuItems" :user="user" :is-authenticated="isAuthenticated" @logout="handleLogout"
+      @login="handleLogin">
+      <div class="content-container">
+        <slot></slot>
+      </div>
     </AppSidebar>
   </div>
 </template>
 
 <script setup lang="ts">
-/**
- * Default layout component
- * 
- * This component serves as the main layout for the application.
- * It includes the AppSidebar for navigation and user authentication,
- * and implements elastic scroll prevention.
- * 
- * @emits none
- * @slot default - The main content of the page
- */
-
 import { useMenu } from '~/composables/useMenu'
 
 const { menuItems } = useMenu()
@@ -32,39 +18,45 @@ const user = ref(null)
 const isAuthenticated = ref(false)
 
 const handleLogin = () => {
-  // Implement login logic
   console.log('Login initiated')
 }
 
 const handleLogout = () => {
-  // Implement logout logic
   console.log('Logout initiated')
 }
 
-// Prevent elastic scrolling
-const preventDefault = (e: TouchEvent) => {
-  e.preventDefault()
-}
+const isMobile = ref(false)
 
 onMounted(() => {
-  document.body.style.overflow = 'hidden'
-  document.addEventListener('touchmove', preventDefault, { passive: false })
+  isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
+  if (!isMobile.value) {
+    document.body.style.overflow = 'hidden'
+  }
 })
 
 onUnmounted(() => {
   document.body.style.overflow = ''
-  document.removeEventListener('touchmove', preventDefault)
 })
-
 </script>
 
 <style scoped>
 .app-container {
-  @apply fixed inset-0 overflow-y-hidden overscroll-y-none;
+  @apply fixed inset-0 overflow-hidden;
+}
+
+.content-container {
+  @apply h-full overflow-y-auto overscroll-y-contain;
   -webkit-overflow-scrolling: touch;
 }
 
+@media (min-width: 768px) {
+  .content-container {
+    @apply overflow-y-scroll;
+  }
+}
+
 :global(body) {
-  @apply overflow-hidden overscroll-y-none;
+  @apply overscroll-y-none;
 }
 </style>

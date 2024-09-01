@@ -1,10 +1,10 @@
 <template>
   <div class="color-mode">
-  <NuxtLayout>
-    <NuxtPage />
-  <Toaster />
-  </NuxtLayout>
-</div>
+    <NuxtLayout>
+      <NuxtPage />
+      <Toaster />
+    </NuxtLayout>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -26,16 +26,15 @@ import { Toaster } from '@/components/ui/toast'
     Noto Color Emoji;
 }
 
-
+*::-webkit-scrollbar {
+  display: none;
+}
 
 .noscrollbar::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+  width: 0.125rem;
+  height: 0.125rem;
 }
-*::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
+
 .noscrollbar::-webkit-scrollbar-track {
   border-radius: 9999px;
   background-color: #f3f4f6;
@@ -55,6 +54,7 @@ body {
 .page-leave-active {
   transition: all 0.4s;
 }
+
 .page-enter-from,
 .page-leave-to {
   opacity: 0;
@@ -65,10 +65,12 @@ body {
   width: 0.125rem;
   height: 0.125rem;
 }
+
 .hidescrollbar::-webkit-scrollbar {
-  width: 0rem;
-  height: 0rem;
+  width: 0.125rem;
+  height: 0.125rem;
 }
+
 .noscrollbar::-webkit-scrollbar-track {
   border-radius: 9999px;
   background-color: #f3f4f6;
