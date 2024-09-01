@@ -7,7 +7,7 @@
       <!-- Header -->
       <div
         class="w-full flex flex-col md:flex-row items-center justify-between animate-in fade-in duration-300 border-b border-border header"
-        :style="{ height: `${actualHeaderHeight}px` }">
+        :style="{ height: `${actualHeaderHeight}px` }" v-if="actualHeaderHeight != 0">
         <slot name="CardInfo" class="max-w-[300px]">
           <DevOnly>
             <p class="text-sm text-muted-foreground text-center px-4">Card Info</p>

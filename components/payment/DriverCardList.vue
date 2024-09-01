@@ -29,10 +29,10 @@ const handleDriverSelect = (idx: number) => {
     <div class="flex overflow-x-scroll snap-x snap-mandatory touch-pan-x">
       <template v-for="(record, index) in readableRecords" :key="record.custom_uid">
         <div :value="record.custom_uid"
-          class="flex-none snap-start p-0 flex flex-col items-center justify-center w-32 md:w-40 gap-y-1 md:gap-y-2 cursor-pointer transition-all duration-300 rounded-none py-3 md:py-4 px-1 md:px-6"
+          class="flex-none snap-start p-0 flex flex-col items-center justify-center w-32 md:w-40 gap-y-1 md:gap-y-2 cursor-pointer transition-all duration-300 rounded-none py-3 md:py-4 px-1 md:px-6 border border-transparent"
           :class="{
-            'opacity-100 border-y border-y-accent-foreground/80': index == idx,
-            'opacity-50': index != idx,
+            'border-y-accent-foreground/80 shadow-md': index == idx,
+            'opacity-50 hover:opacity-80': index != idx,
           }" @click="() => handleDriverSelect(index)">
           <div class="p-0 flex flex-col items-center justify-center gap-y-1 md:gap-y-2 text-xs md:text-sm">
             <p class="uppercase truncate text-xs max-w-full border-collapse">
