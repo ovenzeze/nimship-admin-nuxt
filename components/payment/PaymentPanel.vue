@@ -1,6 +1,6 @@
 <template>
   <div v-if="record" class="flex flex-col items-start transition-all duration-300 ease-in-out rounded-xl" :class="[
-    isMobile ? 'fixed inset-0 z-50 right-0 bg-background top-[30svh] h-[70svh] w-full border-t-2 border-blue-500/50' : 'h-full relative border-l-2 border-l-red-500',
+    isMobile ? 'fixed inset-0 z-50 right-0 bg-background top-[30svh] h-[70svh] w-full ' : 'h-full relative border-l-2 border-l-red-500',
     isMobile ? isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0' : '',
   ]">
     <div v-if="isPaid && !isUnlocked"

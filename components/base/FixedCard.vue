@@ -20,7 +20,8 @@
         </slot>
       </div>
       <!-- body  -->
-      <div class="w-full body transition-all duration-300 ease-in-out" :style="{ height: heightStyl.bodyHeight }">
+      <div class="w-full overflow-hidden body transition-all duration-300 ease-in-out overscroll-none"
+        :style="{ height: heightStyl.bodyHeight }">
         <slot name="body">
           <DevOnly>
             <p class="text-sm text-muted-foreground text-center h-full flex-1 content-center">
@@ -38,6 +39,8 @@
           </DevOnly>
         </slot>
       </div>
+      <div v-if="showBlur"
+        class="fixed bottom-0 left-0 w-full h-full backdrop-blur-[2px] transition-all duration-300 ease-in-out" />
     </div>
   </ClientOnly>
 </template>
@@ -60,6 +63,10 @@ const props = defineProps({
   footerHeight: {
     type: Object,
     default: () => ({ mobile: 40, desktop: 50 })
+  },
+  showBlur: {
+    type: Boolean,
+    default: false
   },
   theme: {
     type: String,

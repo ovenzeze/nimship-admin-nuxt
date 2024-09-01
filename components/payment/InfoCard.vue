@@ -5,7 +5,7 @@
     highlight ? 'font-semibold' : '',
   ]">
     <div
-      class="flex flex-row items-center justify-center md:justify-between text-xs md:text-sm text-center md:text-left">
+      class="flex flex-row items-center justify-center md:justify-between text-xs md:text-sm text-center md:text-left mt-4">
       <span
         class="text-xs md:text-sm transition-all duration-200 text-foreground/50 group-hover:text-foreground/75 md:group-hover:text-base">
         {{ label }}
@@ -14,7 +14,7 @@
         class="hidden md:block w-5 h-5 md:w-7 md:h-7 mr-2 text-foreground/50 text-center group-hover:text-foreground group-hover:scale-110 transition-all duration-300" />
     </div>
     <div
-      class="relative flex-1 text-sm text-foreground/90 group-hover:text-foreground md:group-hover:text-base content-center transition-all duration-300 text-center md:text-left overflow-hidden min-h-6 md:min-h-8">
+      class="relative flex-1 text-sm text-foreground/90 group-hover:text-foreground md:group-hover:text-base content-center transition-all duration-300 text-center md:text-left overflow-hidden min-h-6 md:min-h-8 mt-2">
       <TransitionGroup name="slide" tag="div" class="absolute inset-0">
         <div :key="value" class="h-full flex items-center justify-center md:justify-start text-foreground">
           {{ value }}

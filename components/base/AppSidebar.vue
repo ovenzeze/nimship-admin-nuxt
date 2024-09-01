@@ -81,8 +81,8 @@ const toggleMenu = (item) => {
           <Button @click="toggleSidebar" class="text-muted-foreground" variant="ghost">
             <Icon name="ph:list" class="h-5 w-6" />
           </Button>
-          <a href="/" class="flex items-center gap-2">
-            <Icon name="ph:package-duotone" class="h-5 w-5 text-primary" />
+          <a href="/" class="flex items-center justify-centergap-2">
+            <img src="/images/deth_logo_transparent.png" alt="DETH" class=" w-10 h-10" />
             <!-- <span class="font-semibold text-lg">DETH</span> -->
           </a>
           <div v-if="isAuthenticated && user">
@@ -97,9 +97,9 @@ const toggleMenu = (item) => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <Button v-else @click="emit('login')" variant="ghost" size="sm">
-            <Icon name="ph:x-logo-thin" class="h-4 w-4 mr-1 text-foreground" />Login
-          </Button>
+          <NuxtLink to="/login" v-else variant="ghost" size="sm" class="flex items-center content-center mr-2">
+            <Icon name="ph:signature" class="h-4 w-4 mr-1 text-foreground" />Login
+          </NuxtLink>
         </div>
       </header>
 

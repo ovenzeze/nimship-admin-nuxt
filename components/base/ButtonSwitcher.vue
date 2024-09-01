@@ -1,9 +1,9 @@
 <template>
     <div class="flex items-center">
         <div v-for="(option, index) in options" :key="option.value" @click="updateValue(option.value)"
-            class="flex items-center justify-center px-3 py-2 text-sm font-medium transition-all duration-300 cursor-pointer"
+            class="flex items-center justify-center px-2 py-1.5 text-sm transition-all duration-300 cursor-pointer"
             :class="[
-                modelValue === option.value
+                currValue === option.value
                     ? 'bg-foreground text-background hover:bg-foreground/90'
                     : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground border-y',
                 {
@@ -31,10 +31,13 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: string): void;
+    (e: 'update:value', value: string): void;
 }>();
+const currValue = ref(props.modelValue);
+
 
 const updateValue = (value: string) => {
-    emit('update:modelValue', value);
+    currValue.value = value;
+    emit('update:value', value);
 };
 </script>

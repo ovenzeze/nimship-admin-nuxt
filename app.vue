@@ -9,12 +9,31 @@
 
 <script setup lang="ts">
 import { Toaster } from '@/components/ui/toast'
+
+useHead({
+  meta: [
+    { name: 'mobile-web-app-capable', content: 'yes' },
+    { name: 'apple-mobile-web-app-capable', content: 'yes' },
+    { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+    { name: 'apple-mobile-web-app-title', content: 'Nimship Dashboard' },
+    { name: 'msapplication-TileImage', content: 'Nimship Dashboard' },
+    { name: 'msapplication-TileColor', content: '#ffffff' }
+  ],
+  link: [
+    { rel: 'apple-touch-icon', sizes: '180x180', href: '/images/apple-touch-icon.png' },
+    { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/images/favicon-32x32.png' },
+
+  ]
+})
+
 </script>
 
 <style>
 :root {
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   -moz-tab-size: 4;
   -o-tab-size: 4;
   tab-size: 4;

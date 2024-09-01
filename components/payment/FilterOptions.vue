@@ -14,8 +14,8 @@
       <div
         class="flex flex-col md:flex-row md:items-center md:justify-between flex-nowrap space-y-4 md:space-y-0 md:space-x-4">
 
-        <ButtonSwitcher :model-value="selectedWarehouse" :options="warehouseOptions" />
-        <ButtonSwitcher :model-value="selectedStatus" :options="statusOptions" />
+        <ButtonSwitcher :model-value="selectedWarehouse" :options="warehouseOptions" @update:value="updateWarehouse" />
+        <ButtonSwitcher :model-value="selectedStatus" :options="statusOptions" @update:value="updateStatus" />
         <Select v-model="selectedTeam" :disabled="teamsLoading" class="w-full">
           <SelectTrigger class="md:min-w-32">
             <SelectValue :placeholder="teamsLoading ? 'Loading...' : 'Select Team'">
@@ -78,6 +78,10 @@ const statusOptions = computed(() => [
 ].map(status => ({ value: status, label: status.toUpperCase(), icon: getStatusIcon(status) })));
 
 onMounted(async () => await loadTeams());
+
+const updateWarehouse = (value: string) => selectedWarehouse.value = value;
+
+const updateStatus = (value: string) => selectedStatus.value = value;
 
 const loadTeams = async () => {
   teamsLoading.value = true;
