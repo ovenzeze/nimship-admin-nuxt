@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePayment } from '../../composables/usePaymentRecords';
+import { usePayment } from '../../composables/usePayroll';
 
 const props = defineProps<{
   record: ReadablePaymentRecord;

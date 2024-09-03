@@ -1,5 +1,8 @@
 import dayjs from "dayjs"
+import utc from "dayjs/plugin/utc"
 import { type Database } from '~/types/database'
+
+dayjs.extend(utc)
 
 type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
 type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
@@ -73,11 +76,14 @@ const paymentStatusMap: Record<PaymentStatus, PaymentStatusInfo> = {
  */
 const getReadablePaymentRecord = (driver: DriverPaymentRecord): ReadablePaymentRecord => {
   const { haulblaze_contact, deductions = [] } = driver
+  const cycleStart = dayjs.utc(driver.cycle_start).format('MM/DD/YYYY')
+  const cycleEnd = dayjs.utc(driver.cycle_start).add(6, 'day').format('MM/DD/YYYY')
+
   return {
     ...driver,
     name: String(haulblaze_contact?.first_name).toUpperCase() + ' ' + String(haulblaze_contact?.last_name).toUpperCase(),
-    cycle_start: dayjs(driver.cycle_start).format('MM/DD/YYYY'),
-    cycle_end: dayjs(driver.cycle_end).format('MM/DD/YYYY'),
+    cycle_start: cycleStart,
+    cycle_end: cycleEnd,
     warehouse: driver.warehouse,
     driver_id: Number(driver.custom_uid),
     routing: haulblaze_contact?.routing_number,

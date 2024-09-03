@@ -9,7 +9,7 @@
 import { computed } from 'vue';
 import InfoCardGroup from './InfoCardGroup.vue';
 import InfoCard from './InfoCard.vue';
-import type { DriverPaymentRecord } from '../../composables/usePaymentRecords';
+import type { DriverPaymentRecord } from '../../composables/usePayroll';
 
 const props = defineProps<{ record: DriverPaymentRecord }>();
 

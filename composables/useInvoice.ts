@@ -96,7 +96,7 @@ export function useInvoice() {
       const cycleStartDate = dayjs.utc(cycleStart).format('YYYY-MM-DD')
 
       console.log(`Checking available invoice for customId ${customId}, teamName ${teamName}, warehouse ${warehouse}, cycleStartDate ${cycleStartDate}...`)
-      
+
       const { data, error: queryError } = await supabase
         .from('invoice_view')
         .select('*')
@@ -114,11 +114,11 @@ export function useInvoice() {
       } else {
         console.log('No available invoice found.')
       }
-      
+
     } catch (e) {
       console.error('Error checking available invoice:', e)
       error.value = '查询可用发票时出错'
-      
+
     } finally {
       isLoading.value = false
     }
@@ -126,66 +126,65 @@ export function useInvoice() {
     return availableInvoice.value
   }
 
-  
   const fetchPaymentCycles = async () => {
     isLoading.value = true
     error.value = null
-  
+
     try {
       console.log('Fetching payment cycles...')
-      
+
       const { data, error: queryError } = await supabase
         .from('invoice_view')
         .select('payment_cycle_start')
         .order('payment_cycle_start', { ascending: false })
-  
+
       if (queryError) throw queryError
-  
+
       if (data) {
         const uniqueCycles = new Set<string>()
-        
+
         return data.reduce((acc: string[], item) => {
           const startDate = dayjs.utc(item.payment_cycle_start).format('MM/DD/YYYY')
           const endDate = dayjs.utc(item.payment_cycle_start).add(6, 'day').format('MM/DD/YYYY')
           const cycle = `${startDate} - ${endDate}`
-          
+
           if (!uniqueCycles.has(cycle)) {
             uniqueCycles.add(cycle)
             acc.push(cycle)
           }
           return acc
         }, [])
-        
-        console.log(`Payment cycles fetched successfully:` , uniqueCycles);
-        
-       }
-       
-     } catch (e) {
-       console.error('Error fetching payment cycles:', e)
 
-     } finally {
-       isLoading.value = false
-      
-     }
-  
-     return []
-   }
-  
+        console.log(`Payment cycles fetched successfully:`, uniqueCycles);
 
-   const generateInvoice = async () => {
-     // Logic for generating the invoice goes here.
-     // Add logging as needed.
-   }
+      }
 
-   return {
-     availableInvoice,
-     isLoading,
-     error,
-     fetchInvoices,
-     createInvoice,
-     updateInvoice,
-     deleteInvoice,
-     checkAvailableInvoice,
-     fetchPaymentCycles,
-   }
+    } catch (e) {
+      console.error('Error fetching payment cycles:', e)
+
+    } finally {
+      isLoading.value = false
+
+    }
+
+    return []
+  }
+
+
+  const generateInvoice = async () => {
+    // Logic for generating the invoice goes here.
+    // Add logging as needed.
+  }
+
+  return {
+    availableInvoice,
+    isLoading,
+    error,
+    fetchInvoices,
+    createInvoice,
+    updateInvoice,
+    deleteInvoice,
+    checkAvailableInvoice,
+    fetchPaymentCycles,
+  }
 }

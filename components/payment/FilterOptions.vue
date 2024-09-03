@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-background rounded-xl transition-all duration-300 ease-in-out shadow-lg" :class="{
+  <div class="bg-background rounded-xl transition-all duration-300 ease-in-out" :class="{
     'translate-x-full opacity-0': !isOpen && isMobile,
     'fixed inset-y-0 right-0 top-[60svh] h-[40svh] w-full backdrop-blur-sm z-50  border-blue-500/50 rounded-t-xl': isMobile,
     'translate-x-0 opacity-100': isMobile && isOpen
@@ -16,6 +16,19 @@
 
         <ButtonSwitcher :model-value="selectedWarehouse" :options="warehouseOptions" @update:value="updateWarehouse" />
         <ButtonSwitcher :model-value="selectedStatus" :options="statusOptions" @update:value="updateStatus" />
+
+        <Select v-model="selectedCycle" :disabled="teamsLoading" class="w-full">
+          <SelectTrigger class="md:min-w-48">
+            <SelectValue :placeholder="teamsLoading ? 'Loading...' : 'Select Cycle'">
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem v-for="cycle in cyclesOptions" :value="cycle.cycle">
+              {{ cycle.cycle }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
         <Select v-model="selectedTeam" :disabled="teamsLoading" class="w-full">
           <SelectTrigger class="md:min-w-32">
             <SelectValue :placeholder="teamsLoading ? 'Loading...' : 'Select Team'">
@@ -40,6 +53,7 @@ import { useDevice } from '~/composables/useDevice';
 const props = defineProps<{
   warehouses: string[];
   isOpen: boolean;
+  selectedCycle: string | null;
 }>();
 
 const emit = defineEmits(['update:filter', 'update:team', 'update:is-open']);
@@ -51,8 +65,11 @@ const teamCookie = useCookie("selectedTeam");
 const selectedWarehouse = ref<string>('ALL');
 const selectedStatus = ref<string>('ALL');
 const selectedTeam = ref<string | null>(null);
+const selectedCycle = computed(() => props.selectedCycle);
+
 const teamsLoading = ref<boolean>(false);
 const teamsOptions = ref<string[]>([]);
+const cyclesOptions = ref<{ cycle: string; start: string; end: string }[]>([]);
 
 watch([selectedWarehouse, selectedStatus], () => {
   emit('update:filter', {
@@ -77,7 +94,9 @@ const statusOptions = computed(() => [
   'ALL', 'PENDING', 'HOLD', 'PAID'
 ].map(status => ({ value: status, label: status.toUpperCase(), icon: getStatusIcon(status) })));
 
-onMounted(async () => await loadTeams());
+onMounted(async () => {
+  await Promise.all([loadTeams(), loadCycle()]);
+});
 
 const updateWarehouse = (value: string) => selectedWarehouse.value = value;
 
@@ -95,6 +114,12 @@ const loadTeams = async () => {
   } else if (teamsOptions.value.length > 0) {
     selectedTeam.value = String(teamsOptions.value[0]);
   }
+};
+
+const loadCycle = async () => {
+  const cycles = await getEnumsByType("CYCLE");
+  console.log('cycles', cycles);
+  cyclesOptions.value = cycles;
 };
 
 const getStatusIcon = (status: string) => {

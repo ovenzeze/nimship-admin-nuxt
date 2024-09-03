@@ -1,7 +1,7 @@
 <template>
   <div class="h-full w-full overflow-hidden">
     <FixedCard :otherElementsHeight="{ mobile: 60, desktop: 40 }" :footerHeight="{ mobile: 0, desktop: 40 }"
-      :headerHeight="{ mobile: 40, desktop: 50 }" :showBlur="showBlur">
+      :headerHeight="{ mobile: 40, desktop: 60 }" :showBlur="showBlur">
       <template #CardInfo>
         <div class="w-full flex-row items-center justify-between flex">
           <h2 class="text-sm md:text-xl flex items-center justify-center ml-4 py-2 uppercase">
@@ -13,9 +13,10 @@
 
       <template #PrimaryAction>
         <div class="relative md:mr-4">
-          <FilterOptions :warehouses="warehouses" :teams="teams" :teamsLoading="teamsLoading"
-            :is-open="isFilterPanelOpen" @update:is-open="(isOpen) => isFilterPanelOpen = isOpen"
-            @update:filter="handleFilterChange" @update:team="handleTeamChange" />
+          <FilterOptions :warehouses="warehouses" :teams="teams" :selected-cycle="selectedCycle"
+            :teamsLoading="teamsLoading" :is-open="isFilterPanelOpen"
+            @update:is-open="(isOpen) => isFilterPanelOpen = isOpen" @update:filter="handleFilterChange"
+            @update:team="handleTeamChange" />
         </div>
       </template>
       <template #body>
@@ -61,7 +62,7 @@
 
 <script lang="ts" setup>
 import { useEnums } from "../composables/useEnums";
-import { usePayment } from "../composables/usePaymentRecords";
+import { usePayment } from "../composables/usePayroll";
 import DriverInfo from '~/components/payment/DriverInfo.vue';
 import PayrollDetails from '~/components/payment/PayrollDetails.vue';
 import BankInfo from '~/components/payment/BankInfo.vue';
@@ -74,7 +75,7 @@ const { isMobile } = useDevice();
 const teamsLoading = ref(true);
 const teams = ref([]);
 
-const filterOptions = ref({ warehouse: null, status: "all", team: null });
+const filterOptions = ref({ warehouse: null, status: "all", team: null, cycle: null });
 
 const filterRecords = computed(() => {
   console.log('Filter options:', filterOptions.value); // 移到外部以减少日志输出
@@ -87,18 +88,13 @@ const filterRecords = computed(() => {
     const warehouseMatch = warehouse === "ALL" || String(r.warehouse).toUpperCase() === String(warehouse).toUpperCase();
     const statusMatch = status === "ALL" || String(r.payment_status?.status).toUpperCase() === String(status).toUpperCase();
 
-    // 用于调试的日志
-    if (!warehouseMatch || !statusMatch) {
-      console.log('Filtered out:', r.warehouse, r.payment_status, 'Criteria:', warehouse, status);
-    }
-
     return warehouseMatch && statusMatch;
   });
 });
 
 const selectedDriver = computed(() => filterRecords.value.length > 0 ? getReadablePaymentRecord(filterRecords.value[selectedIdx.value]) : null);
+const selectedCycle = computed(() => filterRecords.value.length > 0 ? getReadablePaymentRecord(filterRecords.value[selectedIdx.value]).cycle_start + " - " + getReadablePaymentRecord(filterRecords.value[selectedIdx.value]).cycle_end : null);
 const selectedIdx = ref<number>(0);
-
 const warehouses = ref<string[]>([]);
 
 const isFilterPanelOpen = ref(false);

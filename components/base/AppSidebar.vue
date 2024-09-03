@@ -107,8 +107,9 @@ const toggleMenu = (item) => {
       <aside class="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
         <nav class="flex flex-col items-center gap-4 py-5">
           <a href="/"
-            class="group flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-semibold text-primary-foreground">
-            <Icon name="ph:package-duotone" class="h-4 w-4 transition-all group-hover:scale-105" />
+            class="group flex h-9 w-9 shrink-0 items-center justify-center rounded-full filter drop-shadow-lg dark:brightness-200 dark:invert">
+            <!-- <Icon name="ph:package-duotone" class="h-4 w-4 transition-all group-hover:scale-105" /> -->
+            <img src="/images/deth_logo_transparent.png" alt="DETH" class="w-full " />
             <span class="sr-only">DETH</span>
           </a>
           <div v-for="item in filteredNavItems" :key="item.name" class="relative group w-full">
