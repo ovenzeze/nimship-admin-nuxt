@@ -1,5 +1,3 @@
-import { ref, onMounted } from "vue";
-import { useSupabaseClient } from "#imports";
 import type { Database } from "~/types/database";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
