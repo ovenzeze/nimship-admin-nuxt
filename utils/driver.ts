@@ -32,6 +32,10 @@ interface ReadablePaymentRecord extends DriverPaymentRecord {
   payment_time: string;
 }
 
+interface ReadableDriver extends HaulblazeContact {
+  name: string;
+
+}
 /**
  * Enum representing the payment status
  */
@@ -96,7 +100,12 @@ const getReadablePaymentRecord = (driver: DriverPaymentRecord): ReadablePaymentR
   }
 }
 
-
-export type { ReadablePaymentRecord, DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem }
-export { getReadablePaymentRecord, paymentStatusMap }
+const getReadableDriver = (driver: HaulblazeContact): ReadableDriver => {
+  return {
+    ...driver,
+    name: String(driver.first_name).toUpperCase() + ' ' + String(driver.last_name).toUpperCase(),
+  }
+}
+export type { ReadablePaymentRecord, ReadableDriver, DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem }
+export { getReadablePaymentRecord, getReadableDriver, paymentStatusMap }
 

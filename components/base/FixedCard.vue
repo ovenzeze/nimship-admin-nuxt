@@ -8,12 +8,12 @@
       <div
         class="w-full flex flex-col md:flex-row items-center justify-between animate-in fade-in duration-300 border-border header"
         :style="{ height: `${actualHeaderHeight}px` }" v-if="actualHeaderHeight != 0">
-        <slot name="CardInfo" class="max-w-[300px]">
+        <slot name="CardInfo" class="md:max-w-[300px] bg-red-500">
           <DevOnly>
             <p class="text-sm text-muted-foreground text-center px-4">Card Info</p>
           </DevOnly>
         </slot>
-        <slot name="PrimaryAction" class="flex-1 flex flex-row items-center justify-end">
+        <slot name="PrimaryAction" class="flex-1 flex flex-row items-center justify-end ">
           <DevOnly>
             <p class="text-sm text-muted-foreground px-4">Primary Action</p>
           </DevOnly>

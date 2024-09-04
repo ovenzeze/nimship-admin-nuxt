@@ -6,7 +6,7 @@
 
                     <TableHead v-for="header in headerGroup.headers" :key="header.id"
                         class="text-center min-w-28 uppercase text-xs"
-                        :class="{ 'sticky-action': header.column.id === 'actions' }">
+                        :class="{ 'sticky-action backdrop-blur-lg': header.column.id === 'actions' }">
                         <template v-if="!header.isPlaceholder">
                             <FlexRender :render="header.column.columnDef.header" :props="header.getContext()" />
                         </template>
@@ -18,7 +18,7 @@
                     :data-state="row.getIsSelected() ? 'selected' : undefined"
                     @click="emit('select-record', row.original)">
                     <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="text-center"
-                        :class="{ 'sticky-action': cell.column.id === 'actions' }">
+                        :class="{ 'sticky-action backdrop-blur-lg': cell.column.id === 'actions' }">
                         <template v-if="cell.column.id === 'payment_status'">
                             <Badge
                                 :variant="paymentStatusMap[Number(cell.getValue())]?.status !== 'PENDING' ? 'destructive' : 'secondary'">
@@ -184,7 +184,6 @@ const handleTransfer = (newDriverId: number) => {
 .sticky-action {
     position: sticky;
     right: 0;
-    background-color: white;
     /* 或者与表格背景色相同 */
     z-index: 10;
 }
@@ -196,7 +195,6 @@ const handleTransfer = (newDriverId: number) => {
     top: 0;
     bottom: 0;
     width: 1px;
-    background-color: #e5e7eb;
     /* 边框颜色 */
 }
 </style>

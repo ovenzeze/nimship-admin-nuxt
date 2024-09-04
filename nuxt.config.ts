@@ -37,14 +37,6 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     '@nuxtjs/tailwindcss',
   ],
-  tailwindcss: {
-    config: {
-      plugins: [
-        require('@tailwindcss/forms'),
-        require('tailwindcss-animate'), // 如果您想使用 Tailwind 的动画
-      ],
-    },
-  },
   colorMode: {
     classSuffix: '',
     storageKey: 'nuxt-color-mode'
