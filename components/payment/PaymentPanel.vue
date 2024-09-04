@@ -1,10 +1,10 @@
 <template>
-  <div v-if="record" class="flex flex-col items-start transition-all duration-300 ease-in-out rounded-xl" :class="[
+  <div v-if="record" class="flex flex-col items-start transition-all duration-300 ease-in-out rounded-xl px-2" :class="[
     isMobile ? 'fixed inset-0 z-50 right-0 bg-background top-[30svh] h-[70svh] w-full ' : 'h-full relative border-l-2 border-l-red-500',
     isMobile ? isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0' : '',
   ]">
     <div v-if="isPaid && !isUnlocked"
-      class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm"
+      class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm rounded-lg"
       :class="[isMobile ? 'fixed' : 'absolute']">
       <p class="text-xl font-semibold text-center">Already Paid</p>
       <p class="text-sm text-center m-4 opacity-75">This payment has already been processed and cannot be edited, unlock
@@ -35,7 +35,7 @@
       </p>
       <form @submit.prevent="handlePayment" class="flex flex-col gap-y-6">
         <div class="relative w-full max-w-sm items-center">
-          <Label for="actualAmount">Actual Payment Amount</Label>
+          <Label for="actualAmount" class="text-sm inline-block">Actual Payment Amount</Label>
           <Input id="actualAmount" v-model="actualPaymentAmount" type="number" step="0.01" class="w-full pl-6 mt-2"
             :placeholder="`${record.actual_amount_paid || record.net_pay}`" />
           <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
@@ -44,13 +44,14 @@
         </div>
         <div>
           <Label for="paymentMethod" class="text-sm inline-block mb-2">Payment Method</Label>
+
           <Select v-model="selectedPaymentMethod" class="w-full">
-            <SelectTrigger id="paymentMethod">
-              <SelectValue :placeholder="selectedPaymentMethod" />
+            <SelectTrigger>
+              <SelectValue :placeholder="paymentStatusMap[selectedPaymentMethod].name" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem v-for="method in paymentMethods" :key="method" :value="method">
-                {{ method }}
+                {{ paymentStatusMap[method].name }}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -80,6 +81,7 @@
 
 <script setup lang="ts">
 import { usePayment } from '../../composables/usePayroll';
+import { paymentStatusMap } from '../../utils/driver';
 
 const props = defineProps<{
   record: ReadablePaymentRecord;
@@ -91,10 +93,9 @@ const emit = defineEmits(['update:isOpen']);
 
 const { processPayment } = usePayment();
 const { isMobile } = useDevice();
-
-const paymentMethods = ["ACH", "Check", "Zelle", "Venmo"];
-const selectedPaymentMethod = ref<string>(paymentMethods[0]);
-const actualPaymentAmount = ref<number>(props.record.net_pay);
+const paymentMethods = Object.keys(paymentStatusMap);
+const selectedPaymentMethod = ref<string>(String(props.record.payment_method) || null);
+const actualPaymentAmount = ref<number>(props.record.actual_amount_paid);
 const paymentDate = ref<string>(new Date().toISOString().split("T")[0]);
 const paymentNotes = ref<string>('');
 const loading = ref<boolean>(false);
@@ -113,11 +114,11 @@ const handlePayment = async () => {
   loading.value = true;
   try {
     await processPayment({
-      driverId: props.record.custom_uid,
+      uid: props.record.uid,
       amount: actualPaymentAmount.value,
-      method: selectedPaymentMethod.value,
+      method: Number(selectedPaymentMethod.value),
       date: paymentDate.value,
-      notes: paymentNotes.value,
+      // notes: paymentNotes.value,
     });
     // Handle success (e.g., show notification)
     closePanel();

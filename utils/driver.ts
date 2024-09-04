@@ -97,5 +97,5 @@ const getReadablePaymentRecord = (driver: DriverPaymentRecord): ReadablePaymentR
 
 
 export type { ReadablePaymentRecord, DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact }
-export { getReadablePaymentRecord }
+export { getReadablePaymentRecord, paymentStatusMap }
 

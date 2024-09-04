@@ -24,6 +24,7 @@ export function useEnums() {
     if (isLoaded.value || isLoading.value) return;
 
     isLoading.value = true;
+
     try {
       const { data, error } = await supabase
         .from("zion_enum")
@@ -34,9 +35,11 @@ export function useEnums() {
 
       enumItems.value = data;
       isLoaded.value = true;
-    } catch (error) {
+    }
+    catch (error) {
       console.error("Error fetching enums:", error);
-    } finally {
+    }
+    finally {
       isLoading.value = false;
     }
   };

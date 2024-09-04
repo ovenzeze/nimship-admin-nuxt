@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full flex group transition-all duration-300 flex-col md:flex-row md:items-center md:border-b border-collapse border-foreground/10 hover:border-foreground ">
+    class="w-full flex group transition-all duration-300 flex-col md:flex-row md:items-center md:border-b  border-collapse border-foreground/10 hover:border-foreground ">
     <div class="justify-center items-center md:w-24 md:py-0 border-b md:border-0 border-foreground/10 hidden">
       <div
         class="flex-row justify-center items-center w-full py-3 md:w-24 group-hover:brightness-100 transition-all duration-300 bg-foreground/5 md:bg-transparent hidden md:flex">

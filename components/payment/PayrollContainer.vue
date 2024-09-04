@@ -10,7 +10,7 @@
     </div>
 
 
-    <div class="md:w-[340px] md:border-l md:border-l-border">
+    <div class="md:w-[400px] md:border-l md:border-l-border">
       <PaymentPanel :record="record" />
     </div>
 

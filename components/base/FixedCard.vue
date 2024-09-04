@@ -1,12 +1,12 @@
 <template>
   <ClientOnly>
     <div :class="[
-      'fixed-card w-full transition-colors duration-300 ease-in-out border border-border rounded-lg',
+      'fixed-card w-full transition-colors duration-300 ease-in-out border-border rounded-lg',
       theme === 'dark' ? 'bg-background text-foreground' : 'bg-background text-foreground'
     ]" :style="{ height: heightStyl.cardHeight }" ref="cardRef">
       <!-- Header -->
       <div
-        class="w-full flex flex-col md:flex-row items-center justify-between animate-in fade-in duration-300 border-b border-border header"
+        class="w-full flex flex-col md:flex-row items-center justify-between animate-in fade-in duration-300 border-border header"
         :style="{ height: `${actualHeaderHeight}px` }" v-if="actualHeaderHeight != 0">
         <slot name="CardInfo" class="max-w-[300px]">
           <DevOnly>
@@ -31,7 +31,7 @@
         </slot>
       </div>
       <!-- Footer -->
-      <div class="footer border-t border-border min-h-[50px] flex items-center justify-center"
+      <div class="footer border-border min-h-[40px] flex items-center justify-center"
         :style="{ height: `${actualFooterHeight}px` }" v-if="actualFooterHeight != 0">
         <slot name="footer">
           <DevOnly>
@@ -127,7 +127,5 @@ watch(windowHeight, updateHeight)
 const { stop } = useResizeObserver(cardRef, updateHeight)
 
 // 在组件卸载时停止观察
-onUnmounted(() => {
-  stop()
-})
+onUnmounted(() => stop())
 </script>

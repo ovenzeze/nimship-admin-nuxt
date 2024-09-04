@@ -46,7 +46,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue';
 import { useEnums } from '~/composables/useEnums';
 import { useDevice } from '~/composables/useDevice';
 
@@ -94,9 +93,7 @@ const statusOptions = computed(() => [
   'ALL', 'PENDING', 'HOLD', 'PAID'
 ].map(status => ({ value: status, label: status.toUpperCase(), icon: getStatusIcon(status) })));
 
-onMounted(async () => {
-  await Promise.all([loadTeams(), loadCycle()]);
-});
+onMounted(async () => { await Promise.all([loadTeams(), loadCycle()]); });
 
 const updateWarehouse = (value: string) => selectedWarehouse.value = value;
 

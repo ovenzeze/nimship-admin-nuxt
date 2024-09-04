@@ -1,11 +1,11 @@
 <template>
   <div class="h-full w-full overflow-hidden">
-    <FixedCard :otherElementsHeight="{ mobile: 60, desktop: 40 }" :footerHeight="{ mobile: 0, desktop: 40 }"
-      :headerHeight="{ mobile: 40, desktop: 60 }" :showBlur="showBlur">
+    <FixedCard :otherElementsHeight="{ mobile: 60, desktop: 40 }" :footerHeight="{ mobile: 0, desktop: 0 }"
+      :headerHeight="{ mobile: 40, desktop: 70 }" :showBlur="showBlur">
       <template #CardInfo>
         <div class="w-full flex-row items-center justify-between flex">
-          <h2 class="text-sm md:text-xl flex items-center justify-center ml-4 py-2 uppercase">
-            <Icon name="ph:bank" class="w-4 h-4 md:w-6 md:h-6 mr-2" />
+          <h2 class="text-sm md:text-base flex items-center justify-center ml-4 uppercase">
+            <Icon name="ph:bank" class="w-4 h-4 md:w-5 md:h-5 mr-2" />
             Payroll
           </h2>
         </div>
@@ -30,7 +30,6 @@
           </div>
           <div class="flex-1 w-full overflow-hidden">
             <div v-if="selectedDriver" class="flex flex-col md:flex-row h-full">
-              <!-- <div class="flex-1 overflow-y-auto overscroll-none scroll-smooth"> -->
               <div class="flex-1 overflow-y-auto overscroll-none scroll-smooth md:grid md:grid-rows-4">
                 <DriverInfo :record="selectedDriver" />
                 <PayrollDetails :record="selectedDriver" />
@@ -38,7 +37,7 @@
                 <PaymentStatus :record="selectedDriver" />
                 <!-- </div> -->
               </div>
-              <div class="w-full md:w-[300px] flex-shrink-0">
+              <div class="w-full md:w-[380px] min-w-[280px] flex-shrink-0 mt-4">
                 <PaymentPanel :record="selectedDriver" :is-open="isPaymentPanelOpen"
                   @update:is-open="(isOpen: boolean) => (isPaymentPanelOpen = isOpen)"
                   @close="handlePaymentPanelClose" />

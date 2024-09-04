@@ -229,7 +229,7 @@ const toggleMenu = (item) => {
 
       <!-- Main content area -->
       <main class="flex-1 sm:pl-14 sm:mt-0 mt-10">
-        <div class="container mx-auto p-2 sm:p-2 lg:p-4 overflow-y-auto overflow-x-hidden">
+        <div class="mx-auto p-2 sm:p-2 lg:p-4 overflow-y-auto overflow-x-hidden">
           <slot></slot>
         </div>
       </main>

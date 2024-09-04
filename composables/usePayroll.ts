@@ -118,15 +118,20 @@ export const usePayment = () => {
   })
 
   const processPayment = async (paymentDetails: {
-    driverId: string
+    uid: string
     amount: number
-    method: string
+    method: number
     date: string
   }) => {
-    // Implement the payment processing logic here
-    // This is a placeholder function that you'll need to implement
     console.log('Processing payment:', paymentDetails)
-    // You might want to make a Supabase call here to update the payment status
+    const { uid, amount, method, date } = paymentDetails
+    const { data, error } = await supabase
+      .from('payment_record')
+      .update({ payment_method: method, payment_date: date, actual_amount_paid: amount })
+      .eq('uid', uid)
+      .select()
+    if (error) throw error
+    console.log('Payment processed:', data)
   }
 
   return {
