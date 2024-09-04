@@ -1,8 +1,9 @@
 <template>
-  <div v-if="record" class="flex flex-col items-start transition-all duration-300 ease-in-out rounded-xl px-2" :class="[
-    isMobile ? 'fixed inset-0 z-50 right-0 bg-background top-[30svh] h-[70svh] w-full ' : 'h-full relative border-l-2 border-l-red-500',
-    isMobile ? isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0' : '',
-  ]">
+  <div v-if="record" class="flex flex-col items-start justify-center transition-all duration-300 ease-in-out rounded-xl"
+    :class="[
+      isMobile ? 'fixed inset-0 z-50 right-0 bg-background top-[30svh] h-[70svh] w-full ' : 'h-full relative border-l-2 border-l-red-500 border',
+      isMobile ? (isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0') : '',
+    ]">
     <div v-if="isPaid && !isUnlocked"
       class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm rounded-lg"
       :class="[isMobile ? 'fixed' : 'absolute']">
@@ -58,7 +59,7 @@
         </div>
         <div>
           <Label for="paymentDate">Payment Time</Label>
-          <Input id="paymentDate" v-model="paymentDate" type="date" :min="record.cycle_end" class="w-full mt-3" />
+          <Input id="paymentDate" v-model="paymentDate" type="datetime" :min="record.cycle_end" class="w-full mt-3" />
         </div>
         <div>
           <Label for="paymentNotes">Payment Notes</Label>
@@ -68,10 +69,12 @@
       </form>
     </div>
     <!-- Footer -->
-    <div class="w-full flex-shrink-0 p-4 border-t">
+    <div class="w-full flex-shrink-0 p-4">
       <Button type="submit" :disabled="isPaid && !isUnlocked" class="w-full bg-foreground/90 text-background"
         :loading="loading" @click="handlePayment">
-        <Icon name="ph:check-circle" class="w-4 h-4 mr-2 text-primary-forground" />
+        <Icon
+          :name="record.payment_status.status === 'PAID' ? (isUnlocked ? 'ph:lock-open' : 'ph:lock') : 'ph:check-circle'"
+          class="w-4 h-4 mr-2 text-primary-forground" />
         {{ record.payment_status.status === "PAID" ? (isUnlocked ? "Edit Payment" : "Already Paid") : "Confirm Payment"
         }}
       </Button>
@@ -129,4 +132,14 @@ const handlePayment = async () => {
     loading.value = false;
   }
 };
+
+watch(() => record.value.uid, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    actualPaymentAmount.value = record.value.actual_amount_paid;
+    paymentDate.value = record.value.payment_time;
+    selectedPaymentMethod.value = String(record.value.payment_method) || null;
+    paymentNotes.value = '';
+    isUnlocked.value = false;
+  }
+});
 </script>

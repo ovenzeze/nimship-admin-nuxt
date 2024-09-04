@@ -30,18 +30,23 @@
           </div>
           <div class="flex-1 w-full overflow-hidden">
             <div v-if="selectedDriver" class="flex flex-col md:flex-row h-full">
-              <div class="flex-1 overflow-y-auto overscroll-none scroll-smooth md:grid md:grid-rows-4">
+              <div
+                class="flex-1 overflow-y-auto overscroll-none scroll-smooth md:grid md:grid-rows-4 box-border mt-4 mr-4 border border-border rounded-lg divide-y">
                 <DriverInfo :record="selectedDriver" />
                 <PayrollDetails :record="selectedDriver" />
                 <BankInfo :record="selectedDriver" />
                 <PaymentStatus :record="selectedDriver" />
                 <!-- </div> -->
               </div>
-              <div class="w-full md:w-[380px] min-w-[280px] flex-shrink-0 mt-4">
+              <div class="w-full md:w-[380px] min-w-[280px] flex pt-4">
                 <PaymentPanel :record="selectedDriver" :is-open="isPaymentPanelOpen"
                   @update:is-open="(isOpen: boolean) => (isPaymentPanelOpen = isOpen)"
                   @close="handlePaymentPanelClose" />
               </div>
+            </div>
+            <div v-else class="flex-1 flex flex-col h-full justify-center items-center gap-8">
+              <Icon name="ph:empty" class="w-20 h-20 text-foreground/10 " />
+              <p class="text-sm md:text-base text-foreground/50">Ops! No Record For Selected Filter</p>
             </div>
           </div>
         </div>

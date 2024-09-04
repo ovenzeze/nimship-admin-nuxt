@@ -7,6 +7,31 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          operationName?: string
+          query?: string
+          variables?: Json
+          extensions?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       __retool_vector__demo__retool_ai_docs_7fdbd3b3_88f7_43f5_ac8c_1: {
@@ -1044,6 +1069,76 @@ export type Database = {
           {
             foreignKeyName: "linkpayment"
             columns: ["original_payment_id"]
+            isOneToOne: false
+            referencedRelation: "deduction_with_driver"
+            referencedColumns: ["payment_id"]
+          },
+          {
+            foreignKeyName: "payment_record_uid_fkey"
+            columns: ["driver_uid"]
+            isOneToOne: false
+            referencedRelation: "haulblaze_contact"
+            referencedColumns: ["uid"]
+          },
+        ]
+      }
+      delivery_records_view: {
+        Row: {
+          create_time: string | null
+          custom_id: Database["public"]["Enums"]["custom_id_enum"] | null
+          custom_uid: number | null
+          cycle_end: string | null
+          cycle_start: string | null
+          date: string | null
+          driver_name: string | null
+          driver_salary: number | null
+          driver_str: string | null
+          driver_uid: string | null
+          order_cnt_0_1: number | null
+          order_cnt_0_5: number | null
+          order_cnt_1_10: number | null
+          order_cnt_10: number | null
+          order_cnt_5_10: number | null
+          payment_id: number | null
+          payment_status: string | null
+          record_id: number | null
+          salary_0_1: number | null
+          salary_0_5: number | null
+          salary_1_10: number | null
+          salary_10: number | null
+          salary_5_10: number | null
+          settle_rate: number | null
+          team_id: number | null
+          team_name: Database["public"]["Enums"]["team_name_enum"] | null
+          total_amount: number | null
+          total_mul_ord_fst_order_cnt: number | null
+          total_mul_ord_fst_salary: number | null
+          total_mul_ord_rst_order_cnt: number | null
+          total_mul_ord_rst_salary: number | null
+          total_mul_ord_salary: number | null
+          total_mul_order_cnt: number | null
+          total_order_cnt: number | null
+          total_salary: number | null
+          total_single_order_cnt: number | null
+          total_single_salary: number | null
+          uid: string | null
+          update_time: string | null
+          warehouse:
+            | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
+            | null
+          warehouse_temp: Database["public"]["Enums"]["warehouse_enum"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_record_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payment_record"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_record_payment_id_fkey"
+            columns: ["payment_id"]
             isOneToOne: false
             referencedRelation: "deduction_with_driver"
             referencedColumns: ["payment_id"]

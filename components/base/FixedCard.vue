@@ -101,7 +101,6 @@ const actualOtherElementsHeight = computed(() =>
 
 const bodyHeight = computed(() => {
   const totalHeight = Number(cardHeight.value) - actualHeaderHeight.value - actualFooterHeight.value
-  console.log('totalHeight', totalHeight)
   return `${totalHeight}px`
 })
 
@@ -114,7 +113,6 @@ const updateHeight = () => {
     cardHeight.value = windowHeight.value - actualOtherElementsHeight.value
     heightStyl.value.cardHeight = `${cardHeight.value}px`
     heightStyl.value.bodyHeight = `${Number(cardHeight.value) - actualHeaderHeight.value - actualFooterHeight.value}px`
-    console.log('heightStyl', heightStyl.value)
     emit('resize', heightStyl.value)
   }
 }

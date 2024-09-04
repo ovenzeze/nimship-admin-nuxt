@@ -16,6 +16,7 @@ export function useMenu() {
     { name: 'Dashboard', icon: 'ph:house', href: '/', active: true, requiresAuth: false, disabled: false },
     { name: 'Driver', icon: 'ph:car-simple', href: '/driver', active: false, requiresAuth: false, disabled: false },
     { name: 'Payment', icon: 'ph:credit-card', href: '/payment', active: false, requiresAuth: false, disabled: false },
+    { name: 'Delivery', icon: 'ph:package', href: '/delivery', active: false, requiresAuth: false, disabled: false },
     { name: 'Invoice', icon: 'ph:invoice-light', href: '/invoice', active: false, requiresAuth: false, disabled: false },
     { name: 'Customer', icon: 'ph:user-circle-light', href: '/customer', active: false, requiresAuth: false, disabled: false },
     { name: 'Deduction', icon: 'ph:credit-card', href: '/deduction', active: false, requiresAuth: false, disabled: false },

@@ -136,7 +136,7 @@ export function useInvoice() {
       const { data, error: queryError } = await supabase
         .from('invoice_view')
         .select('payment_cycle_start')
-        .order('payment_cycle_start', { ascending: false })
+        .order('cycle_start', { ascending: false })
 
       if (queryError) throw queryError
 

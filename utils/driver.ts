@@ -55,10 +55,11 @@ type PaymentStatusInfo = {
   color: string;
 }
 
+type PaymentStatusItem = { [key in PaymentStatus]: PaymentStatusInfo }
 /**
  * Map of payment status to their corresponding information
  */
-const paymentStatusMap: Record<PaymentStatus, PaymentStatusInfo> = {
+const paymentStatusMap: PaymentStatusItem = {
   [PaymentStatus.PENDING]: { name: 'PENDING', status: 'PENDING', color: 'red' },
   [PaymentStatus.PAID_ACH]: { name: 'PAID - ACH', status: 'PAID', color: 'blue' },
   [PaymentStatus.PAID_CHECK]: { name: 'PAID - CHECK', status: 'PAID', color: 'blue' },
@@ -75,7 +76,7 @@ const paymentStatusMap: Record<PaymentStatus, PaymentStatusInfo> = {
  * @returns A ReadablePaymentRecord object with formatted information
  */
 const getReadablePaymentRecord = (driver: DriverPaymentRecord): ReadablePaymentRecord => {
-  const { haulblaze_contact, deductions = [] } = driver
+  const { haulblaze_contact, deductions = [] } = driver || {}
   const cycleStart = dayjs.utc(driver.cycle_start).format('MM/DD/YYYY')
   const cycleEnd = dayjs.utc(driver.cycle_start).add(6, 'day').format('MM/DD/YYYY')
 
@@ -96,6 +97,6 @@ const getReadablePaymentRecord = (driver: DriverPaymentRecord): ReadablePaymentR
 }
 
 
-export type { ReadablePaymentRecord, DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact }
+export type { ReadablePaymentRecord, DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem }
 export { getReadablePaymentRecord, paymentStatusMap }
 
