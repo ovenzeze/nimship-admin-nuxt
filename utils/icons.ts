@@ -1,6 +1,4 @@
-import { IconTypes } from '@/types'
-
-export function getStatusIcon(status: string): IconTypes {
+export function getStatusIcon(status: string): string {
   switch (status.toLowerCase()) {
     case 'active':
       return 'ph:check-circle'
@@ -13,7 +11,7 @@ export function getStatusIcon(status: string): IconTypes {
   }
 }
 
-export function getWarehouseIcon(warehouse: string): IconTypes {
+export function getWarehouseIcon(warehouse: string): string {
   switch (warehouse.toLowerCase()) {
     case 'dfw1':
       return 'ph:warehouse'
