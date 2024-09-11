@@ -107,7 +107,8 @@ const shouldUseButtonSwitcher = (filter: FilterConfig) => {
 const getButtonSwitcherOptions = (filter: FilterConfig) => {
     return filter.options?.map(option => ({
         value: getOptionValue(filter, option),
-        label: getOptionLabel(filter, option)
+        label: getOptionLabel(filter, option),
+        icon: filter.key === 'warehouse' ? getWarehouseIcon(option.value as string) : ''
     })) || []
 }
 

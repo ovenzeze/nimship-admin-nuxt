@@ -62,7 +62,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useToast } from '@/components/ui/toast'
-import type { DriverFilters, HaulblazeContact, DriverColumn, ReadableDriver } from '~/types/shared'
+import type { DriverFilters, HaulblazeContact, DriverColumn, ReadableDriver } from '~/types'
 import { getReadableDriver } from '~/utils/driver'
 import { getRandomColor } from '~/utils/colorUtils'
 import { Button } from '@/components/ui/button'
@@ -72,18 +72,19 @@ const { toast } = useToast()
 const tableKey = ref(0)
 
 const columns: DriverColumn[] = [
-  { id: 'name', header: 'Name' },
   { id: 'team_name', header: 'Team' },
+  { id: 'name', header: 'Name' },
   { id: 'warehouse', header: 'Warehouse' },
   { id: 'phone', header: 'Phone' },
-  { id: 'driver_type', header: 'Type' },
   { id: 'enroll_time', header: 'Enroll Time' },
+  { id: 'qualification', header: 'Qualification' },
   { id: 'dl_expired_time', header: 'DL Expiry' },
   { id: 'status', header: 'Status' },
   { id: 'email', header: 'Email' },
   { id: 'available', header: 'Available' },
   { id: 'rating', header: 'Rating' },
-  { id: 'completed_trips', header: 'Completed Trips' },
+  { id: 'completed_trips', header: 'Trips' },
+  { id: 'driver_type', header: 'Type' },
 ]
 
 const filters = ref<DriverFilters>({

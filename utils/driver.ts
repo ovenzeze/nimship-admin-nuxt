@@ -1,63 +1,13 @@
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
+import type { ReadablePaymentRecord, PaymentStatusInfo, DriverPaymentRecord, ReadableDriver } from "~/types"
+import { PaymentStatus } from '~/types/index'
 import { type Database } from '~/types/database'
 
 dayjs.extend(utc)
 
 type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
 type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
-
-/**
- * Represents the original driver payment record
- */
-interface DriverPaymentRecord extends PaymentRecord {
-  haulblaze_contact?: HaulblazeContact;
-  deductions?: any[];
-}
-
-/**
- * Represents the readable driver payment information
- */
-interface ReadablePaymentRecord extends DriverPaymentRecord {
-  name: string;
-  cycle_start: string;
-  cycle_end: string;
-  warehouse: string;
-  driver_id: number;
-  routing_ending?: string;
-  account_ending?: string;
-  routing: string;
-  account: string;
-  payment_status: PaymentStatusInfo;
-  payment_time: string;
-}
-
-interface ReadableDriver extends HaulblazeContact {
-  name: string;
-
-}
-/**
- * Enum representing the payment status
- */
-enum PaymentStatus {
-  PENDING = 0,
-  PAID_ACH = 91,
-  PAID_CHECK = 92,
-  PAID_ZELLE = 93,
-  PAID_CASH = 99,
-  UNPAID_HOLD = 101,
-  PAID_VOID = 102,
-  OTHERS = 100,
-}
-
-/**
- * Type representing the payment status information
- */
-type PaymentStatusInfo = {
-  name: string;
-  status: string;
-  color: string;
-}
 
 type PaymentStatusItem = { [key in PaymentStatus]: PaymentStatusInfo }
 /**
@@ -104,8 +54,8 @@ const getReadableDriver = (driver: HaulblazeContact): ReadableDriver => {
   return {
     ...driver,
     name: String(driver.first_name).toUpperCase() + ' ' + String(driver.last_name).toUpperCase(),
+    qualification: { dl: true, tax: true, vehicle: false },
   }
 }
-export type { ReadablePaymentRecord, ReadableDriver, DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem }
+export type { DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem }
 export { getReadablePaymentRecord, getReadableDriver, paymentStatusMap }
-

@@ -16,8 +16,8 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { useEnums } from '~/composables/useEnums'
-import type { DriverFilters } from '~/types/shared'
-import { EnumType } from '~/types/shared'
+import type { DriverFilters } from '~/types'
+import { EnumType } from '~/types'
 import { Button } from '@/components/ui/button'
 import { PlusCircle } from 'lucide-vue-next'
 import NimshipFilter from '~/components/base/NimshipFilter.vue'

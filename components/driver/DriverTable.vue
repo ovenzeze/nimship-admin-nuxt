@@ -14,7 +14,14 @@
                 <TableBody>
                     <TableRow v-for="row in data" :key="row.uid" class="transition-colors hover:bg-muted/50">
                         <TableCell v-for="column in visibleColumns" :key="column.id" class="text-center relative">
-                            <component :is="getCellComponent(column.id)"
+                            <template v-if="column.id === 'qualification'">
+                                <div class="grid grid-cols-3 items-center justify-center">
+                                    <Icon name="ph:car" class="w-6 h-6 mr-1 inline-block border border-border" />
+                                    <Icon name="ph:rabbit" class="w-6 h-6 mr-1" />
+                                    <Icon name="ph:paper-plane" class="w-6 h-6 mr-1" />
+                                </div>
+                            </template>
+                            <component v-else :is="getCellComponent(column.id)"
                                 :class="[getCellClass(row, column.id), { 'cursor-pointer': isEditableField(column.id) }]"
                                 @click="isEditableField(column.id) && showPopover(row, column)">
                                 {{ formatCellValue(row, column.id) }}
@@ -82,10 +89,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { MoreHorizontal, Loader2 } from 'lucide-vue-next'
-import type { HaulblazeContact, DriverColumn, ReadableDriver } from '~/types/shared'
+import type { HaulblazeContact, DriverColumn, ReadableDriver } from '~/types/index'
 import { useEnums } from '~/composables/useEnums'
 import { getBadgeClass } from '~/utils/colorUtils'
-import { EnumType } from '~/types/shared'
+import { EnumType } from '~/types/index'
 import { getReadableDriver } from '~/utils/driver'
 import { useDriver } from '~/composables/useDriver'
 import dayjs from 'dayjs'
@@ -95,7 +102,7 @@ import { useToast } from '@/components/ui/toast'
 dayjs.extend(relativeTime)
 
 const props = defineProps<{
-    data: HaulblazeContact[]
+    data: ReadableDriver[]
     columns: DriverColumn[]
     loading?: boolean
     dimensions?: {
@@ -157,7 +164,7 @@ const getCellComponent = (columnId: keyof ReadableDriver) => {
 
 const getCellClass = (row: ReadableDriver, columnId: keyof ReadableDriver) => {
     switch (columnId) {
-        case 'status': return 'text-xs font-medium uppercase'
+        case 'status': return getBadgeClass(row[columnId] as string, columnId)
         case 'name': return 'text-xs font-medium'
         case 'driver_type':
         case 'warehouse':
