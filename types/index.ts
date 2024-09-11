@@ -1,13 +1,18 @@
 import type { Database } from './database'
 
 export type DeliveryRecordView = Database['public']['Views']['delivery_records_view']['Row']
+export type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
+export type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
 
 export interface DeliveryFilters {
-    dateRange?: [string, string];
+    cycle_start?: string;
     warehouse_id?: string;
+    team?: string;
     status?: string;
     driver_id?: string;
+    uid?: string;
 }
+
 
 export interface Column {
     key: keyof DeliveryRecordView;

@@ -1,18 +1,32 @@
-import { isNumber } from '@unovis/ts'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
+import { format } from 'date-fns'
+import { del } from 'nuxt/dist/app/compat/capi'
+import { DeliveryRecordView } from '../types/index';
+import type { ReadbleDeliveryRecord } from '~/types/delivery';
 
-dayjs.extend(utc)
+export function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value)
+}
 
-export function formatDate(date: string | Date, format: string = 'MM/DD/YYYY'): string {
-    return dayjs.utc(date).format(format)
+export function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  return format(date, 'MM/dd/yy')
 }
-export function formatNumber(num: number): string {
-    if (num === null || num === undefined) {
-        return '0.00'
-    }
-    if (isNaN(num)) {
-        return '0.00'
-    }
-    return num.toFixed(2)
+
+export function formatDateRange(startDate: string, endDate: string): string {
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  return `${format(start, 'MM/dd')} - ${format(end, 'MM/dd')}`
 }
+
+export function formatNumber(value: number): string {
+  return new Intl.NumberFormat('en-US').format(value)
+}
+
+export const getReadbleDeliveryRecord = (DeliveryRecordView: DeliveryRecordView): ReadbleDeliveryRecord => {
+const { paymentRecord = {}, haulblazeContact = {} } = DeliveryRecordView;
+}     

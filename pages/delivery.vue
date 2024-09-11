@@ -1,196 +1,122 @@
 <template>
-  <div class="h-full w-full overflow-hidden">
-    <FixedCard :otherElementsHeight="{ mobile: 60, desktop: 20 }" :footerHeight="{ mobile: 60, desktop: 100 }"
-      :headerHeight="{ mobile: 40, desktop: 70 }" :showBlur="showBlur" class="h-full">
-      <template #CardInfo>
-        <DeliveryHeader />
-      </template>
-      <template #PrimaryAction>
-        <DeliveryFilter @update:filter="handleFilterChange" />
-      </template>
-      <template #body>
-        <DeliveryTable :data="filteredRecords" :columns="columns" @select-record="selectRecord"
-          @update:sorting="handleSortingChange" @update:columnFilters="handleColumnFiltersChange" />
-      </template>
-      <template #footer>
-        <div class="flex items-center justify-center px-2 py-1.5 border w-full box-border border-border rounded-lg">
-          <DeliveryColumnSelector v-model="visibleColumns" :allColumns="allColumns" />
-          <DataTablePagination :table="table" :total-count="totalCount" :page-size="pagination.pageSize"
-            @update:pagination="handlePaginationChange" />
-        </div>
-        <!-- <div class="flex items-center justify-between px-2">
-          <DeliveryColumnSelector v-model="visibleColumns" :allColumns="allColumns" />
-          <DataTablePagination :table="table" :total-count="totalCount" :page-size="10"
-            @update:pagination="handlePaginationChange" />
-        </div> -->
-      </template>
-    </FixedCard>
+  <div class="flex flex-col h-full">
+    <!-- Fixed header -->
+    <div class="py-4">
+      <DeliveryFilter @update:filter="handleFilterChange" />
+    </div>
 
-    <DeliveryDetailDrawer v-if="selectedRecord" :record="selectedRecord" @close="closeDetailDrawer"
-      class="h-[50vh] w-full" />
+    <!-- Scrollable table area -->
+    <div class="flex-grow overflow-auto border border-border rounded-lg rounded-b-none border-b-0">
+      <DeliveryTable :data="filteredRecords" :columns="columns" @update:sorting="handleSortingChange"
+        @update:columnFilters="handleColumnFiltersChange" />
+    </div>
+
+    <!-- Fixed footer -->
+    <div class="border border-border rounded-lg rounded-t-none py-2 px-4">
+      <DataTablePagination :table="table" :total-count="totalCount" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useDelivery } from '~/composables/useDelivery'
-import type { DeliveryFilters, DeliveryRecordView, Column, SortingState, ColumnFiltersState, PaginationState } from '~/types'
-import type { ColumnDef } from '@tanstack/vue-table'
-import { useVueTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel } from '@tanstack/vue-table'
+import { useToast } from '#imports'
+import type { DeliveryFilters, DeliveryRecordView } from '~/types'
 
 const { loading, error, deliveryRecords, totalCount, fetchDeliveryRecords } = useDelivery()
+const { toast } = useToast()
 
-const columns = computed<ColumnDef<DeliveryRecordView>[]>(() => [
-  {
-    accessorKey: 'date',
-    header: 'Date',
-  },
-  {
-    accessorKey: 'driver_name',
-    header: 'Driver',
-  },
-  {
-    accessorKey: 'custom_uid',
-    header: 'Driver ID',
-  },
-  {
-    accessorKey: 'warehouse',
-    header: 'Warehouse',
-  },
-  {
-    accessorKey: 'team_name',
-    header: 'Team',
-  },
-  {
-    accessorKey: 'custom_id',
-    header: 'Customer',
-  },
-  {
-    accessorKey: 'settle_rate',
-    header: 'Rate',
-  },
-  {
-    accessorKey: 'total_order_cnt',
-    header: 'Orders',
-  },
-  {
-    accessorKey: 'order_cnt_0_1',
-    header: 'Details',
-  },
-  {
-    accessorKey: 'driver_salary',
-    header: 'Salary',
-  },
-  {
-    accessorKey: 'cycle_start',
-    header: 'Pay Cycle',
-  },
-  {
-    accessorKey: 'total_salary',
-    header: 'Profit',
-  },
-  {
-    accessorKey: 'payment_status',
-    header: 'Status',
-  },
-  {
-    accessorKey: 'actions',
-    header: 'Actions',
-  },
-])
-
-const allColumns: Column[] = [
-  { key: 'date', label: 'Date' },
-  { key: 'driver_name', label: 'Driver' },
-  { key: 'warehouse', label: 'Warehouse' },
-  { key: 'team_name', label: 'Team' },
-  { key: 'custom_id', label: 'Customer' },
-  { key: 'settle_rate', label: 'Rate' },
-  { key: 'total_order_cnt', label: 'Total' },
-  { key: 'total_salary', label: 'Income' },
-  { key: 'driver_salary', label: 'Salary' },
-  { key: 'order_cnt_0_1', label: 'Order(0-1)' },
-  { key: 'order_cnt_1_10', label: 'Order(1-10)' },
-  { key: 'order_cnt_10', label: 'Order(>10)' },
-  { key: 'payment_status', label: 'Payment Status' },
-  { key: 'cycle_start', label: 'Cycle Start' },
-  { key: 'cycle_end', label: 'Cycle End' },
+const columns = [
+  { id: 'date', header: 'Date' },
+  { id: 'driver_name', header: 'Driver' },
+  { id: 'custom_uid', header: 'Driver ID' },
+  { id: 'warehouse', header: 'Warehouse' },
+  { id: 'team_name', header: 'Team' },
+  { id: 'custom_id', header: 'Customer' },
+  { id: 'settle_rate', header: 'Rate' },
+  { id: 'total_order_cnt', header: 'Orders' },
+  { id: 'order_cnt_0_1', header: 'Details' },
+  { id: 'total_salary', header: 'Salary' },
+  { id: 'cycle_start', header: 'Pay Cycle' },
+  { id: 'profit', header: 'Profit' },
+  { id: 'payment_method', header: 'Status' },
 ]
 
 const filters = ref<DeliveryFilters>({
-  dateRange: null,
   warehouse_id: null,
-  status: null,
+  team: null,
+  cycle_start: null,
   driver_id: null,
 })
 
-const sorting = ref<SortingState>([])
-
-const columnFilters = ref<ColumnFiltersState>([])
-const visibleColumns = ref<(keyof DeliveryRecordView)[]>([])
+const pagination = ref({ pageIndex: 0, pageSize: 20 })
+const sorting = ref([])
+const columnFilters = ref([])
 
 const filteredRecords = computed(() => deliveryRecords.value)
-
-const selectedRecord = ref<DeliveryRecordView | null>(null)
-
-const pagination = ref<PaginationState>({
-  pageIndex: 0,
-  pageSize: 20,
-})
-
-// Define handler functions before using them in useVueTable
-const handlePaginationChange = (newPagination: PaginationState) => {
-  pagination.value = newPagination
-  fetchDeliveryRecords(filters.value, sorting.value, columnFilters.value, pagination.value)
-}
 
 const handleFilterChange = (newFilters: Partial<DeliveryFilters>) => {
   filters.value = { ...filters.value, ...newFilters }
   pagination.value.pageIndex = 0 // Reset to first page when filters change
-  fetchDeliveryRecords(filters.value, sorting.value, columnFilters.value, pagination.value)
+  fetchRecords()
 }
 
-const handleSortingChange = (newSorting: SortingState) => {
+const handleSortingChange = (newSorting) => {
   sorting.value = newSorting
-  fetchDeliveryRecords(filters.value, sorting.value, columnFilters.value, pagination.value)
+  fetchRecords()
 }
 
-const handleColumnFiltersChange = (newColumnFilters: ColumnFiltersState) => {
+const handleColumnFiltersChange = (newColumnFilters) => {
   columnFilters.value = newColumnFilters
-  pagination.value.pageIndex = 0 // Reset to first page when column filters change
-  fetchDeliveryRecords(filters.value, sorting.value, columnFilters.value, pagination.value)
+  fetchRecords()
 }
 
-// Now we can use these functions in useVueTable
-const table = useVueTable({
-  get data() { return filteredRecords.value },
-  get columns() { return columns.value },
-  getCoreRowModel: getCoreRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  onSortingChange: handleSortingChange,
-  onColumnFiltersChange: handleColumnFiltersChange,
-  onPaginationChange: handlePaginationChange,
-  manualPagination: true,
-  pageCount: computed(() => Math.ceil(totalCount.value / pagination.value.pageSize)),
-})
-
-const selectRecord = (record: DeliveryRecordView) => {
-  selectedRecord.value = record
+const fetchRecords = async () => {
+  try {
+    await fetchDeliveryRecords(filters.value, sorting.value, columnFilters.value, pagination.value)
+  } catch (e) {
+    toast({
+      title: "Error",
+      description: "Failed to fetch delivery records. Please try again.",
+      variant: "destructive",
+    })
+  }
 }
 
-const closeDetailDrawer = () => {
-  selectedRecord.value = null
+// Table object for DataTablePagination
+const table = {
+  getState: () => ({
+    pagination: {
+      pageIndex: pagination.value.pageIndex,
+      pageSize: pagination.value.pageSize,
+    },
+  }),
+  setPageIndex: (index: number) => {
+    pagination.value.pageIndex = index
+    fetchRecords()
+  },
+  setPageSize: (size: number) => {
+    pagination.value.pageSize = size
+    pagination.value.pageIndex = 0
+    fetchRecords()
+  },
+  getPageCount: () => Math.ceil(totalCount.value / pagination.value.pageSize),
+  getCanPreviousPage: () => pagination.value.pageIndex > 0,
+  getCanNextPage: () => pagination.value.pageIndex < (Math.ceil(totalCount.value / pagination.value.pageSize) - 1),
+  previousPage: () => {
+    if (table.getCanPreviousPage()) {
+      table.setPageIndex(pagination.value.pageIndex - 1)
+    }
+  },
+  nextPage: () => {
+    if (table.getCanNextPage()) {
+      table.setPageIndex(pagination.value.pageIndex + 1)
+    }
+  },
 }
 
-const showBlur = computed(() => !!selectedRecord.value)
+watch([filters, pagination, sorting, columnFilters], fetchRecords, { deep: true })
 
-watch([filters, sorting, columnFilters, pagination], () => {
-  fetchDeliveryRecords(filters.value, sorting.value, columnFilters.value, pagination.value)
-}, { deep: true })
-
-onMounted(() => {
-  fetchDeliveryRecords(filters.value, sorting.value, columnFilters.value, pagination.value)
-})
+onMounted(fetchRecords)
 </script>

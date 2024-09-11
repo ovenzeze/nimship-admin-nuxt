@@ -1,7 +1,7 @@
 <template>
     <Dialog>
         <DialogTrigger asChild>
-            <Button size="sm" variant="outline" class="fixed bottom-4 left-4 z-40">
+            <Button size="sm" variant="outline" class="w-30">
                 <Icon name="ph:columns" class="w-4 h-4 mr-2" />
                 Columns
             </Button>

@@ -29,7 +29,7 @@ const handleDriverSelect = (idx: number) => {
     <div class="flex overflow-x-scroll snap-x snap-mandatory touch-pan-x divide-x">
       <template v-for="(record, index) in readableRecords" :key="record.custom_uid">
         <div :value="record.custom_uid"
-          class="flex-none snap-start p-0 flex flex-col items-center justify-center min-w-32 md:min-w-40 gap-y-1 md:gap-y-2 cursor-pointer transition-all duration-300 rounded-none py-3 md:py-4 px-1 md:px-6 border border-transparent border-x-blue-100"
+          class="flex-none snap-start p-0 flex flex-col items-center justify-center min-w-32 md:min-w-40 gap-y-1 md:gap-y-2 cursor-pointer transition-all duration-300 rounded-none py-3 md:py-4 px-1 md:px-6 border border-transparent "
           :class="{
             'border-y-accent-foreground/80 shadow-md': index == idx,
             'opacity-50 hover:opacity-80': index != idx,

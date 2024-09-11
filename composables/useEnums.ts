@@ -1,14 +1,8 @@
 import type { Database } from "~/types/database";
+import type { EnumItem, EnumType, PayCycle } from "~/types/shared";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
-
-type EnumItem = {
-  id: number;
-  label: string;
-  value: string;
-  type: string;
-};
 
 export function useEnums() {
   const supabase = useSupabaseClient<Database>();
@@ -18,7 +12,7 @@ export function useEnums() {
   const isLoading = ref(false);
   const isPayCyclesLoaded = ref(false);
   const isPayCyclesLoading = ref(false);
-  const payCycles = ref<{ cycle: string; start: string; end: string }[]>([]);
+  const payCycles = ref<PayCycle[]>([]);
 
   const fetchEnums = async () => {
     if (isLoaded.value || isLoading.value) return;
@@ -26,28 +20,20 @@ export function useEnums() {
     isLoading.value = true;
 
     try {
-      const { data, error } = await supabase
-        .from("zion_enum")
-        .select("id, label, value, type")
-        .order("type", { ascending: true });
+      const { data, error } = await supabase.from("zion_enum").select("id, label, value, type").order("type", { ascending: true });
 
       if (error) throw error;
 
       enumItems.value = data;
       isLoaded.value = true;
-    }
-    catch (error) {
-      console.error("Error fetching enums:", error);
-    }
-    finally {
-      isLoading.value = false;
-    }
+      console.log("Enums fetched successfully:", enumItems.value);
+    } catch (error) { console.error("Error fetching enums:", error); }
+    finally { isLoading.value = false; }
   };
 
-  const getEnumsByType = async (type: string) => {
+  const getEnumsByType = async (type: EnumType) => {
     if (type === "CYCLE") {
-      if (!isPayCyclesLoaded.value && !isPayCyclesLoading.value)
-        await fetchPaymentCycles();
+      if (!isPayCyclesLoaded.value && !isPayCyclesLoading.value) await fetchPaymentCycles();
       return payCycles.value;
     } else {
       if (!isLoaded.value && !isLoading.value) await fetchEnums();
@@ -69,8 +55,8 @@ export function useEnums() {
         const cycles = new Set(data.map(item => item.payment_cycle_start));
 
         payCycles.value = Array.from(cycles).map(cycle => {
-          const start = dayjs.utc(cycle).format("MM/DD/YYYY");
-          const end = dayjs.utc(cycle).add(6, "day").format("MM/DD/YYYY");
+          const start = dayjs.utc(cycle).format("MM/DD/YY");
+          const end = dayjs.utc(cycle).add(6, "day").format("MM/DD/YY");
           return { cycle: `${start} - ${end}`, start, end };
         });
 
@@ -86,13 +72,11 @@ export function useEnums() {
     return [];
   };
 
-  const getUniqueEnumTypes = () => {
-    return [...new Set(enumItems.value.map((item) => item.type))];
-  };
+  const getUniqueEnumTypes = (): EnumType[] => [...new Set(enumItems.value.map((item) => item.type as EnumType))];
 
   // 页面加载后1秒自动获取
   onMounted(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     await Promise.all([fetchEnums(), fetchPaymentCycles()]);
   });
 

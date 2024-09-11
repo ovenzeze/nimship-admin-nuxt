@@ -1,45 +1,87 @@
-<script setup lang="ts">
+<template>
+    <div class="flex items-center justify-between px-1">
+        <div class="flex items-center space-x-6 lg:space-x-8">
 
-import type { Table } from '@tanstack/vue-table'
-import type { DeliveryRecordView } from '~/types'
+            <div class="flex items-center space-x-2">
+                <Button variant="outline" class="h-6 w-6 p-0 rounded-full" :disabled="!table.getCanPreviousPage()"
+                    @click="table.previousPage()">
+                    <span class="sr-only">Go to previous page</span>
+                    <Icon name="ph:caret-left-bold" class="h-3 w-3" />
+                </Button>
+                <div class="flex items-center">
+                    <Button v-for="pageNumber in visiblePageNumbers" :key="pageNumber" variant="outline" :class="[
+                        'h-6 w-6 p-1.5 mx-1 rounded-full content-center text-center',
+                        pageNumber === currentPage ? 'bg-primary/20 text-primary-foreground' : ''
+                    ]" @click="table.setPageIndex(pageNumber - 1)">
+                        {{ pageNumber }}
+                    </Button>
+                </div>
+                <Button variant="outline" class="h-6 w-6 p-0 rounded-full" :disabled="!table.getCanNextPage()"
+                    @click="table.nextPage()">
+                    <span class="sr-only">Go to next page</span>
+                    <Icon name="ph:caret-right-bold" class="h-3 w-3" />
+                </Button>
+            </div>
+            <div class="flex items-center justify-center text-sm text-secondary-foreground/50">
+                {{ `Showing ${currentPage * Number(pageSize) + 1} - ${Math.min(currentPage * Number(pageSize) +
+                    Number(pageSize), props.totalCount)} Records of ${props.totalCount}` }}
+                <!-- Showing {{ currentPage x pageSize.value }} - {{ (currentPage + 1) x pageSize.value }} of {{ totalCount -->
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <!-- <p class="text-sm font-medium">Rows per page</p> -->
+            <Select v-model="pageSize" @update:modelValue="table.setPageSize($event)">
+                <SelectTrigger class="h-8 w-[70px]">
+                    <SelectValue :placeholder="table.getState().pagination.pageSize" />
+                </SelectTrigger>
+                <SelectContent side="top">
+                    <SelectItem v-for="size in [10, 20, 30, 40, 50]" :key="size" :value="size">
+                        {{ size }}
+                    </SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue'
 
 const props = defineProps<{
-    table: Table<DeliveryRecordView>
+    table: any
     totalCount: number
-    pageSize: number
 }>()
 
-const emit = defineEmits<{
-    (e: 'update:pagination', pagination: { pageIndex: number; pageSize: number }): void
-}>()
-
+const pageSize = ref(props.table.getState().pagination.pageSize)
 const currentPage = computed(() => props.table.getState().pagination.pageIndex + 1)
-const totalPages = computed(() => Math.ceil(props.totalCount / props.pageSize))
+const pageCount = computed(() => Math.ceil(props.totalCount / pageSize.value))
 
-const handlePageChange = (page: number) => {
-    emit('update:pagination', { pageIndex: page - 1, pageSize: props.pageSize })
-}
+const visiblePageNumbers = computed(() => {
+    const totalPages = pageCount.value
+    const current = currentPage.value
+    const delta = 2
+    const range = []
+    const rangeWithDots = []
+    let l
+
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= current - delta && i <= current + delta)) {
+            range.push(i)
+        }
+    }
+
+    for (let i of range) {
+        if (l) {
+            if (i - l === 2) {
+                rangeWithDots.push(l + 1)
+            } else if (i - l !== 1) {
+                rangeWithDots.push('...')
+            }
+        }
+        rangeWithDots.push(i)
+        l = i
+    }
+
+    return rangeWithDots
+})
 </script>
-
-<template>
-    <Pagination :total="totalPages" :sibling-count="1" show-edges :default-page="currentPage"
-        @update:page="handlePageChange">
-        <PaginationList v-slot="{ items }" class="flex items-center gap-1">
-            <PaginationFirst class="w-6 h-6 p-0 rounded-full bg-secondary" />
-            <PaginationPrev class="w-6 h-6 p-0 rounded-full  bg-secondary" />
-
-            <template v-for="(item, index) in items">
-                <PaginationListItem v-if="item.type === 'page'" :key="index" :value="item.value" as-child>
-                    <Button class="w-6 h-6 p-1.5 rounded-full"
-                        :variant="item.value === currentPage ? 'destructive' : 'secondary'">
-                        {{ item.value }}
-                    </Button>
-                </PaginationListItem>
-                <PaginationEllipsis v-else :key="item.type" :index="index" />
-            </template>
-
-            <PaginationNext class="w-6 h-6 p-0 rounded-full  bg-secondary" />
-            <PaginationLast class="w-6 h-6 p-0 rounded-full bg-secondary" />
-        </PaginationList>
-    </Pagination>
-</template>

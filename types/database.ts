@@ -34,126 +34,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      __retool_vector__demo__retool_ai_docs_7fdbd3b3_88f7_43f5_ac8c_1: {
-        Row: {
-          content: string | null
-          embedding: string | null
-          id: number
-          source: string | null
-        }
-        Insert: {
-          content?: string | null
-          embedding?: string | null
-          id?: number
-          source?: string | null
-        }
-        Update: {
-          content?: string | null
-          embedding?: string | null
-          id?: number
-          source?: string | null
-        }
-        Relationships: []
-      }
-      __retool_vector__demo__vector___zemin_lu_78996ac3_f54e_48c4_b0f: {
-        Row: {
-          content: string | null
-          embedding: string | null
-          id: number
-          source: string | null
-        }
-        Insert: {
-          content?: string | null
-          embedding?: string | null
-          id?: number
-          source?: string | null
-        }
-        Update: {
-          content?: string | null
-          embedding?: string | null
-          id?: number
-          source?: string | null
-        }
-        Relationships: []
-      }
-      __retool_vector_deduction_table_struct_cda06ff5_b4bd_49f2_af8b_: {
-        Row: {
-          content: string | null
-          embedding: string | null
-          id: number
-          source: string | null
-        }
-        Insert: {
-          content?: string | null
-          embedding?: string | null
-          id?: number
-          source?: string | null
-        }
-        Update: {
-          content?: string | null
-          embedding?: string | null
-          id?: number
-          source?: string | null
-        }
-        Relationships: []
-      }
-      buildings: {
-        Row: {
-          address: string | null
-          created_at: string | null
-          id: number
-          img_url: string | null
-          name: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          address?: string | null
-          created_at?: string | null
-          id: number
-          img_url?: string | null
-          name?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          address?: string | null
-          created_at?: string | null
-          id?: number
-          img_url?: string | null
-          name?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      customers: {
-        Row: {
-          bill_address: string
-          email: string | null
-          id: number
-          mail_address: string
-          name: string
-          phone: string | null
-          site: string | null
-        }
-        Insert: {
-          bill_address: string
-          email?: string | null
-          id?: number
-          mail_address: string
-          name: string
-          phone?: string | null
-          site?: string | null
-        }
-        Update: {
-          bill_address?: string
-          email?: string | null
-          id?: number
-          mail_address?: string
-          name?: string
-          phone?: string | null
-          site?: string | null
-        }
-        Relationships: []
-      }
       deductions: {
         Row: {
           amount: number | null
@@ -1100,7 +980,7 @@ export type Database = {
           order_cnt_10: number | null
           order_cnt_5_10: number | null
           payment_id: number | null
-          payment_status: string | null
+          payment_method: number | null
           record_id: number | null
           salary_0_1: number | null
           salary_0_5: number | null
@@ -1110,7 +990,7 @@ export type Database = {
           settle_rate: number | null
           team_id: number | null
           team_name: Database["public"]["Enums"]["team_name_enum"] | null
-          total_amount: number | null
+          total_income: number | null
           total_mul_ord_fst_order_cnt: number | null
           total_mul_ord_fst_salary: number | null
           total_mul_ord_rst_order_cnt: number | null

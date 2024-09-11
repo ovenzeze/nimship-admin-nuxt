@@ -29,9 +29,9 @@ export function useDelivery() {
             console.log('Initial query:', query)
 
             // Apply filters
-            if (filters.dateRange) {
-                query = query.gte('date', filters.dateRange[0]).lte('date', filters.dateRange[1])
-                console.log('Applied date range filter:', filters.dateRange)
+            if (filters.cycle_start) {
+                query = query.eq('cycle_start', filters.cycle_start)
+                console.log('Applied cycle filter:', filters.cycle_start)
             }
             if (filters.warehouse_id) {
                 query = query.eq('warehouse', filters.warehouse_id)
@@ -42,7 +42,7 @@ export function useDelivery() {
                 console.log('Applied status filter:', filters.status)
             }
             if (filters.driver_id) {
-                query = query.eq('driver_uid', filters.driver_id)
+                query = query.eq('custom_uid', filters.driver_id)
                 console.log('Applied driver filter:', filters.driver_id)
             }
 
@@ -84,11 +84,75 @@ export function useDelivery() {
         }
     }
 
+    const createDeliveryRecord = async (record: Omit<DeliveryRecordView, 'id'>) => {
+        loading.value = true
+        error.value = null
+        try {
+            const { data, error: createError } = await supabase
+                .from('delivery_records')
+                .insert(record)
+                .single()
+
+            if (createError) throw createError
+
+            return data
+        } catch (e) {
+            error.value = e instanceof Error ? e : new Error('An error occurred while creating the record')
+            console.error('Error creating delivery record:', e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const updateDeliveryRecord = async (id: number, updates: Partial<DeliveryRecordView>) => {
+        loading.value = true
+        error.value = null
+        try {
+            const { data, error: updateError } = await supabase
+                .from('delivery_records')
+                .update(updates)
+                .eq('id', id)
+                .single()
+
+            if (updateError) throw updateError
+
+            return data
+        } catch (e) {
+            error.value = e instanceof Error ? e : new Error('An error occurred while updating the record')
+            console.error('Error updating delivery record:', e)
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const deleteDeliveryRecord = async (id: number) => {
+        loading.value = true
+        error.value = null
+        try {
+            const { error: deleteError } = await supabase
+                .from('delivery_records')
+                .delete()
+                .eq('id', id)
+
+            if (deleteError) throw deleteError
+
+            return true
+        } catch (e) {
+            error.value = e instanceof Error ? e : new Error('An error occurred while deleting the record')
+            console.error('Error deleting delivery record:', e)
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
         deliveryRecords,
         loading,
         error,
         totalCount,
-        fetchDeliveryRecords
+        fetchDeliveryRecords,
+        createDeliveryRecord,
+        updateDeliveryRecord,
+        deleteDeliveryRecord
     }
 }
