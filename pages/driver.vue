@@ -5,6 +5,24 @@
       <!-- Add your mobile navigation content here -->
     </div>
 
+    <!-- Qualification Icons Template -->
+    <template #qualification-cell="{ value }">
+      <div class="flex space-x-2">
+        <TooltipProvider v-for="item in value" :key="item.name">
+          <Tooltip>
+            <TooltipTrigger>
+              <div :class="['w-6 h-6 flex items-center justify-center rounded-full', item.isVerified ? 'bg-green-500' : 'bg-red-500']">
+                <i :class="[item.icon, 'text-white']"></i>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{{ item.tooltipText }}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    </template>
+
     <!-- Main content -->
     <div class="flex-1 flex flex-col overflow-hidden">
       <!-- Filter -->
@@ -94,7 +112,11 @@ const columns: DriverColumn[] = [
   { id: 'warehouse', header: 'Warehouse' },
   { id: 'phone', header: 'Phone' },
   { id: 'enroll_time', header: 'Enroll Time' },
-  { id: 'qualification', header: 'Qualification' },
+  { 
+    id: 'qualification', 
+    header: 'Qualification',
+    cell: ({ row }) => renderQualification(row.qualification)
+  },
   { id: 'dl_expired_time', header: 'DL Expiry' },
   { id: 'status', header: 'Status' },
   { id: 'email', header: 'Email' },
@@ -120,24 +142,11 @@ const qualificationIcons: QualificationIcon[] = [
 ]
 
 const renderQualification = (qualification: ReadableDriver['qualification']) => {
-  return (
-    <div class="flex space-x-2">
-      {qualificationIcons.map((item) => (
-        <TooltipProvider key={item.name}>
-          <Tooltip>
-            <TooltipTrigger>
-              <div class={`w-6 h-6 flex items-center justify-center rounded-full ${qualification[item.name] ? 'bg-green-500' : 'bg-red-500'}`}>
-                <i class={`${item.icon} text-white`}></i>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{`${item.tooltip}: ${qualification[item.name] ? 'Verified' : 'Not Verified'}`}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      ))}
-    </div>
-  )
+  return qualificationIcons.map((item) => ({
+    ...item,
+    isVerified: qualification[item.name],
+    tooltipText: `${item.tooltip}: ${qualification[item.name] ? 'Verified' : 'Not Verified'}`
+  }))
 }
 
 const defaultDimensions = {
