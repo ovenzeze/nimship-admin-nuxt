@@ -1,7 +1,7 @@
 <template>
     <div class="flex items-center">
         <div v-for="(option, index) in options" :key="option.value" @click="updateValue(option.value)"
-            class="flex items-center justify-center px-2 py-2 text-sm transition-all duration-300 cursor-pointer"
+            class="flex items-center justify-center px-3 py-2 text-sm transition-all duration-300 cursor-pointer"
             :class="[
                 currValue === option.value
                     ? 'bg-foreground text-background hover:bg-foreground/90'

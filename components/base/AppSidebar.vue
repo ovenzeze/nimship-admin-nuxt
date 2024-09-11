@@ -112,7 +112,7 @@ const toggleMenu = (item) => {
             <img src="/images/deth_logo_transparent.png" alt="DETH" class="w-full " />
             <span class="sr-only">DETH</span>
           </a>
-          <div v-for="item in filteredNavItems" :key="item.name" class="relative group w-full">
+          <div v-for="item in filteredNavItems" :key="item.name" class="relative group w-full  z-50">
             <div class="flex items-center">
               <a :href="item.href" :class="[
                 'flex h-9 w-full items-center justify-center transition-colors hover:text-foreground hover:bg-background hover:border-y hover:border-l',

@@ -1,25 +1,23 @@
-export function getStatusIcon(status: string): string {
-  switch (status.toLowerCase()) {
-    case 'active':
-      return 'ph:check-circle'
-    case 'inactive':
-      return 'ph:x-circle'
-    case 'pending':
-      return 'ph:clock'
-    default:
-      return 'ph:question'
-  }
-}
+import type { IconTypes } from '@/types'
 
-export function getWarehouseIcon(warehouse: string): string {
-  switch (warehouse.toLowerCase()) {
-    case 'dfw1':
-      return 'ph:warehouse'
-    case 'dfw2':
-      return 'ph:factory'
-    case 'dfw3':
-      return 'ph:buildings'
-    default:
-      return 'ph:house'
+export const getStatusIcon = (status: string): string => {
+  switch (status.toUpperCase()) {
+    case "ALL": return "ph:bank";
+    case "PENDING": return "ph:clock";
+    case "HOLD": return "ph:pause-circle";
+    case "PAID": return "ph:check-circle";
+    default: return "ph:question";
   }
-}
+};
+
+export const getWarehouseIcon = (warehouse: string): string => {
+  switch (warehouse.toUpperCase()) {
+    case "ALL": return "ph:buildings";
+    case "SAN": return "ph:tree-palm";
+    case "PHX": return "ph:sun";
+    case "LAX": return "ph:film-slate";
+    case "LAS": return "ph:cigarette-slash";
+    case "SEA": return "ph:coffee";
+    default: return "ph:map-pin-bold";
+  }
+};

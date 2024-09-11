@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full">
     <!-- Fixed header -->
-    <div class="py-4">
+    <div class="w-full py-4">
       <DeliveryFilter @update:filter="handleFilterChange" />
     </div>
 
@@ -25,7 +25,7 @@ import { useToast } from '#imports'
 import type { DeliveryFilters, DeliveryRecordView } from '~/types'
 
 const { loading, error, deliveryRecords, totalCount, fetchDeliveryRecords } = useDelivery()
-const { toast } = useToast()
+const toast = useToast()
 
 const columns = [
   { id: 'date', header: 'Date' },
@@ -76,10 +76,10 @@ const fetchRecords = async () => {
   try {
     await fetchDeliveryRecords(filters.value, sorting.value, columnFilters.value, pagination.value)
   } catch (e) {
-    toast({
+    toast.add({
       title: "Error",
       description: "Failed to fetch delivery records. Please try again.",
-      variant: "destructive",
+      color: "red"
     })
   }
 }

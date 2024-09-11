@@ -41,6 +41,10 @@ export function useDelivery() {
                 query = query.eq('payment_status', filters.status)
                 console.log('Applied status filter:', filters.status)
             }
+            if (filters.team) {
+                query = query.eq('team_name', filters.team)
+                console.log('Applied status filter:', filters.team)
+            }
             if (filters.driver_id) {
                 query = query.eq('custom_uid', filters.driver_id)
                 console.log('Applied driver filter:', filters.driver_id)
