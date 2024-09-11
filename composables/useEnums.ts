@@ -1,5 +1,5 @@
 import type { Database } from "~/types/database";
-import type { EnumItem, EnumType, PayCycle } from "~/types/shared";
+import type { EnumItem, EnumType, PayCycle } from "~/types";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
@@ -29,10 +29,10 @@ export function useEnums() {
       isLoaded.value = true;
       console.log("Enums fetched successfully:", enumItems.value);
       console.log("Team Name enums:", enumItems.value.filter(item => item.type === "TEAM_NAME"));
-    } catch (error) { 
-      console.error("Error fetching enums:", error); 
-    } finally { 
-      isLoading.value = false; 
+    } catch (error) {
+      console.error("Error fetching enums:", error);
+    } finally {
+      isLoading.value = false;
     }
   };
 

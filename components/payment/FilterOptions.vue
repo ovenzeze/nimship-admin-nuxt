@@ -11,7 +11,8 @@
       </Button>
     </div>
     <div class="p-4 md:p-0">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between flex-nowrap space-y-4 md:space-y-0 md:space-x-4">
+      <div
+        class="flex flex-col md:flex-row md:items-center md:justify-between flex-nowrap space-y-4 md:space-y-0 md:space-x-4">
         <ButtonSwitcher :model-value="selectedWarehouse" :options="warehouseOptions" @update:value="updateWarehouse" />
         <ButtonSwitcher :model-value="selectedStatus" :options="statusOptions" @update:value="updateStatus" />
 
@@ -44,7 +45,7 @@
 <script lang="ts" setup>
 import { useEnums } from '~/composables/useEnums';
 import { useDevice } from '~/composables/useDevice';
-import type { FilterOptions, PayCycle, Warehouse, TeamName } from '~/types/shared';
+import type { FilterOptions, PayCycle, Warehouse, TeamName } from '~/types';
 
 interface Props {
   warehouses: Warehouse[];
