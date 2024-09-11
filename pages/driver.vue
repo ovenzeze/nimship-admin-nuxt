@@ -9,8 +9,13 @@
     <div class="flex-1 flex flex-col overflow-hidden">
       <!-- Filter -->
       <div class="w-full">
-        <DriverFilter @update:filter="handleFilterChange" @add-new-driver="openDriverDialog()"
-          @update:dimensions="handleDimensionsChange" @reset-dimensions="resetDimensions" />
+        <DriverFilter 
+          @update:filter="handleFilterChange" 
+          @add-new-driver="openDriverDialog()"
+          @update:dimensions="handleDimensionsChange" 
+          @reset-dimensions="resetDimensions"
+          :filters="filters"
+        />
       </div>
 
       <!-- Driver Stats -->
@@ -72,11 +77,12 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useToast } from '@/components/ui/toast'
-import type { DriverFilters, HaulblazeContact, DriverColumn, ReadableDriver } from '~/types'
+import type { DriverFilters, HaulblazeContact, DriverColumn, ReadableDriver, QualificationIcon } from '~/types'
 import { getReadableDriver } from '~/utils/driver'
 import { getRandomColor } from '~/utils/colorUtils'
 import { Button } from '@/components/ui/button'
 import DriverStats from '~/components/DriverStats.vue'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const { loading, error, drivers, totalCount, fetchDrivers, updateDriver, createDriver } = useDriver()
 const { toast } = useToast()
@@ -96,14 +102,43 @@ const columns: DriverColumn[] = [
   { id: 'rating', header: 'Rating' },
   { id: 'completed_trips', header: 'Trips' },
   { id: 'driver_type', header: 'Type' },
+  { id: 'employment_status', header: 'Employment Status' },
 ]
 
 const filters = ref<DriverFilters>({
   warehouse: null,
-  team_name: null,
+  team_name: '',
   driver_type: null,
   status: null,
+  employment_status: null,
 })
+
+const qualificationIcons: QualificationIcon[] = [
+  { name: 'dl', icon: 'i-mdi-car', tooltip: 'Driver License' },
+  { name: 'tax', icon: 'i-mdi-file-document', tooltip: 'Tax Documents' },
+  { name: 'vehicle', icon: 'i-mdi-truck', tooltip: 'Vehicle Information' },
+]
+
+const renderQualification = (qualification: ReadableDriver['qualification']) => {
+  return (
+    <div class="flex space-x-2">
+      {qualificationIcons.map((item) => (
+        <TooltipProvider key={item.name}>
+          <Tooltip>
+            <TooltipTrigger>
+              <div class={`w-6 h-6 flex items-center justify-center rounded-full ${qualification[item.name] ? 'bg-green-500' : 'bg-red-500'}`}>
+                <i class={`${item.icon} text-white`}></i>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{`${item.tooltip}: ${qualification[item.name] ? 'Verified' : 'Not Verified'}`}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ))}
+    </div>
+  )
+}
 
 const defaultDimensions = {
   width: '100%',

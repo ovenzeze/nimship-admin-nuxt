@@ -56,9 +56,22 @@ export interface DeliveryFilters {
 
 export interface DriverFilters {
     warehouse: string | null
-    team_name: string | null
+    team_name: string
     driver_type: string | null
     status: string | null
+    employment_status: string | null
+}
+
+export interface Qualification {
+    dl: boolean
+    tax: boolean
+    vehicle: boolean
+}
+
+export type QualificationIcon = {
+    name: string
+    icon: string
+    tooltip: string
 }
 
 export interface Column {

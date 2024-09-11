@@ -37,6 +37,9 @@ export const useDriver = () => {
       if (filters.status) {
         query = query.eq('status', filters.status)
       }
+      if (filters.employment_status) {
+        query = query.eq('employment_status', filters.employment_status)
+      }
 
       // Apply column filters
       columnFilters.forEach(filter => {
