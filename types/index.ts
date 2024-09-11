@@ -13,13 +13,23 @@ export interface DeliveryFilters {
     uid?: string;
 }
 
+export interface DriverFilters {
+    warehouse?: string | null;
+    team_name?: string | null;
+    driver_type?: string | null;
+    status?: string | null;
+}
 
 export interface Column {
     key: keyof DeliveryRecordView;
     label: string;
 }
 
-// 新增类型定义
+export interface DriverColumn {
+    id: keyof HaulblazeContact;
+    header: string;
+}
+
 export type SortingState = {
     id: string;
     desc: boolean;
@@ -35,9 +45,6 @@ export type VisibilityState = {
 }
 
 export type PaginationState = {
-    pageIndex: number
-    pageSize: number
+    pageIndex: number;
+    pageSize: number;
 }
-
-
-
