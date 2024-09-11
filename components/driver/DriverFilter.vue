@@ -31,9 +31,10 @@ const { getEnumsByType, waitForEnums } = useEnums()
 
 const filters = ref<DriverFilters>({
     warehouse: null,
-    team_name: null,
+    team_name: '',
     driver_type: null,
     status: null,
+    employment_status: null,
 })
 
 type FilterConfig = {
@@ -60,19 +61,26 @@ const filterConfigs = ref<FilterConfig[]>([
         placeholder: 'Team',
         enumType: EnumType.TEAM_NAME
     },
-    // {
-    //     type: 'select',
-    //     key: 'driver_type',
-    //     as: 'auto',
-    //     placeholder: 'Select Driver Type',
-    //     enumType: EnumType.DRIVER_TYPE
-    // },
+    {
+        type: 'select',
+        key: 'driver_type',
+        as: 'auto',
+        placeholder: 'Driver Type',
+        enumType: EnumType.DRIVER_TYPE
+    },
     {
         type: 'select',
         key: 'status',
         as: 'auto',
         placeholder: 'Status',
         enumType: EnumType.STATUS
+    },
+    {
+        type: 'select',
+        key: 'employment_status',
+        as: 'auto',
+        placeholder: 'Employment Status',
+        enumType: EnumType.EMPLOYMENT_STATUS
     }
 ])
 

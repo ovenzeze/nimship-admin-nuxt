@@ -4,7 +4,9 @@ import type { Database } from './database'
 // Database types
 export type DeliveryRecordView = Database['public']['Views']['delivery_records_view']['Row']
 export type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
-export type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
+export type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row'] & {
+  employment_status?: string;
+}
 
 // Enum types
 export enum EnumType {

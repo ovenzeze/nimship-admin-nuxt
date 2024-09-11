@@ -55,6 +55,7 @@ const getReadableDriver = (driver: HaulblazeContact): ReadableDriver => {
     ...driver,
     name: String(driver.first_name).toUpperCase() + ' ' + String(driver.last_name).toUpperCase(),
     qualification: { dl: true, tax: true, vehicle: false },
+    employment_status: driver.employment_status || 'Unknown',
   }
 }
 export type { DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem }
