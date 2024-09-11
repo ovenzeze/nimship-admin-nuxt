@@ -48,3 +48,4 @@ export type PaginationState = {
     pageIndex: number;
     pageSize: number;
 }
+export type IconTypes = string;
