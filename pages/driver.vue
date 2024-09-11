@@ -13,6 +13,11 @@
           @update:dimensions="handleDimensionsChange" @reset-dimensions="resetDimensions" />
       </div>
 
+      <!-- Driver Stats -->
+      <div v-if="selectedDriver" class="mb-4">
+        <DriverStats :driver="selectedDriver" />
+      </div>
+
       <!-- Table -->
       <div class="flex-1 overflow-hidden border border-border rounded-lg border-b-0 rounded-b-none"
         :style="tableDimensionsStyle">
@@ -20,7 +25,7 @@
           <DriverTable :key="tableKey" :data="filteredDrivers" :columns="columns" :loading="loading"
             :dimensions="dimensions" @update:sorting="handleSortingChange"
             @update:columnFilters="handleColumnFiltersChange" @update:driver="handleDriverUpdate"
-            @edit-driver="openDriverDialog" />
+            @edit-driver="openDriverDialog" @select-driver="selectDriver" />
         </transition>
       </div>
 
@@ -66,6 +71,7 @@ import type { DriverFilters, HaulblazeContact, DriverColumn, ReadableDriver } fr
 import { getReadableDriver } from '~/utils/driver'
 import { getRandomColor } from '~/utils/colorUtils'
 import { Button } from '@/components/ui/button'
+import DriverStats from '~/components/driver/DriverStats.vue'
 
 const { loading, error, drivers, totalCount, fetchDrivers, updateDriver, createDriver } = useDriver()
 const { toast } = useToast()
@@ -115,7 +121,7 @@ const sorting = ref([])
 const columnFilters = ref([])
 
 const showDriverDialog = ref(false)
-const selectedDriver = ref<HaulblazeContact | null>(null)
+const selectedDriver = ref<ReadableDriver | null>(null)
 
 const filteredDrivers = computed<ReadableDriver[]>(() => {
   return drivers.value.map(driver => ({
@@ -210,7 +216,7 @@ const fetchRecords = async () => {
 }
 
 const openDriverDialog = (driver?: HaulblazeContact) => {
-  selectedDriver.value = driver || null
+  selectedDriver.value = driver ? getReadableDriver(driver) : null
   showDriverDialog.value = true
 }
 
@@ -254,6 +260,10 @@ const saveDriver = async (driver: HaulblazeContact) => {
 const handlePageChange = (newPage: number) => {
   pagination.value.pageIndex = newPage - 1
   fetchRecords()
+}
+
+const selectDriver = (driver: ReadableDriver) => {
+  selectedDriver.value = driver
 }
 
 watch([filters, sorting, columnFilters], fetchRecords, { deep: true })
