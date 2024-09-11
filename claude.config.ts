@@ -1,4 +1,4 @@
-export default ({
+export default {
     meta: {
         type: 'dashboard',
         framework: ['nuxt 3', 'Vue3'],
@@ -6,7 +6,7 @@ export default ({
         icons: ['phosphor-icons'],
         service: ['supabase', 'nuxt server api'],
         language: 'typescript',
-        database: 'nuxt-js/supabse',
+        database: 'nuxt-js/supabase',
         auth: 'supabase',
         hosting: 'vercel',
     },
@@ -22,4 +22,4 @@ export default ({
         'color-variables': '/Users/clayzhang/Code/nimship-admin-nuxt/public/color-variables.md',
         'database-types': '/Users/clayzhang/Code/nimship-admin-nuxt/types/database.ts'
     }
-})
+}
