@@ -24,16 +24,18 @@ export function useMenu() {
     { name: 'Settings', icon: 'ph:gear-six-light', href: '/config', active: false, requiresAuth: false, disabled: false },
   ])
 
-  // Load menu items from local storage on initialization
-  const storedMenuItems = localStorage.getItem('menuItems')
-  if (storedMenuItems) {
-    menuItems.value = JSON.parse(storedMenuItems)
-  }
+  if (process.client) {
+    // Load menu items from local storage on initialization
+    const storedMenuItems = localStorage.getItem('menuItems')
+    if (storedMenuItems) {
+      menuItems.value = JSON.parse(storedMenuItems)
+    }
 
-  // Watch for changes and save to local storage
-  watch(menuItems, (newMenuItems) => {
-    localStorage.setItem('menuItems', JSON.stringify(newMenuItems))
-  }, { deep: true })
+    // Watch for changes and save to local storage
+    watch(menuItems, (newMenuItems) => {
+      localStorage.setItem('menuItems', JSON.stringify(newMenuItems))
+    }, { deep: true })
+  }
 
   const addMenuItem = (item: Partial<MenuItem> & Pick<MenuItem, 'name' | 'icon' | 'href'>) => {
     const newItem: MenuItem = {
