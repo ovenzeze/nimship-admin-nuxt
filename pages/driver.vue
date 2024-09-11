@@ -15,7 +15,12 @@
 
       <!-- Driver Stats -->
       <div v-if="selectedDriver" class="mb-4">
-        <DriverStats :driver="selectedDriver" />
+        <DriverStats
+          :completedTrips="selectedDriver.completed_trips"
+          :rating="selectedDriver.rating"
+          :activeDays="selectedDriver.active_days"
+          :licenseExpiry="selectedDriver.dl_expired_time"
+        />
       </div>
 
       <!-- Table -->
@@ -71,7 +76,7 @@ import type { DriverFilters, HaulblazeContact, DriverColumn, ReadableDriver } fr
 import { getReadableDriver } from '~/utils/driver'
 import { getRandomColor } from '~/utils/colorUtils'
 import { Button } from '@/components/ui/button'
-import DriverStats from '~/components/driver/DriverStats.vue'
+import DriverStats from '~/components/DriverStats.vue'
 
 const { loading, error, drivers, totalCount, fetchDrivers, updateDriver, createDriver } = useDriver()
 const { toast } = useToast()
