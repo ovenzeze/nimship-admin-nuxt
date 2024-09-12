@@ -1,89 +1,105 @@
 <template>
-    <div class="w-full h-full flex flex-col">
-        <div class="flex-grow overflow-auto">
-            <Table>
-                <TableHeader class="sticky top-0 bg-background z-10">
-                    <TableRow>
-                        <TableHead v-for="column in visibleColumns" :key="column.id"
-                            class="text-center text-xs font-semibold uppercase tracking-wider min-w-32">
-                            {{ column.header }}
-                        </TableHead>
-                        <TableHead class="text-center">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    <TableRow v-for="row in data" :key="row.uid" class="transition-colors hover:bg-muted/50">
-                        <TableCell v-for="column in visibleColumns" :key="column.id" class="text-center relative">
-                            <template v-if="column.id === 'qualification'">
-                                <QualificationCell :qualification="row.qualification" :icons="qualificationIcons" />
-                            </template>
-                            <component v-else :is="getCellComponent(column.id)"
-                                :class="[getCellClass(row, column.id), { 'cursor-pointer': isEditableField(column.id) }]"
-                                @click="isEditableField(column.id) && showPopover(row, column)">
-                                {{ formatCellValue(row, column.id) }}
-                            </component>
-                            <div v-if="getCellLoadingState(row.uid, column.id)"
-                                class="absolute inset-0 flex items-center justify-center bg-background/50">
-                                <Loader2 class="h-4 w-4 animate-spin" />
-                            </div>
-                        </TableCell>
-                        <TableCell class="text-center">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" class="h-8 w-8 p-0">
-                                        <span class="sr-only">Open menu</span>
-                                        <MoreHorizontal class="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem @click="editDriver(row)">Edit</DropdownMenuItem>
-                                    <DropdownMenuItem @click="deleteDriver(row)">Delete</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
+    <div class="w-full h-full flex flex-col relative">
+        <div class="flex-grow overflow-x-auto overflow-y-auto">
+            <div class="min-w-full inline-block align-middle">
+                <div class="overflow-hidden">
+                    <Table class="min-w-full divide-y divide-gray-200">
+                        <TableHeader class="sticky top-0 bg-secondary z-10">
+                            <TableRow>
+                                <TableHead v-for="column in visibleColumns" :key="column.id" :class="[
+                                    'text-center text-xs font-semibold uppercase tracking-wider px-2 py-3 whitespace-nowrap min-w-32',
+                                    getColumnVisibilityClass(column.id)
+                                ]">
+                                    {{ column.header }}
+                                </TableHead>
+                                <TableHead class="text-center px-2 py-3">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <TableRow v-for="row in data" :key="row.uid"
+                                class="transition-all duration-300 ease-in-out hover:bg-muted/50 h-16"
+                                @click="handleRowClick(row)">
+                                <TableCell v-for="column in visibleColumns" :key="column.id" :class="[
+                                    'flex text-center relative px-2',
+                                    getColumnVisibilityClass(column.id)
+                                ]">
+                                    <TransitionGroup name="slide" tag="div"
+                                        class="absolute inset-0 flex justify-center items-center transition-all duration-300 px-2 py-6 ">
+                                        <template v-if="column.id === 'qualification'">
+                                            <QualificationCell :qualification="row.qualification"
+                                                :icons="qualificationIcons" />
+                                        </template>
+                                        <component v-else :is="getCellComponent(column.id)"
+                                            :class="[getCellClass(row, column.id), { 'cursor-pointer': isEditableField(column.id) }]"
+                                            @click.stop="isEditableField(column.id) && showPopover(row, column)">
+                                            <span :key="formatCellValue(row, column.id)" class="inline-block">
+                                                {{ formatCellValue(row, column.id) }}
+                                            </span>
+                                        </component>
+                                        <div v-if="getCellLoadingState(row.uid, column.id)"
+                                            class="absolute inset-0 flex items-center justify-center bg-background/50">
+                                            <Loader2 class="h-4 w-4 animate-spin" />
+                                        </div>
+                                    </TransitionGroup>
+                                </TableCell>
+                                <TableCell class="text-center px-2 py-2">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" class="h-8 w-8 p-0">
+                                                <span class="sr-only">Open menu</span>
+                                                <MoreHorizontal class="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuItem @click.stop="editDriver(row)">Edit</DropdownMenuItem>
+                                            <DropdownMenuItem @click.stop="deleteDriver(row)">Delete</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </div>
+            </div>
         </div>
-        <div v-if="loading" class="flex justify-center items-center h-full">
-            <Loader2 class="h-6 w-6 animate-spin" />
-        </div>
-        <div v-else-if="data.length === 0" class="flex justify-center items-center h-24">
+        <transition name="side">
+            <div v-if="loading"
+                class="fixed bottom-0 left-0 w-full flex justify-center items-center h-full transition-all duration-300">
+                <Loader2 class="h-6 w-6 animate-spin" />
+            </div>
+        </transition>
+        <div v-if="!loading && data.length === 0" class="flex justify-center items-center h-24">
             No data available
         </div>
 
         <!-- Single Popover for editing -->
         <Popover v-model:open="isPopoverOpen" :trap-focus="false" :close-on-outside-click="true">
             <PopoverTrigger as="div" :style="popoverTriggerStyle" />
-            <PopoverContent class="p-0" :style="popoverContentStyle">
-                <div v-if="popoverLoading" class="flex justify-center items-center h-10">
-                    <Loader2 class="h-4 w-4 animate-spin" />
-                </div>
-                <div v-else-if="editingColumn && editingColumn.id !== 'available'"
-                    class="max-h-[300px] overflow-y-auto">
-                    <div v-for="option in popoverOptions" :key="option.value"
-                        class="px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                        :class="{ 'bg-accent text-accent-foreground': option.value === editingValue }"
-                        @click="selectOption(option.value)">
-                        {{ option.label }}
+            <transition name="fade" mode="out-in">
+                <PopoverContent class="p-0" :style="popoverContentStyle">
+                    <div v-if="popoverLoading" class="flex justify-center items-center h-10">
+                        <Loader2 class="h-4 w-4 animate-spin" />
                     </div>
-                </div>
-                <div v-else class="p-2">
-                    <Switch v-model="editingValue" @update:modelValue="updateEditingField" />
-                </div>
-            </PopoverContent>
+                    <div v-else-if="editingColumn && editingColumn.id !== 'available'"
+                        class="max-h-[300px] overflow-y-auto">
+                        <div v-for="option in popoverOptions" :key="option.value"
+                            class="px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                            :class="{ 'bg-accent text-accent-foreground': option.value === editingValue }"
+                            @click="selectOption(option.value)">
+                            {{ option.label }}
+                        </div>
+                    </div>
+                    <div v-else class="p-2">
+                        <Switch v-model="editingValue" @update:modelValue="updateEditingField" />
+                    </div>
+                </PopoverContent>
+            </transition>
         </Popover>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
+import { ref, computed, watch, onMounted } from 'vue'
 import { MoreHorizontal, Loader2 } from 'lucide-vue-next'
 import type { HaulblazeContact, DriverColumn, ReadableDriver, QualificationIcon } from '~/types/index'
 import { useEnums } from '~/composables/useEnums'
@@ -115,13 +131,14 @@ const emit = defineEmits<{
     'update:columnFilters': [columnFilters: any]
     'update:driver': [driver: HaulblazeContact]
     'edit-driver': [driver: HaulblazeContact]
+    'select-driver': [driver: ReadableDriver]
 }>()
 
 const { getEnumsByType } = useEnums()
 const { updateDriver } = useDriver()
 const { toast } = useToast()
 
-const visibleColumns = computed(() => props.columns.filter(column => column.id !== 'haulblaze_id'))
+const visibleColumns = computed(() => props.columns)
 const popoverLoading = ref(false)
 const isPopoverOpen = ref(false)
 const editingRow = ref<HaulblazeContact | null>(null)
@@ -151,15 +168,40 @@ const qualificationIcons: QualificationIcon[] = [
     { name: 'vehicle', icon: 'lucide:car', tooltip: 'Vehicle Information' },
 ]
 
+const columnPriority = {
+    name: 1,
+    status: 2,
+    warehouse: 3,
+    team_name: 4,
+    driver_type: 5,
+    phone: 6,
+    email: 7,
+    available: 8,
+    rating: 9,
+    completed_trips: 10,
+    enroll_time: 11,
+    dl_expired_time: 12,
+    qualification: 13,
+    employment_status: 14,
+}
+
+const getColumnVisibilityClass = (columnId: string) => {
+    const priority = columnPriority[columnId as keyof typeof columnPriority] || 99
+    if (priority <= 3) return 'table-cell'
+    if (priority <= 5) return 'hidden sm:table-cell'
+    if (priority <= 8) return 'hidden md:table-cell'
+    return 'hidden lg:table-cell'
+}
+
 const getCellComponent = (columnId: keyof ReadableDriver) => {
     switch (columnId) {
         case 'status':
         case 'driver_type':
         case 'warehouse':
         case 'team_name':
-            return Badge
+            return 'span'
         case 'available':
-            return Switch
+            return 'span'
         default:
             return 'span'
     }
@@ -167,10 +209,14 @@ const getCellComponent = (columnId: keyof ReadableDriver) => {
 
 const getCellClass = (row: ReadableDriver, columnId: keyof ReadableDriver) => {
     switch (columnId) {
-        case 'status': return getBadgeClass(row[columnId] as string, columnId)
-        case 'name': return 'text-xs font-medium'
+        case 'status':
+            return [getBadgeClass(row[columnId] as string, columnId), 'opcity-25']
+        case 'name':
+            return 'text-xs font-medium'
         case 'driver_type':
+            return getBadgeClass(row[columnId] as string, columnId)
         case 'warehouse':
+            return getBadgeClass(row[columnId] as string, columnId)
         case 'team_name':
             return getBadgeClass(row[columnId] as string, columnId)
         default:
@@ -325,6 +371,12 @@ const deleteDriver = (driver: HaulblazeContact) => {
     // Implement delete functionality
 }
 
+const handleRowClick = (row: ReadableDriver) => {
+    if (window.innerWidth < 768) { // Assuming 768px as the breakpoint for mobile devices
+        emit('select-driver', row)
+    }
+}
+
 onMounted(() => {
     console.log('DriverTable mounted')
 })
@@ -337,3 +389,34 @@ watch(() => props.loading, (newLoading) => {
     console.log('DriverTable loading state:', newLoading)
 })
 </script>
+
+<style scoped>
+.slide-enter-active,
+.slide-leave-active {
+    transition: all 0.3s ease-in-out;
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+}
+
+.slide-enter-from {
+    transform: translateY(100%);
+    opacity: 0;
+}
+
+.slide-leave-to {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+.slide-enter-to,
+.slide-leave-from {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Prevent layout shifts during transitions */
+.list-move {
+    transition: transform 0.5s ease;
+}
+</style>

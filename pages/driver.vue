@@ -1,19 +1,11 @@
 <template>
   <div class="flex flex-col h-full">
-
     <!-- Main content -->
-    <div class="flex-1 flex flex-col h-full pb-10">
+    <div class="flex-1 flex flex-col h-full pb-10 overflow-hidden">
       <!-- Filter -->
       <div class="w-full max-w-full">
-        <DriverFilter @update:filter="handleFilterChange" @add-new-driver="openDriverDialog()"
-          @update:dimensions="handleDimensionsChange" @reset-dimensions="resetDimensions" :filters="filters" />
+        <DriverFilter @update:filter="handleFilterChange" @add-new-driver="openDriverDialog()" :filters="filters" />
       </div>
-
-      <!-- Driver Stats -->
-      <!-- <div v-if="selectedDriver" class="mb-4">
-        <DriverStats :completedTrips="selectedDriver.completed_trips" :rating="selectedDriver.rating"
-          :activeDays="selectedDriver.active_days" :licenseExpiry="selectedDriver.dl_expired_time" />
-      </div> -->
 
       <!-- Table -->
       <div class="flex-1 overflow-auto border border-border rounded-lg border-b-0 rounded-b-none">
@@ -25,16 +17,15 @@
       </div>
 
       <!-- Pagination -->
-      <div class="p-4 border border-border flex justify-between items-center rounded-lg rounded-t-none ">
+      <div class="px-4 py-2 border border-border flex justify-between items-center rounded-lg rounded-t-none">
         <div class="hidden md:block">
           <span class="text-sm text-primary">
             Showing {{ paginationStart }} to {{ paginationEnd }} of {{ totalCount }} entries
           </span>
         </div>
-        <!-- Debug information -->
         <Pagination v-slot="{ page }" :total="totalCount" :sibling-count="1" show-edges
           :default-page="pagination.pageIndex + 1" @update:page="handlePageChange">
-          <PaginationList v-slot="{ items }" class="flex items-center gap-1 ">
+          <PaginationList v-slot="{ items }" class="flex items-center gap-1">
             <PaginationFirst class="w-7 h-7 p-0 rounded-full" />
             <PaginationPrev class="w-7 h-7 p-0 rounded-full" />
 
@@ -56,6 +47,29 @@
 
     <!-- Driver Dialog -->
     <DriverDialog v-if="showDriverDialog" :driver="selectedDriver" @close="closeDriverDialog" @save="saveDriver" />
+
+    <!-- Mobile Driver Details Modal -->
+    <Dialog v-model:open="showMobileDetailsModal">
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Driver Details</DialogTitle>
+          <DialogDescription>
+            {{ selectedDriver ? `${selectedDriver.first_name} ${selectedDriver.last_name}` : '' }}
+          </DialogDescription>
+        </DialogHeader>
+        <div v-if="selectedDriver" class="grid gap-4 py-4">
+          <div v-for="column in columns" :key="column.id" class="grid grid-cols-4 items-center gap-4">
+            <Label :for="column.id" class="text-right">{{ column.header }}</Label>
+            <div :id="column.id" class="col-span-3">
+              {{ formatCellValue(selectedDriver, column.id) }}
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button @click="closeMobileDetailsModal">Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
@@ -66,6 +80,15 @@ import type { DriverFilters, HaulblazeContact, DriverColumn, ReadableDriver, Qua
 import { getReadableDriver } from '~/utils/driver'
 import { getRandomColor } from '~/utils/colorUtils'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 
 const { loading, error, drivers, totalCount, fetchDrivers, updateDriver, createDriver } = useDriver()
 const { toast } = useToast()
@@ -106,13 +129,13 @@ const filters = ref<DriverFilters>({
   employment_status: null,
 })
 
-
 const pagination = ref({ pageIndex: 0, pageSize: 20 })
 const sorting = ref([])
 const columnFilters = ref([])
 
 const showDriverDialog = ref(false)
 const selectedDriver = ref<ReadableDriver | null>(null)
+const showMobileDetailsModal = ref(false)
 
 const filteredDrivers = computed<ReadableDriver[]>(() => {
   return drivers.value.map(driver => ({
@@ -128,29 +151,6 @@ const handleFilterChange = (newFilters: Partial<DriverFilters>) => {
   filters.value = { ...filters.value, ...newFilters }
   pagination.value.pageIndex = 0 // Reset to first page when filters change
   fetchRecords()
-}
-
-const handleDimensionsChange = (newDimensions: typeof dimensions.value) => {
-  // Basic validation
-  const validatedDimensions = {
-    width: validateDimension(newDimensions.width, defaultDimensions.width),
-    maxWidth: validateDimension(newDimensions.maxWidth, defaultDimensions.maxWidth),
-    height: validateDimension(newDimensions.height, defaultDimensions.height),
-    maxHeight: validateDimension(newDimensions.maxHeight, defaultDimensions.maxHeight),
-  }
-  dimensions.value = validatedDimensions
-}
-
-const validateDimension = (value: string, defaultValue: string): string => {
-  // Check if the value is a valid CSS dimension
-  if (/^(\d+(\.\d+)?(px|%|em|rem|vh|vw))|auto|none$/.test(value)) {
-    return value
-  }
-  return defaultValue
-}
-
-const resetDimensions = () => {
-  dimensions.value = { ...defaultDimensions }
 }
 
 const handleSortingChange = (newSorting: any) => {
@@ -189,13 +189,6 @@ const fetchRecords = async () => {
   try {
     await fetchDrivers(filters.value, sorting.value, columnFilters.value, pagination.value)
     tableKey.value++ // Force re-render of table
-    console.log('Pagination details:')
-    console.log('Total count:', totalCount.value)
-    console.log('Page size:', pagination.value.pageSize)
-    console.log('Current page index:', pagination.value.pageIndex)
-    console.log('Total pages:', Math.ceil(totalCount.value / pagination.value.pageSize))
-    console.log('Pagination start:', paginationStart.value)
-    console.log('Pagination end:', paginationEnd.value)
   } catch (e) {
     console.error('Error fetching drivers:', e)
     toast({
@@ -255,6 +248,29 @@ const handlePageChange = (newPage: number) => {
 
 const selectDriver = (driver: ReadableDriver) => {
   selectedDriver.value = driver
+  if (window.innerWidth < 768) { // Assuming 768px as the breakpoint for mobile devices
+    showMobileDetailsModal.value = true
+  }
+}
+
+const closeMobileDetailsModal = () => {
+  showMobileDetailsModal.value = false
+  selectedDriver.value = null
+}
+
+const formatCellValue = (row: ReadableDriver, columnId: keyof ReadableDriver) => {
+  switch (columnId) {
+    case 'enroll_time':
+      return row.enroll_time ? new Date(row.enroll_time).toLocaleDateString() : 'N/A'
+    case 'dl_expired_time':
+      return row.dl_expired_time ? new Date(row.dl_expired_time).toLocaleDateString() : 'N/A'
+    case 'available':
+      return row.available ? 'Yes' : 'No'
+    case 'qualification':
+      return row.qualification ? Object.keys(row.qualification).filter(key => row.qualification[key]).join(', ') : 'N/A'
+    default:
+      return row[columnId] || 'N/A'
+  }
 }
 
 watch([filters, sorting, columnFilters], fetchRecords, { deep: true })

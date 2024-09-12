@@ -2,7 +2,7 @@
     <div class="driver-filter">
         <!-- Common structure for both mobile and desktop -->
         <div :class="{
-            'bg-background/95 px-4 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/60': !isMobile,
+            'bg-background/95 px-0 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/60': !isMobile,
             'fixed inset-x-0 bottom-0 bg-background rounded-t-xl z-40 max-h-[80vh] h-[50vh] overflow-y-auto transition-all duration-300 ease-in-out': isMobile,
             'translate-y-full': isMobile && !isFilterPanelOpen,
             'translate-y-0': isMobile && isFilterPanelOpen,

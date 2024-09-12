@@ -23,7 +23,7 @@ export function getRandomColor(id: string): string {
 export function getBadgeClass(value: string, type: string): string {
   let baseClass = getRandomColor(`${type}-${value}`)
 
-  return `${baseClass} text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full border border-current uppercase`
+  return `${baseClass} text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full border border-current uppercase opacity-75`
 }
 
 export function getButtonClass(value: string, type: string): string {
