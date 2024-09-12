@@ -1,14 +1,14 @@
 <template>
-  <div class="flex flex-col h-full ">
+  <div class="flex flex-col h-full">
     <!-- Main content -->
-    <div class="flex-1 flex flex-col h-full pb-4 md:pb-4 overflow-hidden">
+    <div class="flex-1 flex flex-col h-full pb-10 md:pb-4 overflow-hidden">
       <!-- Filter -->
       <div class="w-full max-w-full">
         <DriverFilter @update:filter="handleFilterChange" @add-new-driver="openDriverDialog()" :filters="filters" />
       </div>
 
       <!-- Table -->
-      <div class="flex-1 overflow-auto border border-border rounded-lg border-b-0 rounded-b-none">
+      <div class="flex-1 overflow-hidden border border-border rounded-lg border-b-0 rounded-b-none">
         <DriverTable :data="filteredDrivers" :columns="columns" :loading="loading" @update:sorting="handleSortingChange"
           @update:columnFilters="handleColumnFiltersChange" @update:driver="handleDriverUpdate"
           @edit-driver="openDriverDialog" @select-driver="selectDriver" />

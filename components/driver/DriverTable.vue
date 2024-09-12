@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full h-full flex flex-col relative" style="height: 80vh;">
+    <div class="w-full h-full flex flex-col relative">
         <div class="flex-grow overflow-auto">
             <div class="min-w-full inline-block align-middle">
                 <div class="overflow-hidden">
