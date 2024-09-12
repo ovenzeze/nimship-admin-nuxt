@@ -1,10 +1,10 @@
 <template>
-    <div class="flex space-x-0 border border-border rounded-lg">
+    <div class="flex space-x-0 border border-border rounded-full items-center justify-center">
         <TooltipProvider v-for="item in qualificationItems" :key="item.name">
             <Tooltip>
                 <TooltipTrigger>
                     <div
-                        :class="['flex items-center justify-center group cursor-pointer border-r border-border py-2 px-2.5', item.isVerified ? 'opacity-85' : 'opacity-25']">
+                        :class="['flex items-center justify-center group cursor-pointer border-r border-border  py-1 px-2.5', item.isVerified ? 'opacity-85' : 'opacity-25']">
                         <Icon :name="item.icon" class="w-4 h-4"></Icon>
                     </div>
                 </TooltipTrigger>

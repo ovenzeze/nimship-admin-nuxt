@@ -3,11 +3,11 @@
         <div class="flex-grow overflow-auto">
             <div class="min-w-full inline-block align-middle">
                 <div class="overflow-hidden">
-                    <Table class="min-w-full h-full overflow-hidden flex">
-                        <TableHeader class="absolute top-0 left-0 w-full z-10 h-10">
+                    <Table class="min-w-full h-full overflow-scroll flex">
+                        <TableHeader class="absolute top-0 left-0 w-full z-10  bg-secondary">
                             <TableRow>
                                 <TableHead v-for="column in visibleColumns" :key="column.id" :class="[
-                                    'text-center text-xs font-semibold uppercase tracking-wider px-2 py-3 whitespace-nowrap min-w-32',
+                                    'text-center text-xs font-semibold uppercase tracking-wider px-2 py-3 whitespace-nowrap min-w-32 text-text-primary',
                                     getColumnVisibilityClass(column.id)
                                 ]">
                                     {{ column.header }}
@@ -18,7 +18,7 @@
                         <TableBody class="overflow-hidden w-full relative mt-10">
                             <TransitionGroup name="list" tag="div">
                                 <TableRow v-for="row in data" :key="row.id"
-                                    class="transition-all duration-300 ease-in-out hover:bg-muted/50 h-16 w-full"
+                                    class="transition-all duration-300 ease-in-out hover:bg-muted/50 min-h-20 h-20 w-full"
                                     @click="handleRowClick(row)">
                                     <TableCell v-for="column in visibleColumns" :key="column.id" :class="[
                                         'flex flex-row items-center justify-center text-center relative px-2 min-w-32',
@@ -27,6 +27,9 @@
                                         <template v-if="column.id === 'qualification'">
                                             <QualificationCell :qualification="row.qualification"
                                                 :icons="qualificationIcons" />
+                                        </template>
+                                        <template v-else-if="column.id === 'driver_id'">
+                                            <p>{{ row.driver_id[0] || 'N/A' }}</p>
                                         </template>
                                         <component v-else :is="getCellComponent(column.id)"
                                             :class="[getCellClass(row, column.id), { 'cursor-pointer': isEditableField(column.id) }]"

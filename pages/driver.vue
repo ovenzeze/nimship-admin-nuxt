@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col h-full ">
     <!-- Main content -->
-    <div class="flex-1 flex flex-col h-full pb-10 overflow-hidden">
+    <div class="flex-1 flex flex-col h-full pb-4 md:pb-4 overflow-hidden">
       <!-- Filter -->
       <div class="w-full max-w-full">
         <DriverFilter @update:filter="handleFilterChange" @add-new-driver="openDriverDialog()" :filters="filters" />
@@ -95,6 +95,7 @@ const loading = ref(false)
 
 const columns: DriverColumn[] = [
   { id: 'name', header: 'Name' },
+  { id: 'driver_id', header: 'Driver ID' },
   { id: 'warehouse', header: 'Warehouse' },
   { id: 'phone', header: 'Phone' },
   { id: 'enroll_time', header: 'Enroll Time' },

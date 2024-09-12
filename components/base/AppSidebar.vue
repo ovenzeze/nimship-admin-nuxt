@@ -228,8 +228,8 @@ const toggleMenu = (item) => {
       </Transition>
 
       <!-- Main content area -->
-      <main class="flex-1 sm:pl-14 mt-10 md:mt-4 ">
-        <div class="mx-auto p-2 sm:p-2 lg:p-4 h-svh max-h-svh ">
+      <main class="flex-1 sm:pl-14 mt-10 md:mt-0 ">
+        <div class="mx-auto p-2 h-svh max-h-svh ">
           <slot></slot>
         </div>
       </main>
