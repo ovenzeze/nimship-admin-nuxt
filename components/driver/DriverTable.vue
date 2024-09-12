@@ -1,10 +1,10 @@
 <template>
-    <div class="w-full h-full flex flex-col relative">
-        <div class="flex-grow overflow-x-auto overflow-y-auto">
+    <div class="w-full h-full flex flex-col relative" style="height: 80vh;">
+        <div class="flex-grow overflow-auto">
             <div class="min-w-full inline-block align-middle">
                 <div class="overflow-hidden">
-                    <Table class="min-w-full divide-y divide-gray-200">
-                        <TableHeader class="sticky top-0 bg-secondary z-10">
+                    <Table class="min-w-full divide-y divide-gray-100">
+                        <TableHeader class="sticky-header">
                             <TableRow>
                                 <TableHead v-for="column in visibleColumns" :key="column.id" :class="[
                                     'text-center text-xs font-semibold uppercase tracking-wider px-2 py-3 whitespace-nowrap min-w-32',
@@ -12,7 +12,7 @@
                                 ]">
                                     {{ column.header }}
                                 </TableHead>
-                                <TableHead class="text-center px-2 py-3">Actions</TableHead>
+                                <TableHead class="text-center px-2 py-3 sticky-action">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -24,7 +24,7 @@
                                     getColumnVisibilityClass(column.id)
                                 ]">
                                     <TransitionGroup name="slide" tag="div"
-                                        class="absolute inset-0 flex justify-center items-center transition-all duration-300 px-2 py-6 ">
+                                        class="absolute inset-0 flex justify-center items-center transition-all duration-300 px-2 py-4 ">
                                         <template v-if="column.id === 'qualification'">
                                             <QualificationCell :qualification="row.qualification"
                                                 :icons="qualificationIcons" />
@@ -32,7 +32,8 @@
                                         <component v-else :is="getCellComponent(column.id)"
                                             :class="[getCellClass(row, column.id), { 'cursor-pointer': isEditableField(column.id) }]"
                                             @click.stop="isEditableField(column.id) && showPopover(row, column)">
-                                            <span :key="formatCellValue(row, column.id)" class="inline-block">
+                                            <span :key="formatCellValue(row, column.id)"
+                                                class="max-w-28 truncate line-clamp-1 text-ellipsis hover:placeholder-shown:text-ellipsis">
                                                 {{ formatCellValue(row, column.id) }}
                                             </span>
                                         </component>
@@ -42,7 +43,7 @@
                                         </div>
                                     </TransitionGroup>
                                 </TableCell>
-                                <TableCell class="text-center px-2 py-2">
+                                <TableCell class="text-center px-2 py-2 sticky-action">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" class="h-8 w-8 p-0">
@@ -97,6 +98,61 @@
         </Popover>
     </div>
 </template>
+
+
+<style scoped>
+.table-container {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #fff;
+    /* Adjust this to match your design */
+}
+
+.sticky-action {
+    position: sticky;
+    right: 0;
+    z-index: 10;
+    background-color: #fff;
+    /* Adjust this to match your design */
+}
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: all 0.3s ease-in-out;
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+}
+
+.slide-enter-from {
+    transform: translateY(100%);
+    opacity: 0;
+}
+
+.slide-leave-to {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+.slide-enter-to,
+.slide-leave-from {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Prevent layout shifts during transitions */
+.list-move {
+    transition: transform 0.5s ease;
+}
+</style>
+
+
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
@@ -389,34 +445,3 @@ watch(() => props.loading, (newLoading) => {
     console.log('DriverTable loading state:', newLoading)
 })
 </script>
-
-<style scoped>
-.slide-enter-active,
-.slide-leave-active {
-    transition: all 0.3s ease-in-out;
-    position: absolute;
-    width: 100%;
-    opacity: 0;
-}
-
-.slide-enter-from {
-    transform: translateY(100%);
-    opacity: 0;
-}
-
-.slide-leave-to {
-    transform: translateY(-100%);
-    opacity: 0;
-}
-
-.slide-enter-to,
-.slide-leave-from {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-/* Prevent layout shifts during transitions */
-.list-move {
-    transition: transform 0.5s ease;
-}
-</style>

@@ -5,7 +5,7 @@
                 <TooltipTrigger>
                     <div
                         :class="['flex items-center justify-center group cursor-pointer border-r border-border py-2 px-2.5', item.isVerified ? 'opacity-85' : 'opacity-25']">
-                        <Icon :name="item.icon" class="w-5 h-5"></Icon>
+                        <Icon :name="item.icon" class="w-4 h-4"></Icon>
                     </div>
                 </TooltipTrigger>
                 <TooltipContent>

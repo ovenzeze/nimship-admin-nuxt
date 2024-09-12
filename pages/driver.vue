@@ -101,7 +101,6 @@ const qualificationIcons: QualificationIcon[] = [
 ]
 
 const columns: DriverColumn[] = [
-  { id: 'team_name', header: 'Team' },
   { id: 'name', header: 'Name' },
   { id: 'warehouse', header: 'Warehouse' },
   { id: 'phone', header: 'Phone' },
@@ -113,6 +112,7 @@ const columns: DriverColumn[] = [
   },
   { id: 'dl_expired_time', header: 'DL Expiry' },
   { id: 'status', header: 'Status' },
+  { id: 'team_name', header: 'Team' },
   { id: 'email', header: 'Email' },
   { id: 'available', header: 'Available' },
   { id: 'rating', header: 'Rating' },
