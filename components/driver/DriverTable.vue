@@ -3,8 +3,8 @@
         <div class="flex-grow overflow-auto">
             <div class="min-w-full inline-block align-middle">
                 <div class="overflow-hidden">
-                    <Table class="min-w-full divide-y divide-gray-100">
-                        <TableHeader class="sticky-header">
+                    <Table class="min-w-full h-full overflow-hidden flex">
+                        <TableHeader class="absolute top-0 left-0 w-full z-10 h-10">
                             <TableRow>
                                 <TableHead v-for="column in visibleColumns" :key="column.id" :class="[
                                     'text-center text-xs font-semibold uppercase tracking-wider px-2 py-3 whitespace-nowrap min-w-32',
@@ -15,16 +15,15 @@
                                 <TableHead class="text-center px-2 py-3 sticky-action">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
-                        <TableBody>
-                            <TableRow v-for="row in data" :key="row.uid"
-                                class="transition-all duration-300 ease-in-out hover:bg-muted/50 h-16"
-                                @click="handleRowClick(row)">
-                                <TableCell v-for="column in visibleColumns" :key="column.id" :class="[
-                                    'flex text-center relative px-2',
-                                    getColumnVisibilityClass(column.id)
-                                ]">
-                                    <TransitionGroup name="slide" tag="div"
-                                        class="absolute inset-0 flex justify-center items-center transition-all duration-300 px-2 py-4 ">
+                        <TableBody class="overflow-hidden w-full relative mt-10">
+                            <TransitionGroup name="list" tag="div">
+                                <TableRow v-for="row in data" :key="row.id"
+                                    class="transition-all duration-300 ease-in-out hover:bg-muted/50 h-16 w-full"
+                                    @click="handleRowClick(row)">
+                                    <TableCell v-for="column in visibleColumns" :key="column.id" :class="[
+                                        'flex flex-row items-center justify-center text-center relative px-2 min-w-32',
+                                        getColumnVisibilityClass(column.id)
+                                    ]">
                                         <template v-if="column.id === 'qualification'">
                                             <QualificationCell :qualification="row.qualification"
                                                 :icons="qualificationIcons" />
@@ -32,40 +31,46 @@
                                         <component v-else :is="getCellComponent(column.id)"
                                             :class="[getCellClass(row, column.id), { 'cursor-pointer': isEditableField(column.id) }]"
                                             @click.stop="isEditableField(column.id) && showPopover(row, column)">
-                                            <span :key="formatCellValue(row, column.id)"
-                                                class="max-w-28 truncate line-clamp-1 text-ellipsis hover:placeholder-shown:text-ellipsis">
-                                                {{ formatCellValue(row, column.id) }}
-                                            </span>
+                                            <transition name="cell-update" mode="out-in">
+                                                <span :key="formatCellValue(row, column.id)"
+                                                    class="max-w-28 truncate line-clamp-1 text-ellipsis hover:placeholder-shown:text-ellipsis">
+                                                    {{ formatCellValue(row, column.id) }}
+                                                </span>
+                                            </transition>
                                         </component>
-                                        <div v-if="getCellLoadingState(row.uid, column.id)"
-                                            class="absolute inset-0 flex items-center justify-center bg-background/50">
-                                            <Loader2 class="h-4 w-4 animate-spin" />
-                                        </div>
-                                    </TransitionGroup>
-                                </TableCell>
-                                <TableCell class="text-center px-2 py-2 sticky-action">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" class="h-8 w-8 p-0">
-                                                <span class="sr-only">Open menu</span>
-                                                <MoreHorizontal class="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem @click.stop="editDriver(row)">Edit</DropdownMenuItem>
-                                            <DropdownMenuItem @click.stop="deleteDriver(row)">Delete</DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
-                            </TableRow>
+                                        <transition name="fade">
+                                            <div v-if="getCellLoadingState(row.uid, column.id)"
+                                                class="absolute inset-0 flex items-center justify-center bg-background/50">
+                                                <Loader2 class="h-4 w-4 animate-spin" />
+                                            </div>
+                                        </transition>
+                                    </TableCell>
+                                    <TableCell class="text-center px-2 py-2 ">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" class="h-8 w-8 p-0">
+                                                    <span class="sr-only">Open menu</span>
+                                                    <MoreHorizontal class="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem @click.stop="editDriver(row)">Edit
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem @click.stop="deleteDriver(row)">Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            </TransitionGroup>
                         </TableBody>
                     </Table>
                 </div>
             </div>
         </div>
-        <transition name="side">
+        <transition name="fade">
             <div v-if="loading"
-                class="fixed bottom-0 left-0 w-full flex justify-center items-center h-full transition-all duration-300">
+                class="fixed bottom-0 left-0 w-full flex justify-center items-center h-full transition-all duration-300 bg-background/50">
                 <Loader2 class="h-6 w-6 animate-spin" />
             </div>
         </transition>
@@ -76,7 +81,7 @@
         <!-- Single Popover for editing -->
         <Popover v-model:open="isPopoverOpen" :trap-focus="false" :close-on-outside-click="true">
             <PopoverTrigger as="div" :style="popoverTriggerStyle" />
-            <transition name="fade" mode="out-in">
+            <transition name="popover" mode="out-in">
                 <PopoverContent class="p-0" :style="popoverContentStyle">
                     <div v-if="popoverLoading" class="flex justify-center items-center h-10">
                         <Loader2 class="h-4 w-4 animate-spin" />
@@ -110,45 +115,59 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    background-color: #fff;
-    /* Adjust this to match your design */
 }
 
 .sticky-action {
     position: sticky;
     right: 0;
     z-index: 10;
-    background-color: #fff;
-    /* Adjust this to match your design */
 }
 
-.slide-enter-active,
-.slide-leave-active {
-    transition: all 0.3s ease-in-out;
-    position: absolute;
-    width: 100%;
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
     opacity: 0;
+    transform: translateY(30px);
 }
 
-.slide-enter-from {
-    transform: translateY(100%);
-    opacity: 0;
-}
-
-.slide-leave-to {
-    transform: translateY(-100%);
-    opacity: 0;
-}
-
-.slide-enter-to,
-.slide-leave-from {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-/* Prevent layout shifts during transitions */
 .list-move {
     transition: transform 0.5s ease;
+}
+
+.cell-update-enter-active,
+.cell-update-leave-active {
+    transition: all 0.3s ease;
+}
+
+.cell-update-enter-from,
+.cell-update-leave-to {
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.popover-enter-active,
+.popover-leave-active {
+    transition: all 0.3s ease;
+}
+
+.popover-enter-from,
+.popover-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
 }
 </style>
 
@@ -254,10 +273,9 @@ const getCellComponent = (columnId: keyof ReadableDriver) => {
         case 'status':
         case 'driver_type':
         case 'warehouse':
+            return 'div'
         case 'team_name':
-            return 'span'
-        case 'available':
-            return 'span'
+            return 'div'
         default:
             return 'span'
     }

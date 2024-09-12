@@ -9,11 +9,9 @@
 
       <!-- Table -->
       <div class="flex-1 overflow-auto border border-border rounded-lg border-b-0 rounded-b-none">
-        <transition name="fade" mode="out-in">
-          <DriverTable :key="tableKey" :data="filteredDrivers" :columns="columns" :loading="loading"
-            @update:sorting="handleSortingChange" @update:columnFilters="handleColumnFiltersChange"
-            @update:driver="handleDriverUpdate" @edit-driver="openDriverDialog" @select-driver="selectDriver" />
-        </transition>
+        <DriverTable :data="filteredDrivers" :columns="columns" :loading="loading" @update:sorting="handleSortingChange"
+          @update:columnFilters="handleColumnFiltersChange" @update:driver="handleDriverUpdate"
+          @edit-driver="openDriverDialog" @select-driver="selectDriver" />
       </div>
 
       <!-- Pagination -->
@@ -23,7 +21,7 @@
             Showing {{ paginationStart }} to {{ paginationEnd }} of {{ totalCount }} entries
           </span>
         </div>
-        <Pagination v-slot="{ page }" :total="totalCount" :sibling-count="1" show-edges
+        <Pagination v-if="!loading" v-slot="{ page }" :total="totalCount" :sibling-count="1" :show-edges="true"
           :default-page="pagination.pageIndex + 1" @update:page="handlePageChange">
           <PaginationList v-slot="{ items }" class="flex items-center gap-1">
             <PaginationFirst class="w-7 h-7 p-0 rounded-full" />
@@ -89,16 +87,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import { useDriver } from '~/composables/useDriver'
 
-const { loading, error, drivers, totalCount, fetchDrivers, updateDriver, createDriver } = useDriver()
+const { drivers, fetchDrivers, updateDriver, createDriver, totalCount } = useDriver()
 const { toast } = useToast()
-const tableKey = ref(0)
-
-const qualificationIcons: QualificationIcon[] = [
-  { name: 'dl', icon: 'i-mdi-car', tooltip: 'Driver License' },
-  { name: 'tax', icon: 'i-mdi-file-document', tooltip: 'Tax Documents' },
-  { name: 'vehicle', icon: 'i-mdi-truck', tooltip: 'Vehicle Information' },
-]
+const loading = ref(false)
 
 const columns: DriverColumn[] = [
   { id: 'name', header: 'Name' },
@@ -166,15 +159,11 @@ const handleColumnFiltersChange = (newColumnFilters: any) => {
 const handleDriverUpdate = async (updatedDriver: HaulblazeContact) => {
   try {
     const result = await updateDriver(updatedDriver)
-    // Update the local state
-    const index = drivers.value.findIndex(d => d.uid === updatedDriver.uid)
-    if (index !== -1) {
-      drivers.value[index] = result
-    }
     toast({
       title: "Success",
       description: `Driver ${result.first_name} ${result.last_name} updated successfully`,
     })
+    fetchRecords() // Refresh the data after update
   } catch (e) {
     console.error('Error updating driver:', e)
     toast({
@@ -186,9 +175,9 @@ const handleDriverUpdate = async (updatedDriver: HaulblazeContact) => {
 }
 
 const fetchRecords = async () => {
+  loading.value = true
   try {
     await fetchDrivers(filters.value, sorting.value, columnFilters.value, pagination.value)
-    tableKey.value++ // Force re-render of table
   } catch (e) {
     console.error('Error fetching drivers:', e)
     toast({
@@ -196,6 +185,8 @@ const fetchRecords = async () => {
       description: "Failed to fetch driver records. Please try again.",
       variant: 'destructive',
     })
+  } finally {
+    loading.value = false
   }
 }
 
@@ -212,25 +203,20 @@ const closeDriverDialog = () => {
 const saveDriver = async (driver: HaulblazeContact) => {
   try {
     if (driver.uid) {
-      const updatedDriver = await updateDriver(driver)
-      // Update the local state
-      const index = drivers.value.findIndex(d => d.uid === driver.uid)
-      if (index !== -1) {
-        drivers.value[index] = updatedDriver
-      }
+      await updateDriver(driver)
       toast({
         title: "Success",
-        description: `Driver ${updatedDriver.first_name} ${updatedDriver.last_name} updated successfully`,
+        description: `Driver ${driver.first_name} ${driver.last_name} updated successfully`,
       })
     } else {
-      const newDriver = await createDriver(driver)
-      drivers.value.push(newDriver)
+      await createDriver(driver)
       toast({
         title: "Success",
-        description: `Driver ${newDriver.first_name} ${newDriver.last_name} created successfully`,
+        description: `Driver ${driver.first_name} ${driver.last_name} created successfully`,
       })
     }
     closeDriverDialog()
+    fetchRecords() // Refresh the data after save
   } catch (e) {
     console.error('Error saving driver:', e)
     toast({
@@ -279,15 +265,3 @@ onMounted(async () => {
   await fetchRecords()
 })
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>
