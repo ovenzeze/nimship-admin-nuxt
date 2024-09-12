@@ -1,7 +1,8 @@
 <template>
     <div class="nimship-filter" :class="{ 'mobile': isMobile }">
-        <div class="flex items-center justify-between space-x-4" :class="{ 'flex-col space-y-4': isMobile }">
-            <div class="flex items-center space-x-4 flex-grow" :class="{ 'flex-col space-y-4 w-full': isMobile }">
+        <div class="flex items-start justify-between md:justify-center" :class="{ 'flex-col space-y-4': isMobile }">
+            <div class="flex items-start md:items-center md:space-x-4 flex-grow"
+                :class="{ 'flex-col space-y-4 w-full': isMobile }">
                 <template v-for="filter in filters" :key="filter.key">
                     <template v-if="filter.type === 'select'">
                         <ButtonSwitcher v-if="shouldUseButtonSwitcher(filter)" :modelValue="filterValues[filter.key]"
@@ -9,7 +10,7 @@
                             @update:value="updateFilter(filter.key, $event)" />
                         <Select v-else v-model="filterValues[filter.key]" :options="filter.options || []"
                             @update:modelValue="updateFilter(filter.key, $event)">
-                            <SelectTrigger :class="isMobile ? 'w-full' : 'w-[180px] h-9'">
+                            <SelectTrigger :class="isMobile ? 'w-[90vw]' : 'w-[180px] h-9'">
                                 <SelectValue :placeholder="filter.placeholder" />
                             </SelectTrigger>
                             <SelectContent>
@@ -24,9 +25,8 @@
                         @select="updateFilter(filter.key, $event)" :class="isMobile ? 'w-full' : ''" />
                 </template>
             </div>
-            <Button variant="outline" @click="resetFilters" :class="isMobile ? 'w-full' : 'ml-4 h-9'">
-                <Icon name="ph:funnel" class="mr-2" />
-                Reset
+            <Button variant="outline" @click="resetFilters" :class="isMobile ? 'w-[90vw]' : 'ml-4 h-9'">
+                <Icon name="ph:funnel" class="mr-2" />Reset
             </Button>
         </div>
     </div>
@@ -142,5 +142,7 @@ onMounted(async () => {
 <style scoped>
 .nimship-filter.mobile {
     width: 100%;
+    padding-left: 20px;
+
 }
 </style>

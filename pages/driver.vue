@@ -1,37 +1,31 @@
 <template>
   <div class="flex flex-col h-full">
-    <!-- Mobile Navigation Bar (placeholder) -->
-    <div class="h-16 bg-background text-primary-foreground md:hidden">
-      <!-- Add your mobile navigation content here -->
-    </div>
 
     <!-- Main content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col h-full pb-10">
       <!-- Filter -->
-      <div class="w-full">
+      <div class="w-full max-w-full">
         <DriverFilter @update:filter="handleFilterChange" @add-new-driver="openDriverDialog()"
           @update:dimensions="handleDimensionsChange" @reset-dimensions="resetDimensions" :filters="filters" />
       </div>
 
       <!-- Driver Stats -->
-      <div v-if="selectedDriver" class="mb-4">
+      <!-- <div v-if="selectedDriver" class="mb-4">
         <DriverStats :completedTrips="selectedDriver.completed_trips" :rating="selectedDriver.rating"
           :activeDays="selectedDriver.active_days" :licenseExpiry="selectedDriver.dl_expired_time" />
-      </div>
+      </div> -->
 
       <!-- Table -->
-      <div class="flex-1 overflow-hidden border border-border rounded-lg border-b-0 rounded-b-none"
-        :style="tableDimensionsStyle">
+      <div class="flex-1 overflow-auto border border-border rounded-lg border-b-0 rounded-b-none">
         <transition name="fade" mode="out-in">
           <DriverTable :key="tableKey" :data="filteredDrivers" :columns="columns" :loading="loading"
-            :dimensions="dimensions" @update:sorting="handleSortingChange"
-            @update:columnFilters="handleColumnFiltersChange" @update:driver="handleDriverUpdate"
-            @edit-driver="openDriverDialog" @select-driver="selectDriver" />
+            @update:sorting="handleSortingChange" @update:columnFilters="handleColumnFiltersChange"
+            @update:driver="handleDriverUpdate" @edit-driver="openDriverDialog" @select-driver="selectDriver" />
         </transition>
       </div>
 
       <!-- Pagination -->
-      <div class="p-4 border border-border flex justify-between items-center rounded-lg rounded-t-none">
+      <div class="p-4 border border-border flex justify-between items-center rounded-lg rounded-t-none ">
         <div class="hidden md:block">
           <span class="text-sm text-primary">
             Showing {{ paginationStart }} to {{ paginationEnd }} of {{ totalCount }} entries
@@ -112,21 +106,6 @@ const filters = ref<DriverFilters>({
   employment_status: null,
 })
 
-const defaultDimensions = {
-  width: '100%',
-  maxWidth: '100%',
-  height: '500px',
-  maxHeight: '80vh',
-}
-
-const dimensions = ref({ ...defaultDimensions })
-
-const tableDimensionsStyle = computed(() => ({
-  width: dimensions.value.width,
-  maxWidth: dimensions.value.maxWidth,
-  height: dimensions.value.height,
-  maxHeight: dimensions.value.maxHeight,
-}))
 
 const pagination = ref({ pageIndex: 0, pageSize: 20 })
 const sorting = ref([])
