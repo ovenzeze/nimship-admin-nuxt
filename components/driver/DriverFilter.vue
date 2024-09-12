@@ -1,11 +1,11 @@
 <template>
     <div
-        class="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex justify-between items-center flex-wrap gap-4 overflow-x-auto">
+        class="bg-background/95 px-0 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex justify-between items-center flex-wrap gap-4 overflow-x-auto">
         <div class="flex-grow">
             <NimshipFilter :filters="filterConfigs" v-model="filters" @update:modelValue="handleFilterChange" />
         </div>
         <div class="flex items-center gap-4 flex-shrink-0">
-            <Button @click="addNewDriver" variant="secondary">
+            <Button @click="addNewDriver" variant="secondary" class=" h-9">
                 <PlusCircle class="mr-2 h-4 w-4" />
                 Add New Driver
             </Button>
@@ -54,6 +54,27 @@ const filterConfigs = ref<FilterConfig[]>([
         placeholder: 'Warehouse',
         enumType: EnumType.WAREHOUSE_CODE
     },
+    // {
+    //     type: 'select',
+    //     key: 'driver_type',
+    //     as: 'auto',
+    //     placeholder: 'Driver Type',
+    //     enumType: EnumType.DRIVER_TYPE
+    // },
+    // {
+    //     type: 'select',
+    //     key: 'status',
+    //     as: 'auto',
+    //     placeholder: 'Status',
+    //     enumType: EnumType.STATUS
+    // },
+    {
+        type: 'select',
+        key: 'employment_status',
+        as: 'Button',
+        placeholder: 'Status',
+        options: ['Employed', 'Onboarding', 'Quit'].map(value => ({ value, label: String(value).toUpperCase() })),
+    },
     {
         type: 'select',
         key: 'team_name',
@@ -61,27 +82,6 @@ const filterConfigs = ref<FilterConfig[]>([
         placeholder: 'Team',
         enumType: EnumType.TEAM_NAME
     },
-    {
-        type: 'select',
-        key: 'driver_type',
-        as: 'auto',
-        placeholder: 'Driver Type',
-        enumType: EnumType.DRIVER_TYPE
-    },
-    {
-        type: 'select',
-        key: 'status',
-        as: 'auto',
-        placeholder: 'Status',
-        enumType: EnumType.STATUS
-    },
-    {
-        type: 'select',
-        key: 'employment_status',
-        as: 'auto',
-        placeholder: 'Employment Status',
-        enumType: EnumType.EMPLOYMENT_STATUS
-    }
 ])
 
 const handleFilterChange = (newFilters: Partial<DriverFilters>) => {

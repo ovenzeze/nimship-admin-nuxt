@@ -9,7 +9,7 @@
                             @update:value="updateFilter(filter.key, $event)" />
                         <Select v-else v-model="filterValues[filter.key]" :options="filter.options || []"
                             @update:modelValue="updateFilter(filter.key, $event)">
-                            <SelectTrigger :class="isMobile ? 'w-full' : 'w-[180px]'">
+                            <SelectTrigger :class="isMobile ? 'w-full' : 'w-[180px] h-9'">
                                 <SelectValue :placeholder="filter.placeholder" />
                             </SelectTrigger>
                             <SelectContent>
@@ -24,7 +24,7 @@
                         @select="updateFilter(filter.key, $event)" :class="isMobile ? 'w-full' : ''" />
                 </template>
             </div>
-            <Button variant="outline" @click="resetFilters" :class="isMobile ? 'w-full' : 'ml-4'">
+            <Button variant="outline" @click="resetFilters" :class="isMobile ? 'w-full' : 'ml-4 h-9'">
                 <Icon name="ph:funnel" class="mr-2" />
                 Reset
             </Button>
@@ -33,13 +33,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue'
 import { useDevice } from '~/composables/useDevice'
 import { useEnums } from '~/composables/useEnums'
 import DriverSelector from '~/components/base/DriverSelector.vue'
 import ButtonSwitcher from '~/components/base/ButtonSwitcher.vue'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { getEmploymentStatusIcon } from '~/utils/icons'
 
 interface FilterOption {
     value?: string | number
@@ -108,7 +108,7 @@ const getButtonSwitcherOptions = (filter: FilterConfig) => {
     return filter.options?.map(option => ({
         value: getOptionValue(filter, option),
         label: getOptionLabel(filter, option),
-        icon: filter.key === 'warehouse' ? getWarehouseIcon(option.value as string) : ''
+        icon: filter.key === 'warehouse' ? getWarehouseIcon(option.value as string) : (filter.key === 'employment_status' ? getEmploymentStatusIcon(option.value as string) : '')
     })) || []
 }
 

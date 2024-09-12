@@ -21,3 +21,13 @@ export const getWarehouseIcon = (warehouse: string): string => {
     default: return "ph:map-pin-bold";
   }
 };
+
+export const getEmploymentStatusIcon = (employmentStatus: string): string => {
+  switch (employmentStatus.toUpperCase()) {
+    case "Employed": return "ph:check-circle";
+    case "ONBOARDING": return "ph:x-circle";
+    case "QUIT": return "ph:pause-circle";
+    case "TERMINATED": return "ph:user-circle-minus";
+    default: return "ph:question";
+  }
+};

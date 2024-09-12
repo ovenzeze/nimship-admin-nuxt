@@ -15,11 +15,7 @@
                     <TableRow v-for="row in data" :key="row.uid" class="transition-colors hover:bg-muted/50">
                         <TableCell v-for="column in visibleColumns" :key="column.id" class="text-center relative">
                             <template v-if="column.id === 'qualification'">
-                                <div class="grid grid-cols-3 items-center justify-center">
-                                    <Icon name="ph:car" class="w-6 h-6 mr-1 inline-block border border-border" />
-                                    <Icon name="ph:rabbit" class="w-6 h-6 mr-1" />
-                                    <Icon name="ph:paper-plane" class="w-6 h-6 mr-1" />
-                                </div>
+                                <QualificationCell :qualification="row.qualification" :icons="qualificationIcons" />
                             </template>
                             <component v-else :is="getCellComponent(column.id)"
                                 :class="[getCellClass(row, column.id), { 'cursor-pointer': isEditableField(column.id) }]"
@@ -89,7 +85,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { MoreHorizontal, Loader2 } from 'lucide-vue-next'
-import type { HaulblazeContact, DriverColumn, ReadableDriver } from '~/types/index'
+import type { HaulblazeContact, DriverColumn, ReadableDriver, QualificationIcon } from '~/types/index'
 import { useEnums } from '~/composables/useEnums'
 import { getBadgeClass } from '~/utils/colorUtils'
 import { EnumType } from '~/types/index'
@@ -98,6 +94,7 @@ import { useDriver } from '~/composables/useDriver'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useToast } from '@/components/ui/toast'
+import QualificationCell from './QualificationCell.vue'
 
 dayjs.extend(relativeTime)
 
@@ -147,6 +144,12 @@ const tableDimensionsStyle = computed(() => ({
     height: props.dimensions?.height || '100%',
     maxHeight: props.dimensions?.maxHeight || 'none',
 }))
+
+const qualificationIcons: QualificationIcon[] = [
+    { name: 'dl', icon: 'lucide:lock-keyhole', tooltip: 'Driver License' },
+    { name: 'tax', icon: 'lucide:tree-deciduous', tooltip: 'Tax Documents' },
+    { name: 'vehicle', icon: 'lucide:car', tooltip: 'Vehicle Information' },
+]
 
 const getCellComponent = (columnId: keyof ReadableDriver) => {
     switch (columnId) {

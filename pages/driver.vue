@@ -5,45 +5,18 @@
       <!-- Add your mobile navigation content here -->
     </div>
 
-    <!-- Qualification Icons Template -->
-    <template #qualification-cell="{ value }">
-      <div class="flex space-x-2">
-        <TooltipProvider v-for="item in value" :key="item.name">
-          <Tooltip>
-            <TooltipTrigger>
-              <div :class="['w-6 h-6 flex items-center justify-center rounded-full', item.isVerified ? 'bg-green-500' : 'bg-red-500']">
-                <i :class="[item.icon, 'text-white']"></i>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{{ item.tooltipText }}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-    </template>
-
     <!-- Main content -->
     <div class="flex-1 flex flex-col overflow-hidden">
       <!-- Filter -->
       <div class="w-full">
-        <DriverFilter 
-          @update:filter="handleFilterChange" 
-          @add-new-driver="openDriverDialog()"
-          @update:dimensions="handleDimensionsChange" 
-          @reset-dimensions="resetDimensions"
-          :filters="filters"
-        />
+        <DriverFilter @update:filter="handleFilterChange" @add-new-driver="openDriverDialog()"
+          @update:dimensions="handleDimensionsChange" @reset-dimensions="resetDimensions" :filters="filters" />
       </div>
 
       <!-- Driver Stats -->
       <div v-if="selectedDriver" class="mb-4">
-        <DriverStats
-          :completedTrips="selectedDriver.completed_trips"
-          :rating="selectedDriver.rating"
-          :activeDays="selectedDriver.active_days"
-          :licenseExpiry="selectedDriver.dl_expired_time"
-        />
+        <DriverStats :completedTrips="selectedDriver.completed_trips" :rating="selectedDriver.rating"
+          :activeDays="selectedDriver.active_days" :licenseExpiry="selectedDriver.dl_expired_time" />
       </div>
 
       <!-- Table -->
@@ -59,7 +32,7 @@
 
       <!-- Pagination -->
       <div class="p-4 border border-border flex justify-between items-center rounded-lg rounded-t-none">
-        <div>
+        <div class="hidden md:block">
           <span class="text-sm text-primary">
             Showing {{ paginationStart }} to {{ paginationEnd }} of {{ totalCount }} entries
           </span>
@@ -99,12 +72,16 @@ import type { DriverFilters, HaulblazeContact, DriverColumn, ReadableDriver, Qua
 import { getReadableDriver } from '~/utils/driver'
 import { getRandomColor } from '~/utils/colorUtils'
 import { Button } from '@/components/ui/button'
-import DriverStats from '~/components/DriverStats.vue'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const { loading, error, drivers, totalCount, fetchDrivers, updateDriver, createDriver } = useDriver()
 const { toast } = useToast()
 const tableKey = ref(0)
+
+const qualificationIcons: QualificationIcon[] = [
+  { name: 'dl', icon: 'i-mdi-car', tooltip: 'Driver License' },
+  { name: 'tax', icon: 'i-mdi-file-document', tooltip: 'Tax Documents' },
+  { name: 'vehicle', icon: 'i-mdi-truck', tooltip: 'Vehicle Information' },
+]
 
 const columns: DriverColumn[] = [
   { id: 'team_name', header: 'Team' },
@@ -112,10 +89,10 @@ const columns: DriverColumn[] = [
   { id: 'warehouse', header: 'Warehouse' },
   { id: 'phone', header: 'Phone' },
   { id: 'enroll_time', header: 'Enroll Time' },
-  { 
-    id: 'qualification', 
+  {
+    id: 'qualification',
     header: 'Qualification',
-    cell: ({ row }) => renderQualification(row.qualification)
+    cell: (props) => h(QualificationCell, { qualification: props.row.qualification, icons: qualificationIcons })
   },
   { id: 'dl_expired_time', header: 'DL Expiry' },
   { id: 'status', header: 'Status' },
@@ -134,20 +111,6 @@ const filters = ref<DriverFilters>({
   status: null,
   employment_status: null,
 })
-
-const qualificationIcons: QualificationIcon[] = [
-  { name: 'dl', icon: 'i-mdi-car', tooltip: 'Driver License' },
-  { name: 'tax', icon: 'i-mdi-file-document', tooltip: 'Tax Documents' },
-  { name: 'vehicle', icon: 'i-mdi-truck', tooltip: 'Vehicle Information' },
-]
-
-const renderQualification = (qualification: ReadableDriver['qualification']) => {
-  return qualificationIcons.map((item) => ({
-    ...item,
-    isVerified: qualification[item.name],
-    tooltipText: `${item.tooltip}: ${qualification[item.name] ? 'Verified' : 'Not Verified'}`
-  }))
-}
 
 const defaultDimensions = {
   width: '100%',
