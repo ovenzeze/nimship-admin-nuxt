@@ -74,8 +74,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useToast } from '@/components/ui/toast'
-import type { DriverFilters, HaulblazeContact, DriverColumn, ReadableDriver, QualificationIcon } from '~/types'
-import { getReadableDriver } from '~/utils/driver'
+import type { DriverFilters, HaulblazeContact, DriverColumn, ReadbleContact, QualificationIcon } from '~/types'
+import { getReadbleContact } from '~/utils/readble'
 import { getRandomColor } from '~/utils/colorUtils'
 import { Button } from '@/components/ui/button'
 import {
@@ -128,12 +128,12 @@ const sorting = ref([])
 const columnFilters = ref([])
 
 const showDriverDialog = ref(false)
-const selectedDriver = ref<ReadableDriver | null>(null)
+const selectedDriver = ref<ReadbleContact | null>(null)
 const showMobileDetailsModal = ref(false)
 
-const filteredDrivers = computed<ReadableDriver[]>(() => {
+const filteredDrivers = computed<ReadbleContact[]>(() => {
   return drivers.value.map(driver => ({
-    ...getReadableDriver(driver),
+    ...getReadbleContact(driver),
     color: getRandomColor(String(driver.uid)),
   }))
 })
@@ -192,7 +192,7 @@ const fetchRecords = async () => {
 }
 
 const openDriverDialog = (driver?: HaulblazeContact) => {
-  selectedDriver.value = driver ? getReadableDriver(driver) : null
+  selectedDriver.value = driver ? getReadbleContact(driver) : null
   showDriverDialog.value = true
 }
 
@@ -233,7 +233,7 @@ const handlePageChange = (newPage: number) => {
   fetchRecords()
 }
 
-const selectDriver = (driver: ReadableDriver) => {
+const selectDriver = (driver: ReadbleContact) => {
   selectedDriver.value = driver
   if (window.innerWidth < 768) { // Assuming 768px as the breakpoint for mobile devices
     showMobileDetailsModal.value = true
@@ -245,7 +245,7 @@ const closeMobileDetailsModal = () => {
   selectedDriver.value = null
 }
 
-const formatCellValue = (row: ReadableDriver, columnId: keyof ReadableDriver) => {
+const formatCellValue = (row: ReadbleContact, columnId: keyof ReadbleContact) => {
   switch (columnId) {
     case 'enroll_time':
       return row.enroll_time ? new Date(row.enroll_time).toLocaleDateString() : 'N/A'

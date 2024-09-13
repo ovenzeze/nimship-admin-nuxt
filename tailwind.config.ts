@@ -21,6 +21,9 @@ module.exports = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        'breath-light': 'rgba(59, 130, 246, 0.8)', // 浅色模式边框颜色
+        'breath-dark': 'rgba(96, 165, 250, 0.8)',  // 深色模式边框颜色
+
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -74,12 +77,24 @@ module.exports = {
           from: { height: 'var(--radix-collapsible-content-height)' },
           to: { height: 0 },
         },
+        breathing: {
+          '0%, 100%': {
+            boxShadow: 'inset 0 0 10px 0 rgba(59, 130, 246, 0.1)',
+            borderColor: 'rgba(59, 130, 246, 0.3)'
+          },
+          '50%': {
+            boxShadow: 'inset 0 0 20px 0 rgba(59, 130, 246, 0.4)',
+            borderColor: 'rgba(59, 130, 246, 0.8)'
+          },
+        }
+
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "collapsible-down": "collapsible-down 0.2s ease-in-out",
         "collapsible-up": "collapsible-up 0.2s ease-in-out",
+        'breath': 'breathing 2s ease-in-out infinite'
       },
     },
   },

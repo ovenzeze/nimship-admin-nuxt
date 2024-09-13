@@ -1,14 +1,24 @@
-import type { HTMLAttributes } from 'vue'
 import type { Database } from './database'
 
 // Database types
 export type DeliveryRecordView = Database['public']['Views']['delivery_records_view']['Row']
 export type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
-export type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row'] & {
-  employment_status?: string;
+
+export type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
+
+export const HaulblazeContactFields = createEnumFromType<HaulblazeContact>();
+
+export type ReadbleContact = Database['public']['Tables']['haulblaze_contact']['Row'] & {
+    employment_status?: string;
+    name: string,
+    qualification: Qualification
 }
 
+
 // Enum types
+
+
+export const PaymentRecordFields = createEnumFromType<PaymentRecord>();
 export enum EnumType {
     'CYCLE' = 'CYCLE',
     'WAREHOUSE_CODE' = 'WAREHOUSE_CODE',
@@ -64,8 +74,8 @@ export interface DriverFilters {
     employment_status: string | null
 }
 
-export interface Qualification {
-    dl: boolean
+export type Qualification = {
+    insurance: boolean
     tax: boolean
     vehicle: boolean
 }
@@ -82,7 +92,7 @@ export interface Column {
 }
 
 export interface DriverColumn {
-    id: keyof ReadableDriver
+    id: keyof ReadbleContact
     header: string
 }
 
@@ -98,11 +108,6 @@ export interface ReadablePaymentRecord extends DriverPaymentRecord {
     account: string
     payment_status: PaymentStatusInfo
     payment_time: string
-}
-
-export interface ReadableDriver extends HaulblazeContact {
-    name: string
-    qualification: Qualification
 }
 
 export interface DriverPaymentRecord extends PaymentRecord {

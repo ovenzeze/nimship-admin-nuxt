@@ -1,6 +1,5 @@
-import { ref, Ref } from 'vue'
 import { useSupabaseClient } from '#imports'
-import type { HaulblazeContact, DriverFilters } from '~/types'
+import { type HaulblazeContact, type DriverFilters, HaulblazeContactFields } from '~/types'
 
 export const useDriver = () => {
   const supabase = useSupabaseClient()
@@ -8,6 +7,8 @@ export const useDriver = () => {
   const totalCount: Ref<number> = ref(0)
   const loading: Ref<boolean> = ref(false)
   const error: Ref<Error | null> = ref(null)
+  const recentSearches: Ref<HaulblazeContact[]> = ref([])
+  const isLoading: Ref<boolean> = ref(false)
 
   const fetchDrivers = async (
     filters: DriverFilters,
@@ -179,13 +180,95 @@ export const useDriver = () => {
     }
   }
 
+  const searchDrivers = async (query: string) => {
+    error.value = null
+    const loadingTimeout = setTimeout(() => {
+      isLoading.value = true
+    }, 200)
+
+    try {
+      let searchCondition: string
+
+      // 检查查询是否为纯数字
+      if (/^\d+$/.test(query)) {
+        // 如果是纯数字，搜索 driver_id
+        searchCondition = `driver_id.cs.{${query}}`
+      } else {
+        // 如果不是纯数字，只搜索 first_name 和 last_name
+        searchCondition = `first_name.ilike.%${query}%,last_name.ilike.%${query}%`
+      }
+
+      const { data, error: searchError } = await supabase
+        .from('haulblaze_contact')
+        .select('*')
+        .or(searchCondition)
+        .limit(10)
+
+      if (searchError) {
+        throw searchError
+      }
+
+      drivers.value = data as HaulblazeContact[]
+    } catch (err) {
+      error.value = err as Error
+      console.error('Error searching drivers:', err)
+    } finally {
+      clearTimeout(loadingTimeout)
+      isLoading.value = false
+    }
+  }
+
+
+  const addToRecentSearches = (driver: HaulblazeContact) => {
+
+    const index = recentSearches.value.findIndex(d => d.uid === driver.uid)
+
+    if (index !== -1) recentSearches.value.splice(index, 1)
+
+    recentSearches.value.unshift(driver)
+
+    if (recentSearches.value.length > 5) recentSearches.value.pop()
+
+    // TODO: Consider persisting recent searches to local storage or a database
+  }
+
+  const getFrequentlyUsedDrivers = async () => {
+    error.value = null
+    const loadingTimeout = setTimeout(() => { isLoading.value = true }, 200)
+
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('haulblaze_contact')
+        .select('*')
+        .order(HaulblazeContactFields.last_update, { ascending: false })
+        .limit(10)
+
+      if (fetchError) {
+        throw fetchError
+      }
+
+      drivers.value = data as HaulblazeContact[]
+    } catch (err) {
+      error.value = err as Error
+      console.error('Error fetching frequently used drivers:', err)
+    } finally {
+      clearTimeout(loadingTimeout)
+      isLoading.value = false
+    }
+  }
+
   return {
     drivers,
     totalCount,
     loading,
     error,
+    recentSearches,
+    isLoading,
     fetchDrivers,
     updateDriver,
     createDriver,
+    searchDrivers,
+    addToRecentSearches,
+    getFrequentlyUsedDrivers,
   }
 }
