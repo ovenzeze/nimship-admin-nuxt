@@ -13,7 +13,7 @@ export default {
     rules: {
         'refactor': ['try-design-system', 'use-shadcn-ui-vue', 'use-phosphor-icons', 'use-nuxt-js-supabase', 'use-tailwind-css', 'use-tailwind-animate'],
         'best-practices': ['error-handling-with-try-catch', 'detailed-format-logging', 'no-huge-component', 'use-database-types', 'use-color-variables', 'use-nuxt-js-supabase'],
-        'performance': ['use-nuxt-ui', 'use-phosphor-icons', 'use-supabase', 'use-nuxt-js-supabase'],
+        'performance': ['use-phosphor-icons', 'use-supabase', 'use-nuxt-js-supabase'],
         'style': ['use-tailwind-css', 'use-tailwind-animate', 'support-mobile-responsive', 'use-shadcn-ui-vue', 'use-nuxt-ui'],
     },
     docs: {

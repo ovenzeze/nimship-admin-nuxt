@@ -1,119 +1,99 @@
-# Nuxt 3 Minimal Starter
+# Driver Management System Guidelines
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This document outlines the guidelines and recommendations for improving the driver management system's page architecture, component division, and UI layout.
 
-## Setup
+## 1. Page Architecture
 
-Make sure to install the dependencies:
+- Implement state management (e.g., Pinia) for complex state handling across components.
+- Add a driver details page for comprehensive individual driver views.
+- Implement error boundaries for graceful error handling and display.
 
-```bash
-# npm
-npm install
+## 2. Component Division
 
-# pnpm
-pnpm install
+### Existing Components
 
-# yarn
-yarn install
+- **DriverFilter**:
+  - Break down into smaller components (WarehouseFilter, TeamFilter, etc.) if it becomes more complex.
+  - Implement more advanced search functionality.
+  - Utilize the NimshipFilter component for flexible filter rendering:
+    - Use ButtonSwitcher for filters with 3 or fewer options.
+    - Use Select for filters with more than 3 options.
+    - Allow manual override of display mode using the 'as' prop (Button, Select, or auto).
+  - Implement horizontal scrolling for filters when space is limited.
 
-# bun
-bun install
-```
+- **NimshipFilter**:
+  - Integrate ButtonSwitcher component for improved user experience with fewer options.
+  - Implement dynamic rendering based on the number of options and 'as' prop.
+  - Handle both ButtonSwitcher and Select rendering within the same component.
 
-## Development Server
+- **ButtonSwitcher**:
+  - Use for toggle-style selection of filter options when there are 3 or fewer choices.
+  - Ensure consistent styling with other UI components.
+  - Implement proper accessibility features for keyboard navigation and screen readers.
 
-Start the development server on `http://localhost:3000`:
+- **DriverTable**:
+  - Create separate components for different cell types (StatusCell, RatingCell, etc.).
+  - Implement a separate DriverActionMenu component for the dropdown in each row.
 
-```bash
-# npm
-npm run dev
+- **DriverDialog**:
+  - Split into smaller components: DriverPersonalInfo, DriverEmploymentInfo, DriverLicenseInfo.
 
-# pnpm
-pnpm run dev
+### New Components
 
-# yarn
-yarn dev
+- **DriverStats**: To display key statistics about drivers.
+- **DriverBulkActions**: For performing actions on multiple selected drivers.
 
-# bun
-bun run dev
-```
+## 3. UI Layout
 
-## Production
+- Implement a responsive design for mobile devices:
+  - Use a collapsible sidebar for filters on smaller screens.
+  - Adjust table layout for mobile viewing (e.g., stacked view for narrow screens).
 
-Build the application for production:
+- Enhance the DriverTable:
+  - Add column resizing and hiding capabilities.
+  - Implement sticky headers for better navigation on large datasets.
+  - Add row selection for bulk actions.
 
-```bash
-# npm
-npm run build
+- Improve the filter section:
+  - Add the ability to save and load filter presets.
+  - Implement an advanced search modal for more complex queries.
+  - Ensure filters are scrollable horizontally when space is limited, without occupying additional vertical space.
+  - Use ButtonSwitcher for a more compact and user-friendly interface for filters with few options.
 
-# pnpm
-pnpm run build
+- Add a dashboard section:
+  - Display key metrics and charts above the filter section.
 
-# yarn
-yarn build
+- Improve accessibility:
+  - Ensure proper ARIA labels are used throughout, especially in custom components like ButtonSwitcher.
+  - Implement keyboard navigation for the table and filters.
 
-# bun
-bun run build
-```
+## 4. Performance Optimizations
 
-Locally preview production build:
+- Implement virtualization for the DriverTable to handle large datasets efficiently.
+- Use debounce for filter inputs to reduce unnecessary API calls.
+  - Apply debounce to both Select and ButtonSwitcher inputs in NimshipFilter.
+- Implement pagination or infinite scrolling for large datasets.
 
-```bash
-# npm
-npm run preview
+## 5. Additional Features
 
-# pnpm
-pnpm run preview
+- Implement export functionality (CSV, PDF) for driver data.
+- Add a driver import feature for bulk adding of drivers.
+- Implement a change history or audit log for driver information changes.
 
-# yarn
-yarn preview
+## 6. Code Improvements
 
-# bun
-bun run preview
-```
+- Standardize error handling across components.
+- Implement more robust type checking, especially for API responses.
+- Consider using a form library like vee-validate consistently across all forms.
+- Implement unit and integration tests for critical components and functions.
+- Ensure proper prop validation and default values in all components, including ButtonSwitcher and NimshipFilter.
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## 7. UX Enhancements
 
-# 你是谷歌前端开发专家，基于以下项目完成开发工作
-## 1. 技术栈
-- **前端**：Nuxt 3, Shadcn/vue, Tailwind CSS, PH Icons
-- **后端**：nuxt-js/supabase
-- **自动导入**：Nuxt模块, Vue模块/方法, shadcn/ui组件
-## 2. 开发重点
-- 优先用户体验和响应式设计
-- 不确定时查阅nuxt.config.ts
-- 使用组件前查看官方shadcn/ui Vue文档
-## 3. 编码标准
-- 代码和注释用英语, 使用简短的语句描述更改，不超过100字
-- 为组件添加/修改JSDoc
-- 使用清晰命名和一致风格, 处理错误并提供合适的反馈
-## 4. 回复格式
-- 代码相关内容用英语，非代码解释用中文
-- 默认以代码形式回复，无需解释
-- 提供完整代码响应，不要省略任何内容
-## 注意事项
-- 使用Vue 3 组合式API和Nuxt 3最新语法，完整的TypeScript支持
-- 优先使用Tailwind CSS预定义类名，支持移动端访问和使用
-- 正确处理shadcn/ui组件属性和事件，以及radix/vue的API用法
+- Add tooltips for complex fields or actions.
+- Implement inline editing for quick updates in the DriverTable.
+- Add confirmation dialogs for critical actions (e.g., deleting a driver).
+- Implement a "What's New" feature to highlight recent changes or new features.
+- Ensure smooth transitions when switching between ButtonSwitcher and Select in NimshipFilter.
 
-### 请按如下格式回复
-
-```markdown
-### Components
-* Invocie List Container Component
-### Props
-- List type: Array, List item type: Object Required: true
-- List item: Object, Required: true
-### Emits
-- Click event: Object, Required: true
-### Update 
-- Add new feature
-- Update existing feature
-- Fix bug
-```
-
-```vue
-<template></template>
-<script setup lang="ts"></script>
-<style></style>
-```
+By implementing these recommendations, we aim to create a more maintainable, scalable, and user-friendly driver management system. The improved architecture, including the new ButtonSwitcher component and enhanced NimshipFilter, will allow for easier future enhancements and better performance with large datasets while providing a more intuitive user interface.

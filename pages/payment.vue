@@ -15,7 +15,7 @@
         <div class="relative md:mr-4">
           <FilterOptions :warehouses="warehouses" :selected-cycle="selectedCycle" :is-open="isFilterPanelOpen"
             @update:is-open="(isOpen) => isFilterPanelOpen = isOpen" @update:filter="handleFilterChange"
-            @update:team="handleTeamChange" @loaded="handleFilterOptionsLoaded" />
+            @update:team="handleTeamChange" />
         </div>
       </template>
       <template #body>
@@ -102,7 +102,6 @@ const warehouses = ref<Warehouse[]>([]);
 
 const isFilterPanelOpen = ref(false);
 const isPaymentPanelOpen = ref(false);
-const isFilterOptionsLoaded = ref(false);
 
 const showBlur = computed(() => isFilterPanelOpen.value || isPaymentPanelOpen.value);
 const toggleFilterPanel = () => isFilterPanelOpen.value = !isFilterPanelOpen.value;
@@ -127,24 +126,8 @@ const handleTeamChange = async (team: TeamName) => {
   updateWarehouses();
 };
 
-const handleFilterOptionsLoaded = () => {
-  isFilterOptionsLoaded.value = true;
-};
-
 // Initial data fetch
 onMounted(async () => {
-  await new Promise<void>(resolve => {
-    if (isFilterOptionsLoaded.value) {
-      resolve();
-    } else {
-      const unwatch = watch(isFilterOptionsLoaded, (newValue) => {
-        if (newValue) {
-          unwatch();
-          resolve();
-        }
-      });
-    }
-  });
   await fetchPaymentRecords();
   updateWarehouses();
 });
