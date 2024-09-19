@@ -1,9 +1,9 @@
 import { ref, computed } from 'vue'
 import { useSupabaseClient } from '#imports'
 import type { Database } from '~/types/database'
+import type { FetchPaymentRecordsOptions } from '~/types/payment'
 
-type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
-type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
+
 
 // Define the DriverPaymentRecord type
 
@@ -13,13 +13,9 @@ export const usePayment = () => {
   const error = ref<string | null>(null)
   const paymentRecords = ref<DriverPaymentRecord[]>([])
 
-  const fetchPaymentRecords = async (
-    teamName: Database['public']['Enums']['team_name_enum'],
-    warehouse?: string,
-    customId?: Database['public']['Enums']['custom_id_enum'],
-    cycleStart?: string
-  ) => {
-    console.log('usePayment: Fetching payment records', { teamName, warehouse, customId, cycleStart })
+  const fetchPaymentRecords = async (options: FetchPaymentRecordsOptions = {}) => {
+    const { warehouse, status, team, cycle_start } = options
+    console.log('usePayment: Fetching payment records', options)
     loading.value = true
     error.value = null
 
@@ -41,17 +37,14 @@ export const usePayment = () => {
             status
           )
         `)
-        .eq('team_name', teamName)
+        .eq('team_name', team)
         .order('cycle_start', { ascending: false })
 
       if (warehouse) {
         query = query.eq('warehouse', warehouse)
       }
-      if (customId) {
-        query = query.eq('custom_id', customId)
-      }
-      if (cycleStart) {
-        query = query.eq('cycle_start', cycleStart)
+      if (cycle_start) {
+        query = query.eq('cycle_start', cycle_start)
       } else {
         query = query.limit(1)
       }
@@ -63,7 +56,7 @@ export const usePayment = () => {
       console.log('usePayment: Query result', data)
 
       if (data && data.length > 0) {
-        if (!cycleStart) {
+        if (!cycle_start) {
           const latestCycleStart = data[0].cycle_start
           console.log('usePayment: Fetching records for latest cycle_start', latestCycleStart)
           const { data: samePerioData, error: samePerioError } = await supabase
@@ -83,7 +76,7 @@ export const usePayment = () => {
                 status
               )
             `)
-            .eq('team_name', teamName)
+            .eq('team_name', team)
             .eq('cycle_start', latestCycleStart)
             .order('cycle_start', { ascending: false })
 
