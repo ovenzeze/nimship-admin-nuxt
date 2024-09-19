@@ -12,7 +12,7 @@ export function useEnums() {
   const isLoading = ref(false);
   const isPayCyclesLoaded = ref(false);
   const isPayCyclesLoading = ref(false);
-  const payCycles = ref<PayCycle[]>([]);
+  const payCycles = ref<EnumItem[]>([]);
 
   const fetchEnums = async () => {
     if (isLoaded.value || isLoading.value) return;
@@ -68,7 +68,7 @@ export function useEnums() {
         payCycles.value = Array.from(cycles).map(cycle => {
           const start = dayjs.utc(cycle).format("MM/DD/YY");
           const end = dayjs.utc(cycle).add(6, "day").format("MM/DD/YY");
-          return { label: `${start} - ${end}`, start, end };
+          return { label: `${start} - ${end}`, value: start, type: "CYCLE" };
         });
 
         console.log(`Payment cycles fetched successfully:`, payCycles.value);

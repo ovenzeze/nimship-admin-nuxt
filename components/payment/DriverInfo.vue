@@ -27,10 +27,10 @@ const driverItems = computed(() => [
   { label: "Warehouse", value: driverRecord.value.warehouse, icon: "ph:warehouse", editable: true },
   { label: "Pay Cycle", value: `${driverRecord.value.cycle_start} - ${driverRecord.value.cycle_end}`, icon: "ph:calendar" },
   { label: "Phone", value: driverRecord.value.haulblaze_contact?.phone || "N/A", icon: "ph:phone", editable: true },
-  { label: "Email", value: driverRecord.value.haulblaze_contact?.email || "N/A", icon: "ph:envelope", editable: true },
-  { label: "Driver Type", value: driverRecord.value.driver_type || "N/A", icon: "ph:steering-wheel", editable: true },
-  { label: "Status", value: driverRecord.value.status || "N/A", icon: "ph:traffic-sign", editable: true },
-  { label: "Rating", value: driverRecord.value.rating?.toFixed(1) || "N/A", icon: "ph:star", editable: false },
+  // { label: "Email", value: driverRecord.value.haulblaze_contact?.email || "N/A", icon: "ph:envelope", editable: true },
+  // { label: "Driver Type", value: driverRecord.value.driver_type || "N/A", icon: "ph:steering-wheel", editable: true },
+  // { label: "Status", value: driverRecord.value.status || "N/A", icon: "ph:traffic-sign", editable: true },
+  // { label: "Rating", value: driverRecord.value.rating?.toFixed(1) || "N/A", icon: "ph:star", editable: false },
 ]);
 
 const updateDriverInfo = async (label: string, newValue: string) => {

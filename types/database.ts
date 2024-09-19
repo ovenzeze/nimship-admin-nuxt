@@ -1004,8 +1004,8 @@ export type Database = {
           uid: string | null
           update_time: string | null
           warehouse:
-            | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
-            | null
+          | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
+          | null
           warehouse_temp: Database["public"]["Enums"]["warehouse_enum"] | null
         }
         Relationships: [
@@ -1061,8 +1061,8 @@ export type Database = {
           total_single_order_cnt: number | null
           total_single_salary: number | null
           warehouse:
-            | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
-            | null
+          | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
+          | null
         }
         Relationships: []
       }
@@ -1076,8 +1076,8 @@ export type Database = {
           total_order_cnt: number | null
           total_salary: number | null
           warehouse:
-            | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
-            | null
+          | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
+          | null
           working_days: number | null
         }
         Relationships: []
@@ -1093,8 +1093,8 @@ export type Database = {
           total_salary: number | null
           uid: string | null
           warehouse:
-            | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
-            | null
+          | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
+          | null
           working_days: number | null
         }
         Relationships: []
@@ -1111,8 +1111,8 @@ export type Database = {
           total_order_cnt: number | null
           total_salary: number | null
           warehouse:
-            | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
-            | null
+          | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
+          | null
         }
         Relationships: []
       }
@@ -1130,8 +1130,8 @@ export type Database = {
           total_order_count: number | null
           total_salary: number | null
           warehouse:
-            | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
-            | null
+          | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
+          | null
         }
         Relationships: []
       }
@@ -1245,18 +1245,18 @@ export type Database = {
     }
     Functions: {
       binary_quantize:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
+      | {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      | {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
       get_payment_id: {
         Args: {
           p_driver_id: number
@@ -1333,37 +1333,37 @@ export type Database = {
         Returns: unknown
       }
       l2_norm:
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: number
-          }
+      | {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      | {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
       l2_normalize:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
+      | {
+        Args: {
+          "": string
+        }
+        Returns: string
+      }
+      | {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      | {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
       sparsevec_out: {
         Args: {
           "": unknown
@@ -1389,18 +1389,18 @@ export type Database = {
         Returns: string
       }
       vector_dims:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: number
-          }
+      | {
+        Args: {
+          "": string
+        }
+        Returns: number
+      }
+      | {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
       vector_norm: {
         Args: {
           "": string
@@ -1428,57 +1428,57 @@ export type Database = {
     }
     Enums: {
       area_code_enum_bd3e18a1:
-        | "LAS"
-        | "PHX"
-        | "SAN"
-        | "LAX"
-        | "SEA"
-        | "IRV"
-        | "USA"
+      | "LAS"
+      | "PHX"
+      | "SAN"
+      | "LAX"
+      | "SEA"
+      | "IRV"
+      | "USA"
       cover_by_enum: "DRIVER" | "UNIUNI" | "COMPANY" | "SHARE" | "OTHERS"
       custom_id_enum: "HAULBLAZE" | "UNIUNI" | "SPEEDX" | "PIGGY" | "OTHERS"
       driver_type_enum: "HAULER" | "TRUCK" | "FLEET" | "MANAGER" | "OTHERS"
       fin_debt_status_enum: "PROCESSING" | "FINISHED" | "VOID" | "OTHERS"
       fin_payment_status_enum:
-        | "WAITING"
-        | "PAID"
-        | "REJECTED"
-        | "VOID"
-        | "OTHERS"
+      | "WAITING"
+      | "PAID"
+      | "REJECTED"
+      | "VOID"
+      | "OTHERS"
       fin_payment_type_enum: "ACH" | "CHECK" | "ZELLE" | "CASH" | "OTHERS"
       fin_type_enum: "DEBT" | "PRE-PAID" | "DIVIDEND" | "OTHERS"
       invoice_status: "DRAFT" | "SEND" | "PAID" | "CANCEL"
       payment_bank_enum:
-        | "CHASE"
-        | "USBANK"
-        | "BOA"
-        | "MERCURY"
-        | "FOUND"
-        | "OTHERS"
+      | "CHASE"
+      | "USBANK"
+      | "BOA"
+      | "MERCURY"
+      | "FOUND"
+      | "OTHERS"
       payment_method_enum:
-        | "ZELLE-CHASE"
-        | "ZELLE-USBANK"
-        | "ACH-CHASE"
-        | "ACH-NOVO"
-        | "ACH-FOUND"
-        | "APP-FOUND"
-        | "CHECK"
-        | "CASH"
-        | "DEDUCTION"
-        | "OTHERS"
+      | "ZELLE-CHASE"
+      | "ZELLE-USBANK"
+      | "ACH-CHASE"
+      | "ACH-NOVO"
+      | "ACH-FOUND"
+      | "APP-FOUND"
+      | "CHECK"
+      | "CASH"
+      | "DEDUCTION"
+      | "OTHERS"
       payment_way_enum: "ACH" | "ZELLE" | "VENMO" | "PAYPAL" | "CASH" | "OTHERS"
       status_enum: "FINISHED" | "PROCESSING" | "EXPIRED"
       status_enum_31d11e70: "Employed" | "Quit" | "Onboarding"
       team_name_enum: "HAULBLAZE" | "HORIZON"
       warehouse_enum: "LAX" | "LAS" | "SFO" | "SEA" | "SAN" | "PHX" | "IRV"
       warehouse_enum_5de5a3fb:
-        | "LAX"
-        | "LAS"
-        | "SEA"
-        | "SAN"
-        | "PHX"
-        | "IRV"
-        | "USA"
+      | "LAX"
+      | "LAS"
+      | "SEA"
+      | "SAN"
+      | "PHX"
+      | "IRV"
+      | "USA"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1490,80 +1490,80 @@ type PublicSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
   PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
+  | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+  | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+  ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+    Database[PublicTableNameOrOptions["schema"]]["Views"])
+  : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+    Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
-    ? R
-    : never
+  ? R
+  : never
   : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
+    PublicSchema["Views"])
+  ? (PublicSchema["Tables"] &
+    PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+      Row: infer R
+    }
+  ? R
+  : never
+  : never
 
 export type TablesInsert<
   PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
+  | keyof PublicSchema["Tables"]
+  | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
+    Insert: infer I
+  }
+  ? I
+  : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
+  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+    Insert: infer I
+  }
+  ? I
+  : never
+  : never
 
 export type TablesUpdate<
   PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
+  | keyof PublicSchema["Tables"]
+  | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
+    Update: infer U
+  }
+  ? U
+  : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
+  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+    Update: infer U
+  }
+  ? U
+  : never
+  : never
 
 export type Enums<
   PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
+  | keyof PublicSchema["Enums"]
+  | { schema: keyof Database },
   EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+  ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  : never = never,
 > = PublicEnumNameOrOptions extends { schema: keyof Database }
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-    : never
+  ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+  : never

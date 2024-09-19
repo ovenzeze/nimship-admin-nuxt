@@ -1,12 +1,23 @@
-import type { Database } from './database'
+import type { Database, Enums } from './database'
 
 // Database types
 export type DeliveryRecordView = Database['public']['Views']['delivery_records_view']['Row']
 export type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
-
 export type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
 
-export const HaulblazeContactFields = createEnumFromType<HaulblazeContact>();
+
+// Enum types
+export type DriverType = Database['public']['Enums']['driver_type_enum']
+
+export type Status = Database['public']['Enums']['status_enum']
+
+export type Warehouse = Database['public']['Enums']['warehouse_enum']
+
+export type TeamName = Database['public']['Enums']['team_name_enum']
+
+export type CustomId = Database['public']['Enums']['custom_id_enum']
+
+
 
 export type ReadbleContact = Database['public']['Tables']['haulblaze_contact']['Row'] & {
     employment_status?: string;
@@ -15,8 +26,8 @@ export type ReadbleContact = Database['public']['Tables']['haulblaze_contact']['
 }
 
 
-// Enum types
-
+// Enum generator from database types
+export const HaulblazeContactFields = createEnumFromType<ReadbleContact>();
 
 export const PaymentRecordFields = createEnumFromType<PaymentRecord>();
 export enum EnumType {
@@ -40,7 +51,7 @@ export enum PaymentStatus {
 
 // Interface types
 export interface EnumItem {
-    id: number
+    id?: number
     label: string
     value: string
     type: string
@@ -55,6 +66,8 @@ export interface PayCycle {
 export interface FilterOptions {
     warehouse: string
     status: string
+    team?: string
+    cycle?: string
 }
 
 export interface DeliveryFilters {
@@ -137,11 +150,11 @@ export type PaginationState = {
     pageSize: number
 }
 
-export type Qualification = {
-    dl: boolean
-    tax: boolean
-    vehicle: boolean
-}
+// export type Qualification = {
+//     dl: boolean
+//     tax: boolean
+//     vehicle: boolean
+// }
 
 export type PaymentStatusInfo = {
     name: string

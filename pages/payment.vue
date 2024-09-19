@@ -13,10 +13,9 @@
 
       <template #PrimaryAction>
         <div class="relative md:mr-4">
-          <FilterOptions :warehouses="warehouses" :teams="teams" :selected-cycle="selectedCycle"
-            :teamsLoading="teamsLoading" :is-open="isFilterPanelOpen"
+          <FilterOptions :warehouses="warehouses" :selected-cycle="selectedCycle" :is-open="isFilterPanelOpen"
             @update:is-open="(isOpen) => isFilterPanelOpen = isOpen" @update:filter="handleFilterChange"
-            @update:team="handleTeamChange" />
+            @update:team="handleTeamChange" @loaded="handleFilterOptionsLoaded" />
         </div>
       </template>
       <template #body>
@@ -36,7 +35,6 @@
                 <PayrollDetails :record="selectedDriver" />
                 <BankInfo :record="selectedDriver" />
                 <PaymentStatus :record="selectedDriver" />
-                <!-- </div> -->
               </div>
               <div class="w-full md:w-[380px] min-w-[280px] flex pt-4">
                 <PaymentPanel :record="selectedDriver" :is-open="isPaymentPanelOpen"
@@ -63,7 +61,6 @@
   </div>
 </template>
 
-
 <script lang="ts" setup>
 import { useEnums } from "../composables/useEnums";
 import { usePayment } from "../composables/usePayroll";
@@ -72,18 +69,19 @@ import PayrollDetails from '~/components/payment/PayrollDetails.vue';
 import BankInfo from '~/components/payment/BankInfo.vue';
 import PaymentStatus from '~/components/payment/PaymentStatus.vue';
 import PaymentPanel from '~/components/payment/PaymentPanel.vue';
+import type { Warehouse, FilterOptions, TeamName } from "~/types";
 
 const { getEnumsByType } = useEnums();
 const { loading, error, paymentRecords, fetchPaymentRecords } = usePayment();
 const { isMobile } = useDevice();
-const teamsLoading = ref(true);
-const teams = ref([]);
 
-const filterOptions = ref({ warehouse: null, status: "all", team: null, cycle: null });
+const filterOptions = ref<FilterOptions>({
+  warehouse: 'ALL',
+  status: 'ALL',
+  cycle: null
+});
 
 const filterRecords = computed(() => {
-  console.log('Filter options:', filterOptions.value); // 移到外部以减少日志输出
-
   return paymentRecords.value.filter((record) => {
     const r = getReadablePaymentRecord(record);
     const warehouse = String(filterOptions.value.warehouse || "ALL").toUpperCase();
@@ -91,18 +89,20 @@ const filterRecords = computed(() => {
 
     const warehouseMatch = warehouse === "ALL" || String(r.warehouse).toUpperCase() === String(warehouse).toUpperCase();
     const statusMatch = status === "ALL" || String(r.payment_status?.status).toUpperCase() === String(status).toUpperCase();
+    const cycleMatch = !filterOptions.value.cycle || r.cycle_start === filterOptions.value.cycle;
 
-    return warehouseMatch && statusMatch;
+    return warehouseMatch && statusMatch && cycleMatch;
   });
 });
 
 const selectedDriver = computed(() => filterRecords.value.length > 0 ? getReadablePaymentRecord(filterRecords.value[selectedIdx.value]) : null);
-const selectedCycle = computed(() => filterRecords.value.length > 0 ? getReadablePaymentRecord(filterRecords.value[selectedIdx.value]).cycle_start + " - " + getReadablePaymentRecord(filterRecords.value[selectedIdx.value]).cycle_end : null);
+const selectedCycle = computed(() => filterOptions.value.cycle);
 const selectedIdx = ref<number>(0);
-const warehouses = ref<string[]>([]);
+const warehouses = ref<Warehouse[]>([]);
 
 const isFilterPanelOpen = ref(false);
 const isPaymentPanelOpen = ref(false);
+const isFilterOptionsLoaded = ref(false);
 
 const showBlur = computed(() => isFilterPanelOpen.value || isPaymentPanelOpen.value);
 const toggleFilterPanel = () => isFilterPanelOpen.value = !isFilterPanelOpen.value;
@@ -112,25 +112,40 @@ const handlePaymentPanelClose = () => isPaymentPanelOpen.value = false;
 const updateWarehouses = () => {
   warehouses.value = [
     ...new Set(paymentRecords.value.map((record) => record.warehouse)),
-  ].filter(Boolean);
-  filterOptions.value.warehouse = "ALL"; // 默认选择 'ALL'
+  ].filter(Boolean) as Warehouse[];
 };
 
-const handleFilterChange = ({ warehouse, status }: { warehouse: string, status: string }) => {
-  console.log("handleFilterChange", warehouse, status);
-  filterOptions.value = {
-    ...filterOptions.value,
-    warehouse: warehouse,
-    status: status // 确保状态是小写的
-  };
+const handleFilterChange = (newFilters: FilterOptions) => {
+  filterOptions.value = { ...newFilters };
 };
 
-const handleTeamChange = async (team: string) => {
+const handleTeamChange = async (team: TeamName) => {
   loading.value = true;
-  await fetchPaymentRecords(team as any);
+  await fetchPaymentRecords(team);
   loading.value = false;
   selectedIdx.value = 0;
   updateWarehouses();
 };
 
+const handleFilterOptionsLoaded = () => {
+  isFilterOptionsLoaded.value = true;
+};
+
+// Initial data fetch
+onMounted(async () => {
+  await new Promise<void>(resolve => {
+    if (isFilterOptionsLoaded.value) {
+      resolve();
+    } else {
+      const unwatch = watch(isFilterOptionsLoaded, (newValue) => {
+        if (newValue) {
+          unwatch();
+          resolve();
+        }
+      });
+    }
+  });
+  await fetchPaymentRecords();
+  updateWarehouses();
+});
 </script>

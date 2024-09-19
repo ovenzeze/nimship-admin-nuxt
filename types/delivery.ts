@@ -25,7 +25,7 @@ export interface PaginationState {
 
 export interface DeliveryTableProps {
   data: DeliveryRecordView[]
-  columns: <DeliveryRecordView>[]
+  columns: DeliveryRecordView[]
   class?: string
 }
 

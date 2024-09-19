@@ -21,8 +21,8 @@
             <SelectValue :placeholder="teamsLoading ? 'Loading...' : 'Select Cycle'" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem v-for="cycle in cyclesOptions" :key="cycle.cycle" :value="cycle.cycle">
-              {{ cycle.cycle }}
+            <SelectItem v-for="cycle in cyclesOptions" :key="cycle.value" :value="cycle.value">
+              {{ cycle.label }}
             </SelectItem>
           </SelectContent>
         </Select>
@@ -43,9 +43,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useEnums } from '~/composables/useEnums';
 import { useDevice } from '~/composables/useDevice';
-import type { FilterOptions, PayCycle, Warehouse, TeamName } from '~/types';
+import { usePaymentFilters } from '~/composables/usePaymentFilters';
+import type { FilterOptions, TeamName, Warehouse } from '~/types';
 
 interface Props {
   warehouses: Warehouse[];
@@ -62,89 +62,41 @@ const emit = defineEmits<{
 }>();
 
 const { isMobile } = useDevice();
-const { getEnumsByType } = useEnums();
-const teamCookie = useCookie<TeamName | null>("selectedTeam");
 
-const selectedWarehouse = ref<Warehouse | 'ALL'>('ALL');
-const selectedStatus = ref<'ALL' | 'PENDING' | 'HOLD' | 'PAID'>('ALL');
-const selectedTeam = ref<TeamName | null>(null);
-const selectedCycle = computed(() => props.selectedCycle);
+const {
+  selectedWarehouse,
+  selectedStatus,
+  selectedTeam,
+  selectedCycle,
+  teamsLoading,
+  teamsOptions,
+  cyclesOptions,
+  warehouseOptions,
+  statusOptions,
+  updateWarehouse,
+  updateStatus,
+  initializeFilters,
+  currentFilters,
+} = usePaymentFilters(props.warehouses);
 
-const teamsLoading = ref<boolean>(false);
-const teamsOptions = ref<TeamName[]>([]);
-const cyclesOptions = ref<PayCycle[]>([]);
-
-watch([selectedWarehouse, selectedStatus], () => {
-  emit('update:filter', {
-    warehouse: selectedWarehouse.value,
-    status: selectedStatus.value,
-  });
+// Initialize filters when component is mounted
+onMounted(async () => {
+  await initializeFilters();
+  // Set initial selectedCycle from props
+  selectedCycle.value = props.selectedCycle || cyclesOptions.value[0]?.value;
 });
 
-watch(selectedTeam, (newVal, oldVal) => {
-  if (newVal !== oldVal) {
-    emit('update:team', newVal);
-    teamCookie.value = newVal;
-  }
+// Watch for changes in filters and emit updates
+watch(currentFilters, (newFilters) => {
+  emit('update:filter', newFilters);
 });
 
-const warehouseOptions = computed(() => [
-  { value: 'ALL' as const, label: 'ALL', icon: getWarehouseIcon('ALL') },
-  ...props.warehouses.map(wh => ({ value: wh, label: wh, icon: getWarehouseIcon(wh) }))
-]);
-
-const statusOptions = computed(() => (['ALL', 'PENDING', 'HOLD', 'PAID'] as const).map(status => ({ value: status, label: status, icon: getStatusIcon(status) })));
-
-onMounted(async () => { await Promise.all([loadTeams(), loadCycle()]); });
-
-const updateWarehouse = (value: Warehouse | 'ALL') => selectedWarehouse.value = value;
-
-const updateStatus = (value: 'ALL' | 'PENDING' | 'HOLD' | 'PAID') => selectedStatus.value = value;
-
-const loadTeams = async () => {
-  teamsLoading.value = true;
-  const teams = await getEnumsByType("TEAM_NAME");
-  teamsOptions.value = teams.map(team => team.label as TeamName);
-  teamsLoading.value = false;
-
-  const savedTeam = teamCookie.value;
-  if (savedTeam && teamsOptions.value.includes(savedTeam)) {
-    selectedTeam.value = savedTeam;
-  } else if (teamsOptions.value.length > 0) {
-    selectedTeam.value = teamsOptions.value[0];
-  }
-};
-
-const loadCycle = async () => {
-  const cycles = await getEnumsByType("CYCLE") as PayCycle[];
-  console.log('cycles', cycles);
-  cyclesOptions.value = cycles;
-};
-
-const getStatusIcon = (status: string): string => {
-  switch (status.toUpperCase()) {
-    case "ALL": return "ph:bank";
-    case "PENDING": return "ph:clock";
-    case "HOLD": return "ph:pause-circle";
-    case "PAID": return "ph:check-circle";
-    default: return "ph:question";
-  }
-};
-
-const getWarehouseIcon = (warehouse: string): string => {
-  switch (warehouse.toUpperCase()) {
-    case "ALL": return "ph:buildings";
-    case "SAN": return "ph:tree-palm";
-    case "PHX": return "ph:sun";
-    case "LAX": return "ph:film-slate";
-    case "LAS": return "ph:cigarette-slash";
-    case "SEA": return "ph:coffee";
-    default: return "ph:map-pin-bold";
-  }
-};
+// Watch for changes in selectedTeam and emit updates
+watch(selectedTeam, (newTeam) => {
+  emit('update:team', newTeam);
+});
 
 const close = () => {
   emit('update:is-open', false);
 };
-
 </script>
