@@ -2,7 +2,7 @@
 
 开发人员必须严格按照以下步骤进行，不得跳过或更改顺序。
 
-## 0. 项目资源熟悉（初次参与项目时进行，后续可快速回顾）
+## 0. 项目资源熟悉
 
 0.1 仔细阅读 types/database.ts 文件，熟悉完整的项目数据库类型定义
 0.2 查看 utils/outline.ts 文件，了解项目中可用的 types、utils、components 和 composable 列表
