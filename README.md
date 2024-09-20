@@ -97,3 +97,19 @@ This document outlines the guidelines and recommendations for improving the driv
 - Ensure smooth transitions when switching between ButtonSwitcher and Select in NimshipFilter.
 
 By implementing these recommendations, we aim to create a more maintainable, scalable, and user-friendly driver management system. The improved architecture, including the new ButtonSwitcher component and enhanced NimshipFilter, will allow for easier future enhancements and better performance with large datasets while providing a more intuitive user interface.
+
+
+## Documentation
+
+For detailed information about the project, please refer to the following documentation:
+
+- [Developer Onboarding Guide](docs/onboarding.md)
+- [Project Structure](docs/project-structure.md)
+- [API Documentation](docs/api_documentation.md)
+- [UI Components](docs/ui-components.md)
+- [Composables](docs/composables/index.md)
+- [Mobile Responsiveness Guide](docs/mobile-responsiveness.md)
+- [Package Compatibility Guide](docs/package-compatibility.md)
+- [Puppeteer Setup Guide](docs/puppeteer-setup.md)
+
+For information about specific layouts, check the [layouts documentation](docs/layouts/index.md).
