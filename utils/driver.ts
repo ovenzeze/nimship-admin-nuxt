@@ -60,3 +60,14 @@ const getDriver = (driver: HaulblazeContact): Driver => {
 }
 export type { DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem, Driver }
 export { getReadablePaymentRecord, getDriver, paymentStatusMap }
+
+const getReadableDriver = (driver: HaulblazeContact): Driver => {
+  return {
+    ...driver,
+    name: String(driver.first_name).toUpperCase() + ' ' + String(driver.last_name).toUpperCase(),
+    qualification: { dl: true, tax: true, vehicle: false },
+    driver_type: driver.driver_type || 'Unknown',
+  }
+}
+
+export { getReadableDriver }
