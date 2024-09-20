@@ -11,6 +11,7 @@ Explain the main directories and their purposes:
 - `utils`: Utility functions
 - `types`: TypeScript type definitions
 - `docs`: Project documentation
+- `tests`: Test files for the project
 
 ## Development Environment Setup
 ### Local Setup
@@ -31,25 +32,55 @@ Explain the main directories and their purposes:
 - Use ESLint for code linting
 - Use Prettier for code formatting
 
-## Common Workflows
-1. Creating a new page
-2. Adding a new component
-3. Implementing a new feature
-4. Fixing a bug
-5. Working with Docker:
-   - Rebuilding the Docker image after dependency changes: `docker-compose build`
-   - Stopping the Docker container: `docker-compose down`
-   - Viewing Docker logs: `docker-compose logs`
+## Test-Driven Development (TDD) Process
+1. Write a failing test for the feature you want to implement
+2. Run the test to ensure it fails
+3. Write the minimum amount of code to make the test pass
+4. Run the test to ensure it passes
+5. Refactor the code if necessary, ensuring the test still passes
+6. Repeat for each new feature or bug fix
 
 ## Testing Procedures
-### Local Testing
-1. Running unit tests: `npm run test:unit`
-2. Running end-to-end tests: `npm run test:e2e`
-3. Writing new tests
+### Writing Tests
+- Use Vitest for unit and integration testing
+- Place test files in the `tests` directory, mirroring the structure of the `src` directory
+- Name test files with the `.spec.ts` or `.test.ts` extension
+
+### Running Tests
+- Run all tests: `npm run test`
+- Run unit tests: `npm run test:unit`
+- Run integration tests: `npm run test:integration`
+- Run tests in watch mode: `npm run test:watch`
+
+### Test Coverage
+- Generate test coverage report: `npm run test:coverage`
+- View the coverage report in the `coverage` directory
 
 ### Docker Testing
-1. Running tests inside Docker container: `docker-compose run --rm app npm run test`
-2. Running specific test file: `docker-compose run --rm app npm run test path/to/test-file.spec.js`
+- Run tests inside Docker container: `docker-compose run --rm app npm run test`
+- Run specific test file: `docker-compose run --rm app npm run test path/to/test-file.spec.ts`
+
+## Continuous Integration (CI) Testing
+- Describe the CI/CD pipeline setup (e.g., GitHub Actions, GitLab CI)
+- Explain how tests are automatically run on pull requests
+- Describe any quality gates that must be passed before merging
+
+## Common Workflows
+1. Creating a new feature
+   a. Create a new branch
+   b. Write failing tests for the feature
+   c. Implement the feature, making the tests pass
+   d. Refactor if necessary
+   e. Submit a pull request
+2. Fixing a bug
+   a. Create a new branch
+   b. Write a failing test that reproduces the bug
+   c. Fix the bug, making the test pass
+   d. Submit a pull request
+3. Refactoring
+   a. Ensure all tests are passing
+   b. Make small, incremental changes
+   c. Run tests after each change to ensure nothing breaks
 
 ## Deployment
 Explain the deployment process and any CI/CD pipelines in use.
@@ -63,6 +94,7 @@ Explain the deployment process and any CI/CD pipelines in use.
 - Vue 3 Documentation: [https://v3.vuejs.org/](https://v3.vuejs.org/)
 - Nuxt 3 Documentation: [https://nuxt.com/docs](https://nuxt.com/docs)
 - TypeScript Documentation: [https://www.typescriptlang.org/docs/](https://www.typescriptlang.org/docs/)
+- Vitest Documentation: [https://vitest.dev/guide/](https://vitest.dev/guide/)
 - Docker Documentation: [https://docs.docker.com/](https://docs.docker.com/)
 
 ## Getting Help
@@ -73,3 +105,8 @@ Provide information on how to get help or who to contact for different types of 
 1. Port conflicts: If the port is already in use, modify the port mapping in `docker-compose.yml`
 2. Volume mounting issues: Ensure paths in `docker-compose.yml` are correct for your system
 3. Performance issues on Windows/Mac: Consider using Docker's WSL 2 backend on Windows or Docker's new virtualization framework on Mac
+
+### Common Testing Issues
+1. Tests failing unexpectedly: Ensure all dependencies are up to date
+2. Slow tests: Consider using Vitest's --maxWorkers flag to limit the number of workers
+3. Mocking issues: Make sure to properly mock external dependencies in unit tests
