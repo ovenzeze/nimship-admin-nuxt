@@ -1,0 +1,29 @@
+
+Subject: New Comprehensive Project Documentation Available
+
+Dear Team,
+
+I'm excited to announce that we have created comprehensive documentation for our project. This documentation aims to improve our development process, onboarding of new team members, and overall project understanding.
+
+The new documentation includes:
+
+1. Developer Onboarding Guide
+2. Project Structure Overview
+3. API Documentation
+4. UI Components List and Details
+5. Composables Documentation
+6. Mobile Responsiveness Guide
+7. Package Compatibility Guide
+8. Puppeteer Setup Guide
+9. Page Layouts Documentation
+
+You can find all these documents in the 'docs' folder of our project repository. The README.md file has also been updated with links to these new documents.
+
+Please take some time to review these documents and familiarize yourself with their contents. If you notice any areas that need improvement or have any questions, please don't hesitate to reach out.
+
+A pull request has been created for these changes. Please review it when you have a chance.
+
+Thank you for your continued efforts in improving our project!
+
+Best regards,
+[Your Name]

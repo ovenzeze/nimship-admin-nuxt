@@ -8,6 +8,7 @@ interface MenuItem {
   active?: boolean;
   requiresAuth?: boolean;
   disabled?: boolean;
+  children?: MenuItem[];
 }
 
 export function useMenu() {
@@ -22,6 +23,25 @@ export function useMenu() {
     { name: 'Import', icon: 'ph:cloud-arrow-up-light', href: '/upload', active: false, requiresAuth: false, disabled: false },
     { name: 'CompTester', icon: 'ph:test-tube-light', href: '/comptester', active: false, requiresAuth: false, disabled: false },
     { name: 'Settings', icon: 'ph:gear-six-light', href: '/config', active: false, requiresAuth: false, disabled: false },
+    {
+      name: 'Documentation',
+      icon: 'ph:book-open',
+      href: '/documentation',
+      active: false,
+      requiresAuth: false,
+      disabled: false,
+      children: [
+        { name: 'Project Structure', icon: 'ph:tree-structure', href: '/documentation/project-structure', active: false, requiresAuth: false, disabled: false },
+        { name: 'API Documentation', icon: 'ph:api', href: '/documentation/api-documentation', active: false, requiresAuth: false, disabled: false },
+        { name: 'UI Components', icon: 'ph:layout', href: '/documentation/ui-components', active: false, requiresAuth: false, disabled: false },
+        { name: 'Mobile Responsiveness', icon: 'ph:device-mobile', href: '/documentation/mobile-responsiveness', active: false, requiresAuth: false, disabled: false },
+        { name: 'Testing Instructions', icon: 'ph:test-tube', href: '/documentation/test-instruction', active: false, requiresAuth: false, disabled: false },
+        { name: 'Package Compatibility', icon: 'ph:package', href: '/documentation/package-compatibility', active: false, requiresAuth: false, disabled: false },
+        { name: 'Onboarding', icon: 'ph:user-plus', href: '/documentation/onboarding', active: false, requiresAuth: false, disabled: false },
+        { name: 'Puppeteer Setup', icon: 'ph:browser', href: '/documentation/puppeteer-setup', active: false, requiresAuth: false, disabled: false },
+        { name: 'Git CLI Instructions', icon: 'ph:git-branch', href: '/documentation/gitcli-instruction', active: false, requiresAuth: false, disabled: false },
+      ]
+    },
   ])
 
   if (process.client) {
@@ -44,7 +64,8 @@ export function useMenu() {
       href: item.href,
       active: item.active ?? false,
       requiresAuth: item.requiresAuth ?? false,
-      disabled: item.disabled ?? false
+      disabled: item.disabled ?? false,
+      children: item.children ?? []
     }
     menuItems.value.push(newItem)
   }
@@ -70,6 +91,11 @@ export function useMenu() {
   const setActiveMenuItem = (name: string) => {
     menuItems.value.forEach(item => {
       item.active = item.name === name
+      if (item.children) {
+        item.children.forEach(child => {
+          child.active = child.name === name
+        })
+      }
     })
   }
 

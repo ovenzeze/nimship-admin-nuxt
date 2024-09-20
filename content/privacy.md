@@ -106,7 +106,7 @@ Any disputes arising under this Privacy Policy will be resolved in accordance wi
 If you have any questions about this Privacy Policy, please contact us at:
 
 DESTINATION TECHNOLOGY CONSULTING LLC  
-1234 Tech Avenue, Suite 567, Los Angeles, CA 90001   
-Email: privacy@nimship.com   
+1234 Tech Avenue, Suite 567, Los Angeles, CA 90001
+Email: <privacy@nimship.com>
 
 Thank you for trusting us with your information!
