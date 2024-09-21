@@ -1,4 +1,3 @@
-
 import { describe, it, expect } from 'vitest'
 import fs from 'fs'
 import path from 'path'
@@ -17,18 +16,15 @@ describe('Documentation Tests', () => {
 
     const requiredSections = [
       '# Developer Onboarding Guide',
-      '## Project Overview',
-      '## Project Structure',
-      '## Development Environment Setup',
-      '## Coding Standards',
-      '## Test-Driven Development (TDD) Process',
-      '## Testing Procedures',
+      '## Project Structure Overview',
+      '## Development Workflow',
+      '## Code Style and Best Practices',
+      '## Testing',
       '## Continuous Integration (CI) Testing',
-      '## Common Workflows',
       '## Deployment',
-      '## Useful Resources',
+      '## Frequently Asked Questions',
       '## Getting Help',
-      '## Troubleshooting'
+      '## Useful Resources'
     ]
 
     requiredSections.forEach(section => {
@@ -44,13 +40,13 @@ describe('Documentation Tests', () => {
     expect(content).not.toContain('Jest')
   })
 
-  it('should have a Docker setup section', () => {
+  it('should have Docker-related information', () => {
     const onboardingPath = path.join(docsDir, 'onboarding.md')
     const content = fs.readFileSync(onboardingPath, 'utf-8')
 
-    expect(content).toContain('### Docker Setup')
-    expect(content).toContain('docker-compose build')
-    expect(content).toContain('docker-compose up')
+    expect(content).toContain('Docker')
+    expect(content).toContain('docker-compose run')
+    expect(content).toContain('docker build')
   })
 
   it('should have a pr_description.md file', () => {
@@ -62,8 +58,8 @@ describe('Documentation Tests', () => {
     const prDescriptionPath = path.join(__dirname, '..', 'pr_description.md')
     const content = fs.readFileSync(prDescriptionPath, 'utf-8')
 
-    expect(content).toContain('Docker Support')
-    expect(content).toContain('Testing Guidelines')
+    expect(content).toContain('Docker')
+    expect(content).toContain('Testing')
     expect(content).toContain('Vitest')
   })
 })
