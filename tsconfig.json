@@ -9,8 +9,9 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM"],
-    "types": ["@nuxt/types", "@nuxtjs/i18n", "@pinia/nuxt"]
+    "types": ["@nuxt/types", "@nuxtjs/i18n", "@pinia/nuxt", "@nuxt/schema"]
   },
+  "extends": "./.nuxt/tsconfig.json",
   "include": [
     "./**/*.ts",
     "./**/*.d.ts",
