@@ -72,3 +72,8 @@ Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+## Development Notes
+
+- The `builds` folder is excluded from version control to prevent build failures. Please ensure it is listed in your local .gitignore file.
