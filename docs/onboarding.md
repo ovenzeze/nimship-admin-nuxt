@@ -1,112 +1,108 @@
 # Developer Onboarding Guide
 
-## Project Overview
-Briefly describe the project, its purpose, and main features.
+## Project Structure Overview
 
-## Project Structure
-Explain the main directories and their purposes:
-- `pages`: Vue components representing pages
-- `components`: Reusable Vue components
-- `composables`: Vue composition functions
-- `utils`: Utility functions
-- `types`: TypeScript type definitions
-- `docs`: Project documentation
-- `tests`: Test files for the project
+The Nimship Admin project follows a typical Nuxt 3 structure with some custom directories:
 
-## Development Environment Setup
-### Local Setup
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Set up environment variables (if any)
-4. Start the development server: `npm run dev`
+```
+nimship-admin-nuxt/
+├── components/       # Vue components
+│   └── ui/           # Reusable UI components
+├── composables/      # Vue 3 Composition API functions
+├── layouts/          # Page layouts
+├── pages/            # Application pages and routes
+├── plugins/          # Nuxt plugins
+├── public/           # Static assets
+├── server/           # Server-side code
+├── stores/           # Pinia stores
+├── types/            # TypeScript type definitions
+├── utils/            # Utility functions
+└── tests/            # Test files
+```
 
-### Docker Setup
-1. Ensure Docker and Docker Compose are installed on your system
-2. Build the Docker image: `docker-compose build`
-3. Start the Docker container: `docker-compose up`
-4. Access the application at `http://localhost:3000` (or the port specified in your Docker configuration)
+## Development Workflow
 
-## Coding Standards
+1. **Issue Tracking**: All tasks are tracked as issues in our project management tool.
+2. **Branching**: Create a new branch for each feature or bug fix, named according to the issue (e.g., `feature/issue-123` or `bugfix/issue-456`).
+3. **Development**: Write code and tests for your feature or bug fix.
+4. **Testing**: Run tests locally to ensure all existing and new tests pass.
+5. **Code Review**: Submit a pull request for review. At least one approval is required before merging.
+6. **Continuous Integration**: Our CI pipeline will run tests and linting checks on your PR.
+7. **Merging**: Once approved and CI checks pass, merge your branch into the main branch.
+
+## Code Style and Best Practices
+
+- Follow the Vue 3 Style Guide: [https://v3.vuejs.org/style-guide/](https://v3.vuejs.org/style-guide/)
 - Use TypeScript for type safety
-- Follow Vue 3 Composition API patterns
-- Use ESLint for code linting
-- Use Prettier for code formatting
+- Write unit tests for all new features and bug fixes
+- Use Composition API for new components
+- Keep components small and focused on a single responsibility
+- Use Pinia for state management
+- Follow the SOLID principles in your code design
 
-## Test-Driven Development (TDD) Process
-1. Write a failing test for the feature you want to implement
-2. Run the test to ensure it fails
-3. Write the minimum amount of code to make the test pass
-4. Run the test to ensure it passes
-5. Refactor the code if necessary, ensuring the test still passes
-6. Repeat for each new feature or bug fix
-
-## Testing Procedures
-### Writing Tests
-- Use Vitest for unit and integration testing
-- Place test files in the `tests` directory, mirroring the structure of the `src` directory
-- Name test files with the `.spec.ts` or `.test.ts` extension
+## Testing
 
 ### Running Tests
-- Run all tests: `npm run test`
-- Run unit tests: `npm run test:unit`
-- Run integration tests: `npm run test:integration`
-- Run tests in watch mode: `npm run test:watch`
+- Run all tests: `pnpm test`
+- Run unit tests: `pnpm test:unit`
+- Run integration tests: `pnpm test:integration`
+- Run tests in watch mode: `pnpm test:watch`
 
 ### Test Coverage
-- Generate test coverage report: `npm run test:coverage`
+- Generate test coverage report: `pnpm test:coverage`
 - View the coverage report in the `coverage` directory
 
 ### Docker Testing
-- Run tests inside Docker container: `docker-compose run --rm app npm run test`
-- Run specific test file: `docker-compose run --rm app npm run test path/to/test-file.spec.ts`
+- Run tests inside Docker container: `docker-compose run --rm app pnpm test`
+- Run specific test file: `docker-compose run --rm app pnpm test path/to/test-file.spec.ts`
 
 ## Continuous Integration (CI) Testing
-- Describe the CI/CD pipeline setup (e.g., GitHub Actions, GitLab CI)
-- Explain how tests are automatically run on pull requests
-- Describe any quality gates that must be passed before merging
-
-## Common Workflows
-1. Creating a new feature
-   a. Create a new branch
-   b. Write failing tests for the feature
-   c. Implement the feature, making the tests pass
-   d. Refactor if necessary
-   e. Submit a pull request
-2. Fixing a bug
-   a. Create a new branch
-   b. Write a failing test that reproduces the bug
-   c. Fix the bug, making the test pass
-   d. Submit a pull request
-3. Refactoring
-   a. Ensure all tests are passing
-   b. Make small, incremental changes
-   c. Run tests after each change to ensure nothing breaks
+- We use GitHub Actions for our CI/CD pipeline
+- Tests are automatically run on all pull requests
+- Code coverage must not decrease for PRs to be merged
 
 ## Deployment
-Explain the deployment process and any CI/CD pipelines in use.
 
-### Docker Deployment
-1. Build the production Docker image: `docker build -t your-app-name:latest .`
-2. Push the image to your container registry: `docker push your-registry/your-app-name:latest`
-3. Deploy the image to your production environment (this step may vary depending on your hosting setup)
+We use Docker for our deployment process:
+
+1. Build the production Docker image: `docker build -t nimship-admin:latest .`
+2. Push the image to our container registry: `docker push our-registry/nimship-admin:latest`
+3. Our CD pipeline will deploy the new image to the staging environment for final testing before production deployment
+
+## Frequently Asked Questions
+
+1. **Q: How do I add a new page to the application?**
+   A: Create a new `.vue` file in the `pages` directory. Nuxt will automatically create a route for this page.
+
+2. **Q: How do I add a new API endpoint?**
+   A: Create a new file in the `server/api` directory. Nuxt will automatically create an API route for this endpoint.
+
+3. **Q: How do I add a new store?**
+   A: Create a new file in the `stores` directory using Pinia's `defineStore` function.
+
+4. **Q: How do I run the application in development mode?**
+   A: Run `pnpm dev` in the project root directory.
+
+5. **Q: How do I debug the application?**
+   A: You can use Vue Devtools for frontend debugging and Node.js debugging tools for backend debugging.
+
+## Getting Help
+
+If you encounter any issues or have questions:
+
+1. Check the project documentation in the `docs` directory
+2. Ask in the #nimship-admin channel on Slack
+3. Reach out to the tech lead or your assigned mentor
+
+Remember, there are no silly questions. If you're stuck, it's always better to ask for help than to spend too much time struggling alone!
 
 ## Useful Resources
+
 - Vue 3 Documentation: [https://v3.vuejs.org/](https://v3.vuejs.org/)
 - Nuxt 3 Documentation: [https://nuxt.com/docs](https://nuxt.com/docs)
 - TypeScript Documentation: [https://www.typescriptlang.org/docs/](https://www.typescriptlang.org/docs/)
 - Vitest Documentation: [https://vitest.dev/guide/](https://vitest.dev/guide/)
 - Docker Documentation: [https://docs.docker.com/](https://docs.docker.com/)
+- Pinia Documentation: [https://pinia.vuejs.org/](https://pinia.vuejs.org/)
 
-## Getting Help
-Provide information on how to get help or who to contact for different types of issues.
-
-## Troubleshooting
-### Common Docker Issues
-1. Port conflicts: If the port is already in use, modify the port mapping in `docker-compose.yml`
-2. Volume mounting issues: Ensure paths in `docker-compose.yml` are correct for your system
-3. Performance issues on Windows/Mac: Consider using Docker's WSL 2 backend on Windows or Docker's new virtualization framework on Mac
-
-### Common Testing Issues
-1. Tests failing unexpectedly: Ensure all dependencies are up to date
-2. Slow tests: Consider using Vitest's --maxWorkers flag to limit the number of workers
-3. Mocking issues: Make sure to properly mock external dependencies in unit tests
+Welcome to the team! We're excited to have you on board and look forward to your contributions to the Nimship Admin project.
