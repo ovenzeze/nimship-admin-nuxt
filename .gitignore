@@ -25,3 +25,12 @@ logs
 .vercel
 .env*.local
 .aider*
+/builds
+echo ##active_line3##
+/.nuxt
+echo ##active_line4##
+/dist
+echo ##active_line5##
+/.output
+echo ##active_line6##
+node_modules
