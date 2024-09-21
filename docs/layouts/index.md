@@ -1,0 +1,16 @@
+# Page Layouts
+
+- [index](./index_layout.md)
+- [terms](./terms_layout.md)
+- [login](./login_layout.md)
+- [payment](./payment_layout.md)
+- [config](./config_layout.md)
+- [driver](./driver_layout.md)
+- [delivery](./delivery_layout.md)
+- [privacy](./privacy_layout.md)
+- [deduction](./deduction_layout.md)
+- [customer](./customer_layout.md)
+- [invoice](./invoice_layout.md)
+- [upload](./upload_layout.md)
+- [confirm](./confirm_layout.md)
+- [compTester](./compTester_layout.md)

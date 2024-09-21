@@ -1,7 +1,6 @@
+
 import { format } from 'date-fns'
-import { del } from 'nuxt/dist/app/compat/capi'
-import { DeliveryRecordView } from '../types/index';
-import type { ReadbleDeliveryRecord } from '~/types/delivery';
+import type { DeliveryRecordView, ReadbleDeliveryRecord } from '~/types/delivery'
 
 export function formatCurrency(value: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -27,6 +26,10 @@ export function formatNumber(value: number): string {
   return new Intl.NumberFormat('en-US').format(value)
 }
 
-export const getReadbleDeliveryRecord = (DeliveryRecordView: DeliveryRecordView): ReadbleDeliveryRecord => {
-const { paymentRecord = {}, haulblazeContact = {} } = DeliveryRecordView;
-}     
+export const getReadbleDeliveryRecord = (record: DeliveryRecordView): ReadbleDeliveryRecord => {
+  const { paymentRecord = {}, haulblazeContact = {} } = record
+  // Add your code here to transform the record
+  return {
+    // Add properties here
+  } as ReadbleDeliveryRecord
+}

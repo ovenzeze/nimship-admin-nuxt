@@ -1,8 +1,8 @@
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import type { ReadablePaymentRecord, PaymentStatusInfo, DriverPaymentRecord, ReadableDriver } from "~/types"
+import type { ReadablePaymentRecord, PaymentStatusInfo, DriverPaymentRecord, Driver } from "~/types"
 import { PaymentStatus } from '~/types/index'
-import { type Database } from '~/types/database'
+import { type Database, Driver } from '~/types/database'
 
 dayjs.extend(utc)
 
@@ -50,13 +50,24 @@ const getReadablePaymentRecord = (driver: DriverPaymentRecord): ReadablePaymentR
   }
 }
 
-const getReadableDriver = (driver: HaulblazeContact): ReadableDriver => {
+const getDriver = (driver: HaulblazeContact): Driver => {
   return {
     ...driver,
     name: String(driver.first_name).toUpperCase() + ' ' + String(driver.last_name).toUpperCase(),
     qualification: { dl: true, tax: true, vehicle: false },
-    employment_status: driver.employment_status || 'Unknown',
+    driver_type: driver.driver_type || 'Unknown',
   }
 }
-export type { DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem }
-export { getReadablePaymentRecord, getReadableDriver, paymentStatusMap }
+export type { DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem, Driver }
+export { getReadablePaymentRecord, getDriver, paymentStatusMap }
+
+const getReadableDriver = (driver: HaulblazeContact): Driver => {
+  return {
+    ...driver,
+    name: String(driver.first_name).toUpperCase() + ' ' + String(driver.last_name).toUpperCase(),
+    qualification: { dl: true, tax: true, vehicle: false },
+    driver_type: driver.driver_type || 'Unknown',
+  }
+}
+
+export { getReadableDriver }
