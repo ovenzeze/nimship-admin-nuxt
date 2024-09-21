@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- DeliveryTable component tests have been fixed and updated
+
+## [0.1.1] - 2023-05-25
+
+### Fixed
+- Various documentation inconsistencies and outdated information
+
 ### Added
 - CONTRIBUTING.md file with guidelines for contributors
 - Improved onboarding.md with project structure, workflow, and FAQs
