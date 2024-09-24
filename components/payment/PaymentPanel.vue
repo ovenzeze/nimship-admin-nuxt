@@ -48,18 +48,18 @@
 
           <Select v-model="selectedPaymentMethod" class="w-full">
             <SelectTrigger>
-              <SelectValue :placeholder="paymentStatusMap[selectedPaymentMethod].name" />
+              <SelectValue :placeholder="getPaymentMethodName(selectedPaymentMethod)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem v-for="method in paymentMethods" :key="method" :value="method">
-                {{ paymentStatusMap[method].name }}
+                {{ getPaymentMethodName(method) }}
               </SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div>
           <Label for="paymentDate">Payment Time</Label>
-          <Input id="paymentDate" v-model="paymentDate" type="datetime" :min="record.cycle_end" class="w-full mt-3" />
+          <Input id="paymentDate" v-model="paymentDate" type="datetime" :min="record.cycle_start" class="w-full mt-3" />
         </div>
         <div>
           <Label for="paymentNotes">Payment Notes</Label>
@@ -72,22 +72,22 @@
     <div class="w-full flex-shrink-0 p-4">
       <Button type="submit" :disabled="isPaid && !isUnlocked" class="w-full bg-foreground/90 text-background"
         :loading="loading" @click="handlePayment">
-        <Icon
-          :name="record.payment_status.status === 'PAID' ? (isUnlocked ? 'ph:lock-open' : 'ph:lock') : 'ph:check-circle'"
+        <Icon :name="isPaid ? (isUnlocked ? 'ph:lock-open' : 'ph:lock') : 'ph:check-circle'"
           class="w-4 h-4 mr-2 text-primary-forground" />
-        {{ record.payment_status.status === "PAID" ? (isUnlocked ? "Edit Payment" : "Already Paid") : "Confirm Payment"
-        }}
+        {{ isPaid ? (isUnlocked ? "Edit Payment" : "Already Paid") : "Confirm Payment" }}
       </Button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, watch } from 'vue';
 import { usePayment } from '../../composables/usePayroll';
-import { paymentStatusMap } from '../../utils/driver';
+import { useDevice } from '#imports';
+import type { ProcessedDriverPaymentRecord } from '~/types/payment';
 
 const props = defineProps<{
-  record: ReadablePaymentRecord;
+  record: ProcessedDriverPaymentRecord;
   isOpen: boolean;
   onClose?: () => void;
 }>();
@@ -96,23 +96,34 @@ const emit = defineEmits(['update:isOpen']);
 
 const { processPayment } = usePayment();
 const { isMobile } = useDevice();
-const paymentMethods = Object.keys(paymentStatusMap);
-const selectedPaymentMethod = ref<string>(String(props.record.payment_method) || null);
-const actualPaymentAmount = ref<number>(props.record.actual_amount_paid);
-const paymentDate = ref<string>(new Date().toISOString().split("T")[0]);
+const paymentMethods = ['91', '92', '93']; // Example payment method IDs
+const selectedPaymentMethod = ref<string>(String(props.record.payment_method) || '');
+const actualPaymentAmount = ref<number>(props.record.actual_amount_paid || 0);
+const paymentDate = ref<string>(props.record.payment_date || new Date().toISOString().split("T")[0]);
 const paymentNotes = ref<string>('');
 const loading = ref<boolean>(false);
 
 const record = computed(() => props.record);
-const isPaid = computed(() => props.record.payment_status.status === "PAID");
+const isPaid = computed(() => props.record.status === "PAID");
 const isUnlocked = ref<boolean>(false);
 const closePanel = () => {
   emit('update:isOpen', false);
   props.onClose?.();
 };
 
+const getPaymentMethodName = (methodId: string): string => {
+  // This is a placeholder. You should replace this with actual logic to get the payment method name.
+  const methodNames: { [key: string]: string } = {
+    '91': 'Direct Deposit',
+    '92': 'Check',
+    '93': 'Cash',
+    // Add more method IDs and names as needed
+  };
+  return methodNames[methodId] || 'Unknown';
+};
+
 const handlePayment = async () => {
-  if (isPaid.value) return;
+  if (isPaid.value && !isUnlocked.value) return;
 
   loading.value = true;
   try {
@@ -135,9 +146,9 @@ const handlePayment = async () => {
 
 watch(() => record.value.uid, (newVal, oldVal) => {
   if (newVal !== oldVal) {
-    actualPaymentAmount.value = record.value.actual_amount_paid;
-    paymentDate.value = record.value.payment_time;
-    selectedPaymentMethod.value = String(record.value.payment_method) || null;
+    actualPaymentAmount.value = record.value.actual_amount_paid || 0;
+    paymentDate.value = record.value.payment_date || new Date().toISOString().split("T")[0];
+    selectedPaymentMethod.value = String(record.value.payment_method) || '';
     paymentNotes.value = '';
     isUnlocked.value = false;
   }

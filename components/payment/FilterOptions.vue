@@ -14,7 +14,8 @@
       <div
         class="flex flex-col md:flex-row md:items-center md:justify-between flex-nowrap space-y-4 md:space-y-0 md:space-x-4">
         <ButtonSwitcher :model-value="selectedWarehouse" :options="warehouseOptions" @update:value="updateWarehouse" />
-        <ButtonSwitcher :model-value="selectedStatus" :options="statusOptions" @update:value="updateStatus" />
+        <ButtonSwitcher :model-value="selectedStatus" :options="statusOptions"
+          @update:value="(value: PaymentStatusItem) => updateStatus(value)" />
 
         <Select v-model="selectedCycle" :disabled="teamsLoading" class="w-full">
           <SelectTrigger class="md:min-w-48">
@@ -43,12 +44,15 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted, watch } from 'vue';
+import type { Ref } from 'vue';
 import { useDevice } from '~/composables/useDevice';
 import { usePaymentFilters } from '~/composables/usePaymentFilters';
-import type { FilterOptions, TeamName, Warehouse } from '~/types';
+import type { FilterOptions, TeamName, EnumItem } from '~/types';
+import type { Warehouse, PaymentStatusItem } from '~/types/payment';
 
 interface Props {
-  warehouses: Warehouse[];
+  warehouses: Ref<Warehouse[]>;
   isOpen: boolean;
   selectedCycle: string | null;
 }
@@ -83,16 +87,16 @@ const {
 onMounted(async () => {
   await initializeFilters();
   // Set initial selectedCycle from props
-  selectedCycle.value = props.selectedCycle || cyclesOptions.value[0]?.value;
+  selectedCycle.value = props.selectedCycle;
 });
 
 // Watch for changes in filters and emit updates
-watch(currentFilters, (newFilters) => {
+watch(currentFilters, (newFilters: FilterOptions) => {
   emit('update:filter', newFilters);
 });
 
 // Watch for changes in selectedTeam and emit updates
-watch(selectedTeam, (newTeam) => {
+watch(selectedTeam, (newTeam: TeamName | null) => {
   emit('update:team', newTeam);
 });
 

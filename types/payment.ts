@@ -1,4 +1,6 @@
-import type { TeamName, Warehouse } from "."
+import type { TeamName, Warehouse as BaseWarehouse } from "."
+
+export type Warehouse = BaseWarehouse | 'ALL'
 
 export type FetchPaymentRecordsOptions = {
     warehouse?: Warehouse
@@ -14,7 +16,7 @@ export type DriverPaymentRecord = {
     net_pay: number
     deduction_amount: number
     cycle_start: string
-    warehouse: Warehouse
+    warehouse: BaseWarehouse
     team_name: TeamName
     payment_method?: number
     payment_date?: string
@@ -34,4 +36,15 @@ export type DriverPaymentRecord = {
     }[]
 }
 
-export type PaymentStatusItem = string // You may want to define specific status values if known
+export type ProcessedDriverPaymentRecord = DriverPaymentRecord & {
+    name: string
+    formattedGrossPay: string
+    formattedNetPay: string
+    formattedDeductionAmount: string
+    formattedCycleStart: string
+    formattedPaymentDate?: string
+    formattedActualAmountPaid?: string
+    status: string
+}
+
+export type PaymentStatusItem = 'ALL' | 'PENDING' | 'HOLD' | 'PAID'

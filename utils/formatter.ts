@@ -1,6 +1,5 @@
-
 import { format } from 'date-fns'
-import type { DeliveryRecordView, ReadbleDeliveryRecord } from '~/types/delivery'
+import type { DriverPaymentRecord } from '~/types/payment'
 
 export function formatCurrency(value: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -26,10 +25,14 @@ export function formatNumber(value: number): string {
   return new Intl.NumberFormat('en-US').format(value)
 }
 
-export const getReadbleDeliveryRecord = (record: DeliveryRecordView): ReadbleDeliveryRecord => {
-  const { paymentRecord = {}, haulblazeContact = {} } = record
-  // Add your code here to transform the record
+export const getReadablePaymentRecord = (record: DriverPaymentRecord): DriverPaymentRecord & { formattedGrossPay: string, formattedNetPay: string, formattedDeductionAmount: string, formattedCycleStart: string, formattedPaymentDate?: string, formattedActualAmountPaid?: string } => {
   return {
-    // Add properties here
-  } as ReadbleDeliveryRecord
+    ...record,
+    formattedGrossPay: formatCurrency(record.gross_pay),
+    formattedNetPay: formatCurrency(record.net_pay),
+    formattedDeductionAmount: formatCurrency(record.deduction_amount),
+    formattedCycleStart: formatDate(record.cycle_start),
+    formattedPaymentDate: record.payment_date ? formatDate(record.payment_date) : undefined,
+    formattedActualAmountPaid: record.actual_amount_paid ? formatCurrency(record.actual_amount_paid) : undefined,
+  }
 }

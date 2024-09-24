@@ -1,13 +1,14 @@
 import { ref, computed } from 'vue'
 import { useSupabaseClient } from '#imports'
 import type { Database } from '~/types/database'
-import type { FetchPaymentRecordsOptions, DriverPaymentRecord } from '~/types/payment'
+import type { FetchPaymentRecordsOptions, DriverPaymentRecord, ProcessedDriverPaymentRecord } from '~/types/payment'
+import { formatCurrency, formatDate } from '~/utils/formatter'
 
 export const usePayment = () => {
   const supabase = useSupabaseClient<Database>()
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const paymentRecords = ref<DriverPaymentRecord[]>([])
+  const paymentRecords = ref<ProcessedDriverPaymentRecord[]>([])
   const totalRecords = ref(0)
   const currentPage = ref(1)
   const pageSize = ref(20)
@@ -44,8 +45,8 @@ export const usePayment = () => {
       if (warehouse) {
         query = query.eq('warehouse', warehouse)
       }
-      if (status) {
-        query = query.eq('status', status)
+      if (status && Array.isArray(status) && status.length > 0) {
+        query = query.in('payment_method', status)
       }
       if (cycle_start) {
         query = query.eq('cycle_start', cycle_start)
@@ -63,7 +64,24 @@ export const usePayment = () => {
       console.log('usePayment: Query result', data)
 
       if (data) {
-        paymentRecords.value = data as DriverPaymentRecord[]
+        paymentRecords.value = data.map((record: any): ProcessedDriverPaymentRecord => ({
+          ...record,
+          uid: record.uid || '',
+          gross_pay: record.gross_pay || 0,
+          net_pay: record.net_pay || 0,
+          deduction_amount: record.deduction_amount || 0,
+          cycle_start: record.cycle_start || '',
+          warehouse: record.warehouse || '',
+          team_name: record.team_name || '',
+          name: `${record.haulblaze_contact?.first_name || ''} ${record.haulblaze_contact?.last_name || ''}`.trim() || 'N/A',
+          formattedGrossPay: formatCurrency(record.gross_pay || 0),
+          formattedNetPay: formatCurrency(record.net_pay || 0),
+          formattedDeductionAmount: formatCurrency(record.deduction_amount || 0),
+          formattedCycleStart: formatDate(record.cycle_start || ''),
+          formattedPaymentDate: record.payment_date ? formatDate(record.payment_date) : undefined,
+          formattedActualAmountPaid: record.actual_amount_paid ? formatCurrency(record.actual_amount_paid) : undefined,
+          status: record.payment_method ? 'PAID' : 'PENDING'
+        }))
         totalRecords.value = count || 0
         currentPage.value = page
       } else {
@@ -83,15 +101,15 @@ export const usePayment = () => {
   const totalPages = computed(() => Math.ceil(totalRecords.value / pageSize.value))
 
   const totalGrossPay = computed(() => {
-    return paymentRecords.value.reduce((sum: number, record: DriverPaymentRecord) => sum + (record.gross_pay || 0), 0)
+    return paymentRecords.value.reduce((sum: number, record: ProcessedDriverPaymentRecord) => sum + (record.gross_pay || 0), 0)
   })
 
   const totalNetPay = computed(() => {
-    return paymentRecords.value.reduce((sum: number, record: DriverPaymentRecord) => sum + (record.net_pay || 0), 0)
+    return paymentRecords.value.reduce((sum: number, record: ProcessedDriverPaymentRecord) => sum + (record.net_pay || 0), 0)
   })
 
   const totalDeductions = computed(() => {
-    return paymentRecords.value.reduce((sum: number, record: DriverPaymentRecord) => sum + (record.deduction_amount || 0), 0)
+    return paymentRecords.value.reduce((sum: number, record: ProcessedDriverPaymentRecord) => sum + (record.deduction_amount || 0), 0)
   })
 
   const processPayment = async (paymentDetails: {
