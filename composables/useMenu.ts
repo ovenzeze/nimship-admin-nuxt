@@ -116,4 +116,18 @@ export function useMenu() {
     setActiveMenuItem,
     filterMenuItemsByPermission
   }
+
+  // Add File Management menu item
+  addMenuItem({
+    name: 'File Management',
+    icon: 'ph:folder',
+    href: '/file-management',
+    requiresAuth: true,
+    children: [
+      { name: 'All Files', icon: 'ph:files', href: '/file-management/all', requiresAuth: true },
+      { name: 'Recent Files', icon: 'ph:clock', href: '/file-management/recent', requiresAuth: true },
+      { name: 'Shared Files', icon: 'ph:share-network', href: '/file-management/shared', requiresAuth: true },
+      { name: 'Upload File', icon: 'ph:upload-simple', href: '/file-management/upload', requiresAuth: true },
+    ]
+  })
 }

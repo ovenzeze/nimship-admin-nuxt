@@ -1,16 +1,18 @@
-# Page Layouts
+# Layouts Documentation
 
-- [index](./index_layout.md)
-- [terms](./terms_layout.md)
-- [login](./login_layout.md)
-- [payment](./payment_layout.md)
-- [config](./config_layout.md)
-- [driver](./driver_layout.md)
-- [delivery](./delivery_layout.md)
-- [privacy](./privacy_layout.md)
-- [deduction](./deduction_layout.md)
-- [customer](./customer_layout.md)
-- [invoice](./invoice_layout.md)
-- [upload](./upload_layout.md)
-- [confirm](./confirm_layout.md)
-- [compTester](./compTester_layout.md)
+This directory contains the following documents:
+
+- [Comp ltester layout](./comp-LTester-layout.md)
+- [Config layout](./config-layout.md)
+- [Confirm layout](./confirm-layout.md)
+- [Customer layout](./customer-layout.md)
+- [Deduction layout](./deduction-layout.md)
+- [Delivery layout](./delivery-layout.md)
+- [Driver layout](./driver-layout.md)
+- [Index layout](./index-layout.md)
+- [Invoice layout](./invoice-layout.md)
+- [Login layout](./login-layout.md)
+- [Payment layout](./payment-layout.md)
+- [Privacy layout](./privacy-layout.md)
+- [Terms layout](./terms-layout.md)
+- [Upload layout](./upload-layout.md)
