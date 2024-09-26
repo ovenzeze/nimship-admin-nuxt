@@ -22,6 +22,7 @@ If you encounter issues related to Vue and Nuxt versions not being compatible:
 
 1. Ensure that your Vue version is compatible with the Nuxt version you're using.
 2. Try updating both to their latest compatible versions:
+
    ```bash
    npm update vue nuxt
    ```
@@ -32,6 +33,7 @@ If you're having trouble installing or running Puppeteer:
 
 1. Ensure you have the necessary dependencies installed on your system.
 2. Try reinstalling Puppeteer:
+
    ```bash
    npm uninstall puppeteer
    npm install puppeteer
@@ -56,11 +58,13 @@ npm update package-name
 If you encounter any package-related issues:
 
 1. Clear your npm cache:
+
    ```bash
    npm cache clean --force
    ```
 
 2. Delete the `node_modules` folder and `package-lock.json` file, then reinstall:
+
    ```bash
    rm -rf node_modules package-lock.json
    npm install

@@ -20,6 +20,7 @@ We use Tailwind CSS for responsive design. Here are some key classes to remember
 - `2xl:` - 2X large screens (1536px and up)
 
 Example:
+
 ```html
 <div class="w-full md:w-1/2 lg:w-1/3">
   <!-- This div will be full width on mobile, half width on medium screens, and one-third width on large screens -->

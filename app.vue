@@ -8,7 +8,12 @@
 </template>
 
 <script setup lang="ts">
+import { useHead, useRoute } from '#imports'
 import { Toaster } from '@/components/ui/toast'
+import { computed } from 'vue'
+
+const route = useRoute()
+const isDocsRoute = computed(() => route.path.startsWith('/docs'))
 
 useHead({
   meta: [
@@ -22,10 +27,8 @@ useHead({
   link: [
     { rel: 'apple-touch-icon', sizes: '180x180', href: '/images/apple-touch-icon.png' },
     { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/images/favicon-32x32.png' },
-
   ]
 })
-
 </script>
 
 <style>

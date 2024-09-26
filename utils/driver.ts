@@ -2,7 +2,7 @@ import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import type { ReadablePaymentRecord, PaymentStatusInfo, DriverPaymentRecord, Driver } from "~/types"
 import { PaymentStatus } from '~/types/index'
-import { type Database, Driver } from '~/types/database'
+import { type Database } from '~/types/database'
 
 dayjs.extend(utc)
 

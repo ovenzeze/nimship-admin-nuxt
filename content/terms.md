@@ -7,13 +7,14 @@ Welcome to DESTINATION TECHNOLOGY CONSULTING LLC ("we," "our," "us," or the "Com
 ## Definitions
 
 In these Terms of Service:
+
 - "Service" refers to any internet-based services, websites, or applications provided by DESTINATION TECHNOLOGY CONSULTING LLC.
 - "User" means any individual or entity that accesses or uses our Service.
 - "Content" means any information, data, text, software, music, sound, photographs, graphics, videos, messages, or other materials.
 
 ## 1. Acceptance of Terms
 
-By accessing or using our internet services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you don't agree with these terms, please do not use our services. Please also review our [Privacy Policy](link-to-privacy-policy), which is incorporated by reference into these Terms of Service.
+By accessing or using our internet services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you don't agree with these terms, please do not use our services. Please also review our [Privacy Policy](/privacy), which is incorporated by reference into these Terms of Service.
 
 ## Age Restriction
 
@@ -25,7 +26,7 @@ We may modify these terms at any time. We'll post the most current version on ou
 
 ## 3. Privacy
 
-Your privacy is important to us. Please review our [Privacy Policy](link-to-privacy-policy) to understand how we collect, use, and share your information.
+Your privacy is important to us. Please review our [Privacy Policy](/privacy) to understand how we collect, use, and share your information.
 
 ## 4. Your Account
 
@@ -101,7 +102,7 @@ These Terms constitute the entire agreement between you and DESTINATION TECHNOLO
 
 ## 13. California Consumer Rights
 
-If you are a California resident, you have certain rights under the California Consumer Privacy Act (CCPA) and other state laws. Please refer to our [California Privacy Rights Policy](link-to-california-privacy-rights-policy) for more information on your rights and how to exercise them.
+If you are a California resident, you have certain rights under the California Consumer Privacy Act (CCPA) and other state laws. Please refer to our [California Privacy Rights Policy](/privacy) for more information on your rights and how to exercise them.
 
 ## 14. Compliance with State Laws
 
@@ -110,6 +111,7 @@ These Terms are designed to comply with the laws of various U.S. states. If you 
 ## Payment Terms
 
 For paid services:
+
 - Fees are non-refundable except as required by law or as explicitly stated in these Terms.
 - You agree to pay all fees and charges associated with your account on a timely basis and with a valid payment method.
 - We reserve the right to change our fees upon reasonable notice.
@@ -125,14 +127,14 @@ We shall not be liable for any failure to perform our obligations hereunder wher
 
 ## Data Processing
 
-We process your personal data in accordance with our [Privacy Policy](link-to-privacy-policy) and applicable data protection laws. By using our Service, you consent to such processing and you warrant that all data provided by you is accurate. You have the right to access, correct, or delete your personal data, and to object to or restrict certain types of processing. For more details, please review our [Privacy Policy](link-to-privacy-policy).
+We process your personal data in accordance with our [Privacy Policy](/privacy) and applicable data protection laws. By using our Service, you consent to such processing and you warrant that all data provided by you is accurate. You have the right to access, correct, or delete your personal data, and to object to or restrict certain types of processing. For more details, please review our [Privacy Policy](/privacy).
 
 ## 15. Contact Us
 
 If you have any questions about these Terms, please contact us at:
 
-DESTINATION TECHNOLOGY CONSULTING LLC   
-1234 Tech Avenue, Suite 567, Los Angeles, CA 90001   
-Email: legal@nimship.com    
+DESTINATION TECHNOLOGY CONSULTING LLC
+1234 Tech Avenue, Suite 567, Los Angeles, CA 90001
+Email: <legal@nimship.com>
 
 Thank you for using our services!

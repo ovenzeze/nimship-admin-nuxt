@@ -1,4 +1,8 @@
-export default defineNuxtConfig({
+import { resolve } from "node:path";
+
+// @ts-nocheck
+// https://nuxt.com/docs/api/configuration/nuxt-config
+export default {
   devtools: { enabled: false },
   pages: true,
 
@@ -9,24 +13,6 @@ export default defineNuxtConfig({
     }
   },
 
-  typescript: {
-    strict: false,
-    builder: 'vite',
-    typeCheck: false,
-    tsConfig: {
-      "compilerOptions": {
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "moduleResolution": "node",
-        "module": "ESNext",
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "noEmit": true
-      },
-    },
-  },
   modules: [
     "shadcn-nuxt",
     "@nuxtjs/google-fonts",
@@ -36,7 +22,9 @@ export default defineNuxtConfig({
     "@formkit/auto-animate",
     "@nuxt/ui",
     '@nuxtjs/tailwindcss',
+    '@nuxtjs/color-mode',
   ],
+
   colorMode: {
     classSuffix: '',
     storageKey: 'nuxt-color-mode'
@@ -57,6 +45,17 @@ export default defineNuxtConfig({
     },
   },
 
+  content: {
+    documentDriven: true,
+    // navigation: { fields: ['auth', 'publishedAt'] },
+    markdown: {
+      toc: { depth: 3, searchDepth: 3 },
+    },
+    sources: {
+      content: { driver: 'fs', base: resolve(__dirname, 'docs'), prefix: '/docs' },
+
+    }
+  },
 
   runtimeConfig: {
     public: {
@@ -64,15 +63,15 @@ export default defineNuxtConfig({
       supabaseKey: process.env.SUPABASE_KEY,
     },
   },
+
   supabase: {
     redirectOptions: {
       login: "/login",
       callback: "/confirm",
-      exclude: ["/terms", "/privacy", "/invoice", "/agent"],
+      exclude: ["/terms", "/privacy", "/invoice", "/agent", "*"],
       cookieRedirect: true,
     },
   },
-  compatibilityDate: "2024-07-28",
 
   components: [
     {
@@ -88,4 +87,6 @@ export default defineNuxtConfig({
       priority: 100,
     },
   ],
-});
+
+  compatibilityDate: "2024-09-26",
+};
