@@ -1,3 +1,5 @@
+// useLogin.ts
+
 import { ref, computed } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -13,7 +15,7 @@ export const useLogin = () => {
     const isLoading = ref(false)
     const isSent = ref(false)
     const countdown = ref(0)
-    const loginMethod = ref('password')
+    const loginMethod = ref('magic-link')
     const agreedToTerms = ref(false)
     const currentState = ref('default')
 
@@ -51,33 +53,34 @@ export const useLogin = () => {
         }
     ]
 
-    const formSchema = toTypedSchema(z.object({
-        email: z.string().email('Please enter a valid email address'),
-        password: z.string().min(6, 'Password must be at least 6 characters long').optional(),
-        agreedToTerms: z.boolean().refine(val => val === true, 'Please agree to the Terms of Service and Privacy Policy'),
-    }))
+    const formSchema = computed(() => {
+        const baseSchema = {
+            email: z.string().email('Please enter a valid email address'),
+            agreedToTerms: z.boolean().refine(val => val === true, 'Please agree to the Terms of Service and Privacy Policy'),
+        }
 
-    const { handleSubmit, values, errors, validate, resetForm, meta } = useForm({
+        if (loginMethod.value === 'password') {
+            return toTypedSchema(z.object({
+                ...baseSchema,
+                password: z.string().min(6, 'Password must be at least 6 characters long'),
+            }))
+        }
+
+        return toTypedSchema(z.object(baseSchema))
+    })
+
+    const { values, errors, validate, resetForm, meta } = useForm({
         validationSchema: formSchema,
         initialValues: {
             email: '',
-            password: '',
             agreedToTerms: false,
         },
     })
 
-    const debounce = (fn: Function, delay: number) => {
-        let timeoutId: NodeJS.Timeout
-        return (...args: any[]) => {
-            clearTimeout(timeoutId)
-            timeoutId = setTimeout(() => fn(...args), delay)
-        }
-    }
-
-    const debouncedValidate = debounce(validate, 300)
-
-    const onSubmit = handleSubmit(async (formValues: { email: string; password?: string; agreedToTerms: boolean }) => {
+    const onSubmit = async () => {
+        console.log('login onSubmit', values)
         const result = await validate()
+        console.log('validate result', result)
         if (!result.valid) {
             // Display all validation errors
             Object.entries(result.errors).forEach(([field, error]) => {
@@ -86,11 +89,11 @@ export const useLogin = () => {
             return
         }
 
-        email.value = formValues.email || ''
-        password.value = formValues.password || ''
-        agreedToTerms.value = formValues.agreedToTerms
+        email.value = values.email || ''
+        password.value = values.password || ''
+        agreedToTerms.value = values.agreedToTerms
         await signIn()
-    })
+    }
 
     async function signInWithMagicLink() {
         isLoading.value = true;
@@ -208,10 +211,9 @@ export const useLogin = () => {
         }, 1000)
     }
 
-    const switchToEmailLogin = () => {
-        currentState.value = 'default'
-        loginMethod.value = 'magic-link'
-        isSent.value = false
+    const switchLoginMethod = () => {
+        loginMethod.value = loginMethod.value === 'magic-link' ? 'password' : 'magic-link'
+        resetForm()
     }
 
     const validateField = (field: string) => {
@@ -240,7 +242,7 @@ export const useLogin = () => {
         signInWithMagicLink,
         signInWithGoogle,
         signInWithGithub,
-        switchToEmailLogin,
+        switchLoginMethod,
         validateField,
         isFieldTouched,
     }

@@ -1,36 +1,36 @@
 <template>
-    <form @submit.prevent="onSubmit" class="space-y-4">
-        <FormField v-slot="{ errorMessage }" name="email">
+    <form @submit.prevent="onSubmit" class="space-y-4" novalidate>
+        <FormField v-slot="{ errorMessage, componentField, meta }" name="email" :validateOnBlur="!isFieldDirty">
             <FormItem>
                 <FormControl>
                     <div class="relative">
-                        <Input v-model="values.email" @blur="validateField('email')" type="email" placeholder="Email"
-                            required autocomplete="email" />
+                        <Input v-bind="componentField" type="email" placeholder="Email" required autocomplete="email" />
                         <Icon name="ph:envelope-simple" class="absolute right-3 top-3 h-4 w-4 text-gray-400" />
                     </div>
                 </FormControl>
-                <FormMessage v-if="errors.email && isFieldTouched('email')">{{ errors.email }}</FormMessage>
+
+                <FormMessage v-if="errorMessage && meta.touched" class="error-message">{{ errorMessage }}</FormMessage>
             </FormItem>
         </FormField>
 
-        <FormField v-if="loginMethod === 'password' || currentState === 'password'" v-slot="{ errorMessage }"
-            name="password">
+        <FormField v-if="loginMethod === 'password' || currentState === 'password'"
+            v-slot="{ errorMessage, componentField, meta }" name="password">
             <FormItem>
                 <FormControl>
                     <div class="relative">
-                        <Input v-model="values.password" @blur="validateField('password')" type="password"
-                            placeholder="Password" required autocomplete="current-password" />
+                        <Input v-bind="componentField" type="password" placeholder="Password" required
+                            autocomplete="current-password" />
                         <Icon name="ph:lock-simple" class="absolute right-3 top-3 h-4 w-4 text-gray-400" />
                     </div>
                 </FormControl>
-                <FormMessage v-if="errors.password && isFieldTouched('password')">{{ errors.password }}</FormMessage>
+                <FormMessage v-if="errorMessage && meta.touched" class="error-message">{{ errorMessage }}</FormMessage>
             </FormItem>
         </FormField>
 
-        <FormField v-slot="{ errorMessage }" name="agreedToTerms">
+        <FormField v-slot="{ value, handleChange, meta }" name="agreedToTerms">
             <FormItem class="flex flex-row items-center justify-start space-x-2 space-y-0">
                 <FormControl>
-                    <Checkbox v-model="values.agreedToTerms" @update:modelValue="validateField('agreedToTerms')" />
+                    <Checkbox :checked="value" @update:checked="handleChange" />
                 </FormControl>
                 <div class="space-y-1 leading-none">
                     <FormLabel class="text-sm">
@@ -45,11 +45,10 @@
                     </FormLabel>
                 </div>
             </FormItem>
-            <FormMessage v-if="errors.agreedToTerms && isFieldTouched('agreedToTerms')">{{ errors.agreedToTerms }}
-            </FormMessage>
+            <FormMessage v-if="!value && meta.touched" class="error-message">{{ errors.agreedToTerms }}</FormMessage>
         </FormField>
 
-        <Button type="submit" variant="outline" class="w-full">
+        <Button variant="outline" class="w-full" type="submit">
             <Icon v-if="isLoading" name="ph:spinner" class="mr-2 h-4 w-4 animate-spin" />
             <Icon v-else :name="loginMethod === 'password' ? 'ph:sign-in' : 'ph:envelope-simple'"
                 class="mr-2 h-4 w-4" />
@@ -90,5 +89,6 @@ const {
     loginMethods,
     validateField,
     isFieldTouched,
+    isFieldDirty,
 } = useLogin()
 </script>

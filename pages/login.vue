@@ -14,23 +14,20 @@ const { user, isSent, currentState } = useLogin()
 </script>
 
 <template>
-  <ClientOnly>
-    <div
-      class="flex min-h-screen w-full items-center justify-center bg-gradient-to-r from-indigo-200 to-yellow-100 p-4">
-      <Card v-if="!user" class="w-full max-w-md bg-white rounded-lg shadow-md">
-        <CardHeader class="space-y-1">
-          <CardTitle class="text-2xl font-bold text-center">NIMSHIP</CardTitle>
-          <CardDescription class="text-center">
-            {{ isSent ? 'Check your email' : 'Sign in to your account' }}
-          </CardDescription>
-        </CardHeader>
-        <CardContent class="space-y-4">
-          <MagicLinkSent v-if="currentState === 'magic-link-sent' || isSent" />
-          <LoginForm v-else />
-        </CardContent>
-      </Card>
+  <div class="flex min-h-screen w-full items-center justify-center bg-gradient-to-r from-indigo-200 to-yellow-100 p-4">
+    <Card v-if="!user" class="w-full max-w-md bg-white rounded-lg shadow-md">
+      <CardHeader class="space-y-1">
+        <CardTitle class="text-2xl font-bold text-center">NIMSHIP</CardTitle>
+        <CardDescription class="text-center">
+          {{ isSent ? 'Check your email' : 'Sign in to your account' }}
+        </CardDescription>
+      </CardHeader>
+      <CardContent class="space-y-4">
+        <MagicLinkSent v-if="currentState == 'magic-link-sent' || isSent" />
+        <LoginForm v-else />
+      </CardContent>
+    </Card>
 
-      <LoggedInCard v-else />
-    </div>
-  </ClientOnly>
+    <LoggedInCard v-else />
+  </div>
 </template>
