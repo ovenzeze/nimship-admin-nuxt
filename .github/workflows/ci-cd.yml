@@ -23,8 +23,19 @@ jobs:
       with:
         version: 9.2.0
 
+    - name: Debug - List directory contents
+      run: ls -la
+
+    - name: Debug - Print Node.js and pnpm versions
+      run: |
+        node --version
+        pnpm --version
+
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm install --no-frozen-lockfile
+
+    - name: Debug - List installed packages
+      run: pnpm list
 
     - name: Build
       run: pnpm run build
@@ -61,7 +72,7 @@ jobs:
         version: 9.2.0
 
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm install --no-frozen-lockfile
 
     - name: Build
       run: pnpm run build
