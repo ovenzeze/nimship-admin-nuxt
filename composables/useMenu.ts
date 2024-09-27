@@ -26,18 +26,12 @@ export function useMenu() {
     {
       name: 'Documentation',
       icon: 'ph:book-open',
-      href: '/documentation',
+      href: '/docs',
       active: false,
       requiresAuth: false,
       disabled: false,
       children: [
-        { name: 'Project Structure', icon: 'ph:tree-structure', href: '/documentation/project-structure', active: false, requiresAuth: false, disabled: false },
-        { name: 'API Documentation', icon: 'ph:api', href: '/documentation/api-documentation', active: false, requiresAuth: false, disabled: false },
-        { name: 'UI Components', icon: 'ph:layout', href: '/documentation/ui-components', active: false, requiresAuth: false, disabled: false },
-        { name: 'Mobile Responsiveness', icon: 'ph:device-mobile', href: '/documentation/mobile-responsiveness', active: false, requiresAuth: false, disabled: false },
-        { name: 'Testing Instructions', icon: 'ph:test-tube', href: '/documentation/test-instruction', active: false, requiresAuth: false, disabled: false },
-        { name: 'Package Compatibility', icon: 'ph:package', href: '/documentation/package-compatibility', active: false, requiresAuth: false, disabled: false },
-        { name: 'Onboarding', icon: 'ph:user-plus', href: '/documentation/onboarding', active: false, requiresAuth: false, disabled: false },
+
         { name: 'Puppeteer Setup', icon: 'ph:browser', href: '/documentation/puppeteer-setup', active: false, requiresAuth: false, disabled: false },
         { name: 'Git CLI Instructions', icon: 'ph:git-branch', href: '/documentation/gitcli-instruction', active: false, requiresAuth: false, disabled: false },
       ]
