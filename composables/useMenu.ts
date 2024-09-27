@@ -30,11 +30,6 @@ export function useMenu() {
       active: false,
       requiresAuth: false,
       disabled: false,
-      children: [
-
-        { name: 'Puppeteer Setup', icon: 'ph:browser', href: '/documentation/puppeteer-setup', active: false, requiresAuth: false, disabled: false },
-        { name: 'Git CLI Instructions', icon: 'ph:git-branch', href: '/documentation/gitcli-instruction', active: false, requiresAuth: false, disabled: false },
-      ]
     },
   ])
 

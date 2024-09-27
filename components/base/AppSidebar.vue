@@ -1,28 +1,34 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
+import { useColorMode } from '#imports'
 import { useLogin } from '~/composables/useLogin'
+import { Button } from '~/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
 
 const route = useRoute();
 const { isAuthenticated, getUserDisplayInfo, logout } = useLogin()
+const colorMode = useColorMode()
+
+interface NavItem {
+  name: string;
+  icon: string;
+  href: string;
+  requiresAuth: boolean;
+  children?: Array<{
+    name: string;
+    href: string;
+  }>;
+}
 
 const props = defineProps<{
-  navItems: Array<{
-    name: string;
-    icon: string;
-    href: string;
-    requiresAuth: boolean;
-    children?: Array<{
-      name: string;
-      href: string;
-    }>;
-  }>;
+  navItems: NavItem[];
 }>();
 
 const emit = defineEmits(['logout', 'login']);
 
 const isSidebarOpen = ref(false);
-const colorMode = useColorMode();
 
 const toggleSidebar = async () => {
   isSidebarOpen.value = !isSidebarOpen.value;
@@ -33,7 +39,12 @@ const toggleTheme = () => {
   colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark';
 };
 
-const languages = [
+interface Language {
+  code: string;
+  name: string;
+}
+
+const languages: Language[] = [
   { code: 'en', name: 'English' },
   { code: 'es', name: 'Español' },
   { code: 'fr', name: 'Français' },
@@ -41,13 +52,21 @@ const languages = [
 
 const currentLanguage = ref(languages[0]);
 
-const changeLanguage = (lang) => {
+const changeLanguage = (lang: Language) => {
   currentLanguage.value = lang;
   // Implement language change logic here
 };
 
 const filteredNavItems = computed(() => {
-  return props.navItems.filter(item => !item.requiresAuth || isAuthenticated.value).map(item => ({
+  return [
+    ...props.navItems,
+    {
+      name: 'Agent',
+      icon: 'ph:cat',
+      href: '/agent',
+      requiresAuth: false,
+    }
+  ].filter(item => !item.requiresAuth || isAuthenticated.value).map(item => ({
     ...item,
     active: isActiveRoute(item.href)
   }));
@@ -58,9 +77,9 @@ function isActiveRoute(href: string): boolean {
 }
 
 const isMenuOpen = ref(false);
-const activeMenuItem = ref(null);
+const activeMenuItem = ref<NavItem | null>(null);
 
-const toggleMenu = (item) => {
+const toggleMenu = (item: NavItem) => {
   if (activeMenuItem.value === item) {
     activeMenuItem.value = null;
   } else {

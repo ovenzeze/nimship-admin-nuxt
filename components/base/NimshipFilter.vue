@@ -1,7 +1,7 @@
 <template>
     <div class="nimship-filter" :class="{ 'mobile': isMobile }">
         <div class="flex items-start justify-between md:justify-center" :class="{ 'flex-col space-y-4': isMobile }">
-            <div class="flex items-start md:items-center md:space-x-4 flex-grow"
+            <div class="flex flex-row items-start md:space-x-4 flex-shrink-0 overflow-auto"
                 :class="{ 'flex-col space-y-4 w-full': isMobile }">
                 <template v-for="filter in filters" :key="filter.key">
                     <template v-if="filter.type === 'select'">
