@@ -24,6 +24,8 @@ const { user, isSent, currentState } = useLogin()
       </CardHeader>
       <CardContent class="space-y-4">
         <MagicLinkSent v-if="currentState == 'magic-link-sent' || isSent" />
+        <!-- <MagicLinkSent v-if="currentState == 'magic-link-sent' || isSent" /> -->
+
         <LoginForm v-else />
       </CardContent>
     </Card>

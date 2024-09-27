@@ -6,12 +6,12 @@ describe('Documentation Tests', () => {
   const docsDir = path.join(__dirname, '..', 'docs')
 
   it('should have an onboarding.md file', () => {
-    const onboardingPath = path.join(docsDir, 'onboarding.md')
+    const onboardingPath = path.join(docsDir, 'guides', 'onboarding.md')
     expect(fs.existsSync(onboardingPath)).toBe(true)
   })
 
   it('onboarding.md should contain necessary sections', () => {
-    const onboardingPath = path.join(docsDir, 'onboarding.md')
+    const onboardingPath = path.join(docsDir, 'guides', 'onboarding.md')
     const content = fs.readFileSync(onboardingPath, 'utf-8')
 
     const requiredSections = [
@@ -33,7 +33,7 @@ describe('Documentation Tests', () => {
   })
 
   it('should mention Vitest instead of Jest', () => {
-    const onboardingPath = path.join(docsDir, 'onboarding.md')
+    const onboardingPath = path.join(docsDir, 'guides', 'onboarding.md')
     const content = fs.readFileSync(onboardingPath, 'utf-8')
 
     expect(content).toContain('Vitest')
@@ -41,7 +41,7 @@ describe('Documentation Tests', () => {
   })
 
   it('should have Docker-related information', () => {
-    const onboardingPath = path.join(docsDir, 'onboarding.md')
+    const onboardingPath = path.join(docsDir, 'guides', 'onboarding.md')
     const content = fs.readFileSync(onboardingPath, 'utf-8')
 
     expect(content).toContain('Docker')

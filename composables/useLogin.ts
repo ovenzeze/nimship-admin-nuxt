@@ -1,6 +1,5 @@
 // useLogin.ts
 
-import { ref, computed } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
@@ -10,6 +9,7 @@ import { useSupabaseUser, useSupabaseClient } from '#imports'
 
 export const useLogin = () => {
     const { toast } = useToast()
+
     const email = ref('')
     const password = ref('')
     const isLoading = ref(false)
@@ -18,6 +18,7 @@ export const useLogin = () => {
     const loginMethod = ref('magic-link')
     const agreedToTerms = ref(false)
     const currentState = ref('default')
+    const magicLinkSentMessage = ref('')
 
     const route = useRoute()
     const router = useRouter()
@@ -81,6 +82,7 @@ export const useLogin = () => {
         console.log('login onSubmit', values)
         const result = await validate()
         console.log('validate result', result)
+        toast({ title: 'Validation Result', description: 'Validation result: ' + JSON.stringify(result), variant: 'destructive' })
         if (!result.valid) {
             // Display all validation errors
             Object.entries(result.errors).forEach(([field, error]) => {
@@ -142,7 +144,8 @@ export const useLogin = () => {
             currentState.value = 'error'
         } else if (isMagicLink) {
             console.log('Magic link process completed successfully');
-            toast({ title: 'Email Sent', description: 'Please check your inbox and click the login link to complete sign in.' })
+            magicLinkSentMessage.value = 'Please check your inbox and click the login link to complete sign in.'
+            toast({ title: 'Email Sent', description: magicLinkSentMessage.value })
             isSent.value = true
             startCountdown()
             currentState.value = 'magic-link-sent'
@@ -245,5 +248,6 @@ export const useLogin = () => {
         switchLoginMethod,
         validateField,
         isFieldTouched,
+        magicLinkSentMessage,
     }
 }

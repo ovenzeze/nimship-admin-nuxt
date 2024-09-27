@@ -1,5 +1,5 @@
 <template>
-    <div class="text-center space-y-4">
+    <div class="w-full h-full text-center space-y-4 bg-slate-200">
         <Icon name="ph:envelope-simple" class="w-16 h-16 mx-auto text-blue-500" />
         <p class="text-sm text-gray-600 pb-8">
             We've sent a login link to {{ email }}.
@@ -10,7 +10,7 @@
                 <Icon name="ph:envelope-simple" class="mr-2 h-4 w-4" />
                 {{ countdown > 0 ? `Resend email (${countdown}s)` : 'Resend email' }}
             </Button>
-            <Button @click="switchToEmailLogin" variant="outline" class="w-full">
+            <Button @click="() => { }" variant="outline" class="w-full">
                 <Icon name="ph:arrow-left" class="mr-2 h-4 w-4" />
                 Use another email to login
             </Button>
@@ -25,6 +25,6 @@ const {
     email,
     countdown,
     signInWithMagicLink,
-    switchToEmailLogin,
+    // switchToEmailLogin,
 } = useLogin()
 </script>
