@@ -18,19 +18,19 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { ReadableDriver, QualificationIcon } from '~/types'
+import type { Contact, QualificationIcon } from '~/types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const props = defineProps<{
-    qualification: ReadableDriver['qualification']
+    qualification: Contact['qualification']
     icons: QualificationIcon[]
 }>()
 
 const qualificationItems = computed(() =>
     props.icons.map((item) => ({
         ...item,
-        isVerified: props.qualification[item.name as keyof ReadableDriver['qualification']],
-        tooltipText: `${item.tooltip}: ${props.qualification[item.name as keyof ReadableDriver['qualification']] ? 'Verified' : 'Not Verified'}`
+        isVerified: props.qualification[item.name as keyof Contact['qualification']],
+        tooltipText: `${item.tooltip}: ${props.qualification[item.name as keyof Contact['qualification']] ? 'Verified' : 'Not Verified'}`
     }))
 )
 </script>

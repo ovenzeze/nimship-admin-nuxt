@@ -14,7 +14,7 @@ import BankInfo from '~/components/payment/BankInfo.vue';
 import PaymentStatus from '~/components/payment/PaymentStatus.vue';
 import PaymentPanel from '~/components/payment/PaymentPanel.vue';
 import type { FilterOptions, TeamName } from "~/types";
-import type { FetchPaymentRecordsOptions, ProcessedDriverPaymentRecord, PaymentStatusItem, Warehouse } from "~/types/payment";
+import type { FetchPaymentRecordsOptions, FetchPayRecord, PaymentStatusItem, Warehouse } from "~/types/payment";
 
 const { getEnumsByType } = useEnums();
 const { loading, error, paymentRecords, fetchPaymentRecords } = usePayment();

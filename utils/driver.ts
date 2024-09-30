@@ -1,13 +1,11 @@
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import type { ReadablePaymentRecord, PaymentStatusInfo, DriverPaymentRecord, Driver } from "~/types"
+import type { PayRecord, PaymentRecord, PaymentStatusInfo, Contact, HaulblazeContact, Warehouse, TeamName } from "~/types"
 import { PaymentStatus } from '~/types/index'
-import { type Database } from '~/types/database'
+import type { FetchPayRecord } from "~/types/payment"
 
 dayjs.extend(utc)
 
-type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
-type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
 
 type PaymentStatusItem = { [key in PaymentStatus]: PaymentStatusInfo }
 /**
@@ -24,50 +22,37 @@ const paymentStatusMap: PaymentStatusItem = {
   [PaymentStatus.OTHERS]: { name: 'OTHERS', status: 'PAID', color: 'purple' },
 };
 
-/**
- * Converts a DriverPaymentRecord to a ReadablePaymentRecord
- * @param driver - The original driver payment record
- * @returns A ReadablePaymentRecord object with formatted information
- */
-const getReadablePaymentRecord = (driver: DriverPaymentRecord): ReadablePaymentRecord => {
-  const { haulblaze_contact, deductions = [] } = driver || {}
+
+const getPayRcord = (driver: FetchPayRecord): PayRecord => {
   const cycleStart = dayjs.utc(driver.cycle_start).format('MM/DD/YYYY')
   const cycleEnd = dayjs.utc(driver.cycle_start).add(6, 'day').format('MM/DD/YYYY')
 
   return {
     ...driver,
-    name: String(haulblaze_contact?.first_name).toUpperCase() + ' ' + String(haulblaze_contact?.last_name).toUpperCase(),
+    name: String(driver.contact?.first_name).toUpperCase() + ' ' + String(driver.contact?.last_name).toUpperCase(),
     cycle_start: cycleStart,
     cycle_end: cycleEnd,
-    warehouse: driver.warehouse,
+    team_name: driver.team_name as TeamName,
+    warehouse: driver.warehouse as Warehouse,
     driver_id: Number(driver.custom_uid),
-    routing: haulblaze_contact?.routing_number,
-    account: haulblaze_contact?.account_number,
-    routing_ending: haulblaze_contact?.routing_number?.slice(-4),
-    account_ending: haulblaze_contact?.account_number?.slice(-4),
+    account: driver.contact?.account_number || '',
+    routing: driver.contact?.routing_number || '',
+    routing_ending: driver.contact?.routing_number?.slice(-4) || '',
+    account_ending: driver.contact?.account_number?.slice(-4) || '',
     payment_time: dayjs(driver.payment_time).format('MM/DD/YYYY HH:mm:ss'),
+    payment_method: driver.payment_method as PaymentStatus,
     payment_status: paymentStatusMap[driver.payment_method as PaymentStatus] || paymentStatusMap[PaymentStatus.OTHERS],
   }
 }
 
-const getDriver = (driver: HaulblazeContact): Driver => {
+const getContact = (driver: HaulblazeContact): Contact => {
   return {
     ...driver,
     name: String(driver.first_name).toUpperCase() + ' ' + String(driver.last_name).toUpperCase(),
-    qualification: { dl: true, tax: true, vehicle: false },
-    driver_type: driver.driver_type || 'Unknown',
-  }
-}
-export type { DriverPaymentRecord, PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem, Driver }
-export { getReadablePaymentRecord, getDriver, paymentStatusMap }
-
-const getReadableDriver = (driver: HaulblazeContact): Driver => {
-  return {
-    ...driver,
-    name: String(driver.first_name).toUpperCase() + ' ' + String(driver.last_name).toUpperCase(),
-    qualification: { dl: true, tax: true, vehicle: false },
+    qualification: { license: true, insurance: true, vehicle: false },
     driver_type: driver.driver_type || 'Unknown',
   }
 }
 
-export { getReadableDriver }
+export type { PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem }
+export { getPayRcord, getContact, paymentStatusMap }

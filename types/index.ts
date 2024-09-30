@@ -1,4 +1,7 @@
 import type { Database, Enums } from './database'
+import { createEnumFromType } from '~/utils/index'
+import type { FetchPayRecord } from './payment'
+import type { VNode } from 'vue'
 
 // Database types
 export type DeliveryRecordView = Database['public']['Views']['delivery_records_view']['Row']
@@ -19,17 +22,38 @@ export type CustomId = Database['public']['Enums']['custom_id_enum']
 
 
 
-export type ReadbleContact = Database['public']['Tables']['haulblaze_contact']['Row'] & {
+export type Contact = Database['public']['Tables']['haulblaze_contact']['Row'] & {
     employment_status?: string;
     name: string,
     qualification: Qualification
 }
 
+export type PayRecord = FetchPayRecord & {
+    name: string
+    uid: string | null
+    driver_id: number
+    gross_pay: number
+    net_pay: number
+    deduction_amount: number
+    cycle_start: string
+    warehouse: Warehouse
+    team_name: TeamName
+    payment_method?: number
+    payment_date?: string
+    actual_amount_paid?: number
+    payment_status: PaymentStatusInfo
+    routing: string
+    account: string
+    routing_ending: string
+    account_ending: string
+}
 
 // Enum generator from database types
-export const HaulblazeContactFields = createEnumFromType<ReadbleContact>();
+export const ConatctFields = createEnumFromType<Contact>();
 
-export const PaymentRecordFields = createEnumFromType<PaymentRecord>();
+export const PayRecordFields = createEnumFromType<PayRecord>();
+
+
 export enum EnumType {
     'CYCLE' = 'CYCLE',
     'WAREHOUSE_CODE' = 'WAREHOUSE_CODE',
@@ -89,7 +113,7 @@ export interface DriverFilters {
 
 export type Qualification = {
     insurance: boolean
-    tax: boolean
+    license: boolean
     vehicle: boolean
 }
 
@@ -105,27 +129,9 @@ export interface Column {
 }
 
 export interface DriverColumn {
-    id: keyof ReadbleContact
+    id: keyof Contact
     header: string
-}
-
-export interface ReadablePaymentRecord extends DriverPaymentRecord {
-    name: string
-    cycle_start: string
-    cycle_end: string
-    warehouse: string
-    driver_id: number
-    routing_ending?: string
-    account_ending?: string
-    routing: string
-    account: string
-    payment_status: PaymentStatusInfo
-    payment_time: string
-}
-
-export interface DriverPaymentRecord extends PaymentRecord {
-    haulblaze_contact?: HaulblazeContact
-    deductions?: any[]
+    cell: (props: any) => VNode
 }
 
 // Type aliases

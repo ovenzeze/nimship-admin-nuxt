@@ -21,8 +21,6 @@
       "~/*": ["./*"],
       "@/*": ["./*"],
       "#app": ["./.nuxt/types/app.d.ts"],
-      "#imports": ["./.nuxt/imports.d.ts"],
-      "vue": ["./node_modules/vue"]
     },
     "skipLibCheck": true
   },

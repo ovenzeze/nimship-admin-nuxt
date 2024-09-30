@@ -84,10 +84,10 @@
 import { ref, computed, watch } from 'vue';
 import { usePayment } from '../../composables/usePayroll';
 import { useDevice } from '#imports';
-import type { ProcessedDriverPaymentRecord } from '~/types/payment';
+import type { FetchPayRecord } from '~/types/payment';
 
 const props = defineProps<{
-  record: ProcessedDriverPaymentRecord;
+  record: FetchPayRecord;
   isOpen: boolean;
   onClose?: () => void;
 }>();

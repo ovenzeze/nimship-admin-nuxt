@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import { getPayRcord } from '~/utils/driver';
 const props = defineProps({
   records: {
     type: Array as PropType<DriverPaymentRecord[]>,
@@ -14,7 +14,7 @@ const props = defineProps({
 const emits = defineEmits(["select-driver"]);
 
 
-const readableRecords = computed(() => props.records.map(getReadablePaymentRecord));
+const readableRecords = computed(() => props.records.map(getPayRecord));
 const selectedIdx = ref(props.idx);
 
 console.log(props.records, readableRecords.value);

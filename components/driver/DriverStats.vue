@@ -17,21 +17,21 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { ReadableDriver } from '~/types';
+import type { Contact } from '~/types';
 
 const props = defineProps<{
-  driver: ReadableDriver;
+  driver: Contact;
 }>();
 
 const stats = computed(() => [
   {
     label: 'Completed Trips',
-    value: props.driver.completed_trips || 0,
+    value: 0,
     description: 'Total number of completed trips',
   },
   {
     label: 'Rating',
-    value: props.driver.rating?.toFixed(1) || 'N/A',
+    value: 'N/A',
     description: 'Average driver rating',
   },
   {

@@ -1,14 +1,14 @@
 import { ref, computed } from 'vue'
-import { useSupabaseClient } from '#imports'
+import { useSupabaseClient, type PaymentRecord } from '#imports'
 import type { Database } from '~/types/database'
-import type { FetchPaymentRecordsOptions, DriverPaymentRecord, ProcessedDriverPaymentRecord } from '~/types/payment'
+import type { FetchPaymentRecordsOptions, FetchPayRecord } from '~/types/payment'
 import { formatCurrency, formatDate } from '~/utils/formatter'
 
 export const usePayment = () => {
   const supabase = useSupabaseClient<Database>()
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const paymentRecords = ref<ProcessedDriverPaymentRecord[]>([])
+  const paymentRecords = ref<FetchPayRecord[]>([])
   const totalRecords = ref(0)
   const currentPage = ref(1)
   const pageSize = ref(20)
@@ -64,7 +64,7 @@ export const usePayment = () => {
       console.log('usePayment: Query result', data)
 
       if (data) {
-        paymentRecords.value = data.map((record: any): ProcessedDriverPaymentRecord => ({
+        paymentRecords.value = data.map((record: any): FetchPayRecord => ({
           ...record,
           uid: record.uid || '',
           gross_pay: record.gross_pay || 0,
@@ -101,15 +101,15 @@ export const usePayment = () => {
   const totalPages = computed(() => Math.ceil(totalRecords.value / pageSize.value))
 
   const totalGrossPay = computed(() => {
-    return paymentRecords.value.reduce((sum: number, record: ProcessedDriverPaymentRecord) => sum + (record.gross_pay || 0), 0)
+    return paymentRecords.value.reduce((sum: number, record: FetchPayRecord) => sum + (record.gross_pay || 0), 0)
   })
 
   const totalNetPay = computed(() => {
-    return paymentRecords.value.reduce((sum: number, record: ProcessedDriverPaymentRecord) => sum + (record.net_pay || 0), 0)
+    return paymentRecords.value.reduce((sum: number, record: FetchPayRecord) => sum + (record.net_pay || 0), 0)
   })
 
   const totalDeductions = computed(() => {
-    return paymentRecords.value.reduce((sum: number, record: ProcessedDriverPaymentRecord) => sum + (record.deduction_amount || 0), 0)
+    return paymentRecords.value.reduce((sum: number, record: FetchPayRecord) => sum + (record.deduction_amount || 0), 0)
   })
 
   const processPayment = async (paymentDetails: {

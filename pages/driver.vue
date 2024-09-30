@@ -74,8 +74,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useToast } from '@/components/ui/toast'
-import type { DriverFilters, HaulblazeContact, DriverColumn, ReadbleContact, QualificationIcon } from '~/types'
-import { getReadbleContact } from '~/utils/readble'
+import type { DriverFilters, HaulblazeContact, DriverColumn, Contact, QualificationIcon, Qualification } from '~/types'
+import { getContact } from '~/utils/driver'
 import { getRandomColor } from '~/utils/colorUtils'
 import { Button } from '@/components/ui/button'
 import {
@@ -102,19 +102,18 @@ const columns: DriverColumn[] = [
   {
     id: 'qualification',
     header: 'Qualification',
-    cell: (props) => h(QualificationCell, { qualification: props.row.qualification, icons: qualificationIcons })
+    cell: (props) => h(QualificationCell, { qualification: props.row.qualification, icons: qualificationIcons as QualificationIcon[] })
   },
   { id: 'dl_expired_time', header: 'DL Expiry' },
   { id: 'status', header: 'Status' },
   { id: 'team_name', header: 'Team' },
   { id: 'email', header: 'Email' },
-  { id: 'available', header: 'Available' },
-  { id: 'rating', header: 'Rating' },
-  { id: 'completed_trips', header: 'Trips' },
+  // { id: 'available', header: 'Available' },
+  // { id: 'rating', header: 'Rating' },
+  // { id: 'completed_trips', header: 'Trips' },
   { id: 'driver_type', header: 'Type' },
   { id: 'employment_status', header: 'Employment Status' },
 ]
-
 const filters = ref<DriverFilters>({
   warehouse: null,
   team_name: '',
@@ -128,12 +127,12 @@ const sorting = ref([])
 const columnFilters = ref([])
 
 const showDriverDialog = ref(false)
-const selectedDriver = ref<ReadbleContact | null>(null)
+const selectedDriver = ref<Contact | null>(null)
 const showMobileDetailsModal = ref(false)
 
-const filteredDrivers = computed<ReadbleContact[]>(() => {
-  return drivers.value.map(driver => ({
-    ...getReadbleContact(driver),
+const filteredDrivers = computed<Contact[]>(() => {
+  return drivers.value.map((driver: HaulblazeContact) => ({
+    ...getContact(driver),
     color: getRandomColor(String(driver.uid)),
   }))
 })
@@ -192,7 +191,7 @@ const fetchRecords = async () => {
 }
 
 const openDriverDialog = (driver?: HaulblazeContact) => {
-  selectedDriver.value = driver ? getReadbleContact(driver) : null
+  selectedDriver.value = driver ? getContact(driver) : null
   showDriverDialog.value = true
 }
 
@@ -233,7 +232,7 @@ const handlePageChange = (newPage: number) => {
   fetchRecords()
 }
 
-const selectDriver = (driver: ReadbleContact) => {
+const selectDriver = (driver: Contact) => {
   selectedDriver.value = driver
   if (window.innerWidth < 768) { // Assuming 768px as the breakpoint for mobile devices
     showMobileDetailsModal.value = true
@@ -245,21 +244,20 @@ const closeMobileDetailsModal = () => {
   selectedDriver.value = null
 }
 
-const formatCellValue = (row: ReadbleContact, columnId: keyof ReadbleContact) => {
+const formatCellValue = (row: Contact, columnId: keyof Contact) => {
   switch (columnId) {
     case 'enroll_time':
       return row.enroll_time ? new Date(row.enroll_time).toLocaleDateString() : 'N/A'
     case 'dl_expired_time':
       return row.dl_expired_time ? new Date(row.dl_expired_time).toLocaleDateString() : 'N/A'
-    case 'available':
-      return row.available ? 'Yes' : 'No'
+    // case 'available':
+    //   return row.available ? 'Yes' : 'No'
     case 'qualification':
-      return row.qualification ? Object.keys(row.qualification).filter(key => row.qualification[key]).join(', ') : 'N/A'
+      return row.qualification ? Object.keys(row.qualification).filter(key => row.qualification[key as keyof Qualification]).join(', ') : 'N/A'
     default:
       return row[columnId] || 'N/A'
   }
 }
-
 watch([filters, sorting, columnFilters], fetchRecords, { deep: true })
 
 onMounted(async () => {

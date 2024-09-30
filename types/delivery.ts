@@ -1,4 +1,4 @@
-import type { DeliveryRecordView } from ".";
+import type { Contact, DeliveryRecordView, PaymentStatus, PayRecord } from ".";
 
 export interface DeliveryFilters {
   dateRange: { from: Date | null; to: Date | null } | null
@@ -50,8 +50,8 @@ export interface DeliveryTableRowEmits {
 
 
 export interface ReadbleDeliveryRecord extends DeliveryRecordView {
-  payment: PaymentRecord
-  contact: HaulblazeContact
+  payment: PayRecord
+  contact: Contact
   status: PaymentStatus
 
 }

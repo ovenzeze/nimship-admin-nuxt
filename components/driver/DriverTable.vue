@@ -178,11 +178,11 @@
 
 <script setup lang="ts">
 import { MoreHorizontal, Loader2 } from 'lucide-vue-next'
-import type { HaulblazeContact, DriverColumn, ReadableDriver, QualificationIcon } from '~/types/index'
+import type { HaulblazeContact, DriverColumn, Contact, QualificationIcon } from '~/types/index'
 import { useEnums } from '~/composables/useEnums'
 import { getBadgeClass } from '~/utils/colorUtils'
 import { EnumType } from '~/types/index'
-import { getReadableDriver } from '~/utils/driver'
+import { getContact } from '~/utils/driver'
 import { useDriver } from '~/composables/useDriver'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -192,7 +192,7 @@ import QualificationCell from './QualificationCell.vue'
 dayjs.extend(relativeTime)
 
 const props = defineProps<{
-    data: ReadableDriver[]
+    data: Contact[]
     columns: DriverColumn[]
     loading?: boolean
     dimensions?: {
@@ -208,7 +208,7 @@ const emit = defineEmits<{
     'update:columnFilters': [columnFilters: any]
     'update:driver': [driver: HaulblazeContact]
     'edit-driver': [driver: HaulblazeContact]
-    'select-driver': [driver: ReadableDriver]
+    'select-driver': [driver: Contact]
 }>()
 
 const { getEnumsByType } = useEnums()
@@ -270,7 +270,7 @@ const getColumnVisibilityClass = (columnId: string) => {
     return 'hidden lg:table-cell'
 }
 
-const getCellComponent = (columnId: keyof ReadableDriver) => {
+const getCellComponent = (columnId: keyof Contact) => {
     switch (columnId) {
         case 'status':
         case 'driver_type':
@@ -283,7 +283,7 @@ const getCellComponent = (columnId: keyof ReadableDriver) => {
     }
 }
 
-const getCellClass = (row: ReadableDriver, columnId: keyof ReadableDriver) => {
+const getCellClass = (row: Contact, columnId: keyof Contact) => {
     switch (columnId) {
         case 'status':
             return [getBadgeClass(row[columnId] as string, columnId), 'opcity-25']
@@ -300,31 +300,31 @@ const getCellClass = (row: ReadableDriver, columnId: keyof ReadableDriver) => {
     }
 }
 
-const formatCellValue = (row: HaulblazeContact, columnId: keyof ReadableDriver) => {
-    const readableDriver = getReadableDriver(row)
+const formatCellValue = (row: HaulblazeContact, columnId: keyof Contact) => {
+    const Contact = getContact(row)
     switch (columnId) {
         case 'name':
-            return readableDriver.name
+            return Contact.name
         case 'enroll_time':
-            return readableDriver.enroll_time ? dayjs(readableDriver.enroll_time).fromNow() : 'N/A'
+            return Contact.enroll_time ? dayjs(Contact.enroll_time).fromNow() : 'N/A'
         case 'dl_expired_time':
-            return readableDriver.dl_expired_time ? dayjs(readableDriver.dl_expired_time).format('YYYY-MM-DD') : 'N/A'
+            return Contact.dl_expired_time ? dayjs(Contact.dl_expired_time).format('YYYY-MM-DD') : 'N/A'
         case 'rating':
-            return readableDriver.rating ? readableDriver.rating.toFixed(1) : 'N/A'
+            return Contact.rating ? Contact.rating.toFixed(1) : 'N/A'
         case 'available':
-            return readableDriver.available ? 'Yes' : 'No'
+            return Contact.available ? 'Yes' : 'No'
         case 'completed_trips':
-            return readableDriver.completed_trips || 'N/A'
+            return Contact.completed_trips || 'N/A'
         default:
-            return readableDriver[columnId] || 'N/A'
+            return Contact[columnId] || 'N/A'
     }
 }
 
-const isEditableField = (columnId: keyof ReadableDriver) => {
+const isEditableField = (columnId: keyof Contact) => {
     return ['status', 'driver_type', 'warehouse', 'team_name', 'available'].includes(columnId)
 }
 
-const getOptionsForField = async (field: keyof ReadableDriver) => {
+const getOptionsForField = async (field: keyof Contact) => {
     popoverLoading.value = true
     try {
         let enumType: EnumType
@@ -357,7 +357,7 @@ const showPopover = async (row: HaulblazeContact, column: DriverColumn) => {
     editingValue.value = row[column.id as keyof HaulblazeContact]
 
     if (column.id !== 'available') {
-        popoverOptions.value = await getOptionsForField(column.id as keyof ReadableDriver)
+        popoverOptions.value = await getOptionsForField(column.id as keyof Contact)
     }
 
     const cellElement = event.target as HTMLElement
@@ -447,7 +447,7 @@ const deleteDriver = (driver: HaulblazeContact) => {
     // Implement delete functionality
 }
 
-const handleRowClick = (row: ReadableDriver) => {
+const handleRowClick = (row: Contact) => {
     if (window.innerWidth < 768) { // Assuming 768px as the breakpoint for mobile devices
         emit('select-driver', row)
     }

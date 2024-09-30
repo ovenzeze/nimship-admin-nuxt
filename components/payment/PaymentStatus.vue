@@ -9,10 +9,10 @@
 import { computed } from 'vue';
 import InfoCardGroup from './InfoCardGroup.vue';
 import InfoCard from './InfoCard.vue';
-import type { ProcessedDriverPaymentRecord } from '~/types/payment';
+import type { FetchPayRecord } from '~/types/payment';
 
 const props = defineProps<{
-  record: ProcessedDriverPaymentRecord;
+  record: FetchPayRecord;
 }>();
 
 const statusItems = computed(() => [
