@@ -112,10 +112,10 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
           <a href="/" class="flex items-center justify-centergap-2">
             <img src="/images/deth_logo_transparent.png" alt="DETH" class="w-10 h-10" />
           </a>
-          <div v-if="isAuthenticated && userDisplayInfo">
+          <div v-if="isAuthenticated">
             <DropdownMenu>
               <DropdownMenuTrigger class="flex items-center">
-                <img :src="userDisplayInfo.avatar" :alt="userDisplayInfo.name" class="h-8 w-8 rounded-full" />
+                <Icon name="ph:user-circle" class="h-8 w-8 text-foreground" />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuLabel>{{ userDisplayInfo.name }}</DropdownMenuLabel>
@@ -126,7 +126,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
           </div>
           <NuxtLink to="/login" v-else @click="handleLogin" variant="ghost" size="sm"
             class="flex items-center content-center mr-2">
-            <Icon name="ph:signature" class="h-4 w-4 mr-1 text-foreground" />Login
+            <Icon name="ph:user-circle" class="h-8 w-8 text-muted-foreground" />
           </NuxtLink>
         </div>
       </header>
@@ -192,10 +192,10 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <div v-if="isAuthenticated && userDisplayInfo">
+          <div v-if="isAuthenticated">
             <DropdownMenu>
               <DropdownMenuTrigger class="flex h-9 w-9 items-center justify-center rounded-lg overflow-hidden">
-                <img :src="userDisplayInfo.avatar" :alt="userDisplayInfo.name" class="h-full w-full object-cover" />
+                <Icon name="ph:user-circle-fill" class="h-9 w-9 text-foreground" />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuLabel>{{ userDisplayInfo.name }}</DropdownMenuLabel>
@@ -206,7 +206,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
             </DropdownMenu>
           </div>
           <Button v-else @click="handleLogin" variant="ghost" size="sm" class="h-9 w-9 p-0">
-            <Icon name="ph:sign-in" class="h-5 w-5" />
+            <Icon name="ph:user-circle" class="h-9 w-9 text-muted-foreground" />
           </Button>
         </div>
       </aside>
@@ -244,14 +244,15 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <div v-if="isAuthenticated && userDisplayInfo" class="flex items-center gap-2 p-2">
-              <img :src="userDisplayInfo.avatar" :alt="userDisplayInfo.name" class="h-8 w-8 rounded-full" />
+            <div v-if="isAuthenticated" class="flex items-center gap-2 p-2">
+              <Icon name="ph:user-circle-fill" class="h-8 w-8 text-foreground" />
               <span>{{ userDisplayInfo.name }}</span>
               <Button @click="handleLogout" variant="ghost" size="sm" class="ml-auto">
                 Logout
               </Button>
             </div>
             <Button v-else @click="handleLogin" class="w-full">
+              <Icon name="ph:user-circle" class="h-8 w-8 mr-2 text-muted-foreground" />
               Login
             </Button>
           </div>

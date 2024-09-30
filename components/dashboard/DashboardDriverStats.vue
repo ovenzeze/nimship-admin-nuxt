@@ -29,4 +29,6 @@ defineProps<{
     icon: string
   }>
 }>()
-</script>
+
+
+

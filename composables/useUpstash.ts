@@ -1,3 +1,5 @@
+import { ref, onMounted, onUnmounted } from 'vue'
+import type { Ref } from 'vue'
 import { Redis } from '@upstash/redis'
 import pako from 'pako'
 
@@ -6,12 +8,31 @@ const redis = new Redis({
   token: 'AdSnAAIjcDE4ZjY1ZDVhNTFiMmM0ZmRlOWYxOTZkZjg5YzI0NmY1NHAxMA',
 })
 
-export function useUpstash() {
-  const data = ref(null)
-  const error = ref(null)
-  const loading = ref(false)
+interface UpstashComposable {
+  data: Ref<any | null>;
+  error: Ref<Error | null>;
+  loading: Ref<boolean>;
+  getMessage: (conversationId: string, messageId: string) => Promise<void>;
+  getConversationMessages: (conversationId: string) => Promise<void>;
+  getUserConversations: (userId: string) => Promise<void>;
+  getConversationStats: (conversationId: string) => Promise<void>;
+  getGlobalStats: () => Promise<void>;
+  getProviderStats: (providerName: string) => Promise<void>;
+  getTaskInfo: (taskId: string) => Promise<void>;
+  getTaskCost: (taskId: string) => Promise<void>;
+  getAgentTaskCost: (taskId: string, agentId: string) => Promise<void>;
+  getWorkflow: (workflowId: string) => Promise<void>;
+  getAgentWorkSummary: (taskId: string, agentId: string) => Promise<void>;
+  startRealTimeRefresh: (key: string, type: string, interval?: number) => void;
+  stopRealTimeRefresh: () => void;
+}
 
-  let refreshInterval: number | null = null
+export function useUpstash(): UpstashComposable {
+  const data = ref<any | null>(null)
+  const error = ref<Error | null>(null)
+  const loading = ref<boolean>(false)
+
+  let refreshInterval: ReturnType<typeof setInterval> | null = null
 
   const decompressData = (compressedData: string): string => {
     console.log('Decompressing data:', compressedData.substring(0, 20) + '...')
@@ -24,7 +45,7 @@ export function useUpstash() {
       return decompressedData
     } catch (err) {
       console.error('Decompression failed:', err)
-      return compressedData // 如果解压失败，返回原始数据
+      return compressedData // If decompression fails, return original data
     }
   }
 
@@ -50,7 +71,7 @@ export function useUpstash() {
     return rawData
   }
 
-  const fetchData = async (key: string, type: string) => {
+  const fetchData = async (key: string, type: string): Promise<void> => {
     console.log(`Fetching data for key: ${key}, type: ${type}`)
     loading.value = true
     error.value = null
@@ -85,79 +106,79 @@ export function useUpstash() {
       console.log('Processed data:', data.value)
     } catch (err) {
       console.error('Error fetching data:', err)
-      error.value = err
+      error.value = err instanceof Error ? err : new Error('Unknown error occurred')
     } finally {
       loading.value = false
       console.log('Fetch operation completed')
     }
   }
 
-  const getMessage = async (conversationId: string, messageId: string) => {
+  const getMessage = async (conversationId: string, messageId: string): Promise<void> => {
     console.log(`Getting message for conversation: ${conversationId}, message: ${messageId}`)
     return fetchData(`conversation:${conversationId}:message:${messageId}`, 'hash')
   }
 
-  const getConversationMessages = async (conversationId: string) => {
+  const getConversationMessages = async (conversationId: string): Promise<void> => {
     console.log(`Getting messages for conversation: ${conversationId}`)
     return fetchData(`conversation:${conversationId}:messages`, 'sortedSet')
   }
 
-  const getUserConversations = async (userId: string) => {
+  const getUserConversations = async (userId: string): Promise<void> => {
     console.log(`Getting conversations for user: ${userId}`)
-    return fetchData(`user:${userId}:conversations`, 'set')
+    return await fetchData(`user:${userId}:conversations`, 'set')
   }
 
-  const getConversationStats = async (conversationId: string) => {
+  const getConversationStats = async (conversationId: string): Promise<void> => {
     console.log(`Getting stats for conversation: ${conversationId}`)
-    return fetchData(`conversation:${conversationId}:stats`, 'hash')
+    return await fetchData(`conversation:${conversationId}:stats`, 'hash')
   }
 
-  const getGlobalStats = async () => {
+  const getGlobalStats = async (): Promise<void> => {
     console.log('Getting global stats')
-    return fetchData('global:stats', 'hash')
+    return await fetchData('global:stats', 'hash')
   }
 
-  const getProviderStats = async (providerName: string) => {
+  const getProviderStats = async (providerName: string): Promise<void> => {
     console.log(`Getting stats for provider: ${providerName}`)
-    return fetchData(`provider:${providerName}:stats`, 'hash')
+    return await fetchData(`provider:${providerName}:stats`, 'hash')
   }
 
-  const getTaskInfo = async (taskId: string) => {
+  const getTaskInfo = async (taskId: string): Promise<void> => {
     console.log(`Getting info for task: ${taskId}`)
-    return fetchData(`task:${taskId}`, 'hash')
+    return await fetchData(`task:${taskId}`, 'hash')
   }
 
-  const getTaskCost = async (taskId: string) => {
+  const getTaskCost = async (taskId: string): Promise<void> => {
     console.log(`Getting cost for task: ${taskId}`)
-    return fetchData(`task:${taskId}:cost`, 'string')
+    return await fetchData(`task:${taskId}:cost`, 'string')
   }
 
-  const getAgentTaskCost = async (taskId: string, agentId: string) => {
+  const getAgentTaskCost = async (taskId: string, agentId: string): Promise<void> => {
     console.log(`Getting cost for task: ${taskId}, agent: ${agentId}`)
-    return fetchData(`task:${taskId}:agent:${agentId}:cost`, 'string')
+    return await fetchData(`task:${taskId}:agent:${agentId}:cost`, 'string')
   }
 
-  const getWorkflow = async (workflowId: string) => {
+  const getWorkflow = async (workflowId: string): Promise<void> => {
     console.log(`Getting workflow: ${workflowId}`)
-    return fetchData(`workflow:${workflowId}`, 'hash')
+    return await fetchData(`workflow:${workflowId}`, 'hash')
   }
 
-  const getAgentWorkSummary = async (taskId: string, agentId: string) => {
+  const getAgentWorkSummary = async (taskId: string, agentId: string): Promise<void> => {
     console.log(`Getting work summary for task: ${taskId}, agent: ${agentId}`)
-    return fetchData(`task:${taskId}:agent:${agentId}:summary`, 'list')
+    return await fetchData(`task:${taskId}:agent:${agentId}:summary`, 'list')
   }
 
-  const startRealTimeRefresh = (key: string, type: string, interval: number = 5000) => {
+  const startRealTimeRefresh = (key: string, type: string, interval: number = 5000): void => {
     console.log(`Starting real-time refresh for key: ${key}, type: ${type}, interval: ${interval}ms`)
     stopRealTimeRefresh()
-    fetchData(key, type)
+    fetchData(key, type).catch(console.error).catch(console.error)
     refreshInterval = setInterval(() => {
       console.log(`Refreshing data for key: ${key}`)
-      fetchData(key, type)
+      fetchData(key, type).catch(console.error).catch(console.error)
     }, interval)
   }
 
-  const stopRealTimeRefresh = () => {
+  const stopRealTimeRefresh = (): void => {
     if (refreshInterval) {
       console.log('Stopping real-time refresh')
       clearInterval(refreshInterval)

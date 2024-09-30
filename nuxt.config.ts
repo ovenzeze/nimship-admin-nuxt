@@ -1,6 +1,5 @@
 import { resolve } from "node:path";
 
-// @ts-nocheck
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default {
   devtools: { enabled: false },

@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import type { DriverPaymentRecord } from '~/types/payment'
+import type { DriverPaymentRecord } from '../types/payment'
 
 export function formatCurrency(value: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -25,7 +25,7 @@ export function formatNumber(value: number): string {
   return new Intl.NumberFormat('en-US').format(value)
 }
 
-export const getReadablePaymentRecord = (record: DriverPaymentRecord): DriverPaymentRecord & { formattedGrossPay: string, formattedNetPay: string, formattedDeductionAmount: string, formattedCycleStart: string, formattedPaymentDate?: string, formattedActualAmountPaid?: string } => {
+export const getFormattedPaymentRecord = (record: DriverPaymentRecord): DriverPaymentRecord & { formattedGrossPay: string, formattedNetPay: string, formattedDeductionAmount: string, formattedCycleStart: string, formattedPaymentDate?: string, formattedActualAmountPaid?: string } => {
   return {
     ...record,
     formattedGrossPay: formatCurrency(record.gross_pay),

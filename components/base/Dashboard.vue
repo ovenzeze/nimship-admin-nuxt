@@ -9,7 +9,13 @@
         </Button>
       </div>
     </div>
-    <div class="flex-1 space-y-4 p-8 pt-6">
+    <div v-if="loading" class="flex items-center justify-center h-full">
+      <p>Loading dashboard data...</p>
+    </div>
+    <div v-else-if="error" class="flex items-center justify-center h-full">
+      <p>Error loading dashboard data: {{ error }}</p>
+    </div>
+    <div v-else-if="dashboardData" class="flex-1 space-y-4 p-8 pt-6">
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -19,51 +25,23 @@
             <Icon name="ph:currency-dollar" class="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div class="text-2xl font-bold">$45,231.89</div>
+            <div class="text-2xl font-bold">{{ dashboardData.totalRevenue }}</div>
             <p class="text-xs text-muted-foreground">
-              +20.1% from last month
+              {{ dashboardData.revenueChange }} from last month
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card v-for="(stat, index) in dashboardData.driverStats" :key="index">
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle class="text-sm font-medium">
-              Registered Drivers
+              {{ stat.title }}
             </CardTitle>
-            <Icon name="ph:user-circle" class="h-4 w-4 text-muted-foreground" />
+            <Icon :name="stat.icon" class="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div class="text-2xl font-bold">{{ driverStats[0].value }}</div>
+            <div class="text-2xl font-bold">{{ stat.value }}</div>
             <p class="text-xs text-muted-foreground">
-              +180.1% from last month
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle class="text-sm font-medium">
-              Active Drivers
-            </CardTitle>
-            <Icon name="ph:truck" class="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div class="text-2xl font-bold">{{ driverStats[1].value }}</div>
-            <p class="text-xs text-muted-foreground">
-              +19% from last month
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle class="text-sm font-medium">
-              Inactive Drivers
-            </CardTitle>
-            <Icon name="ph:user-circle-minus" class="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div class="text-2xl font-bold">{{ driverStats[2].value }}</div>
-            <p class="text-xs text-muted-foreground">
-              +201 since last hour
+              {{ stat.change }}
             </p>
           </CardContent>
         </Card>
@@ -74,25 +52,21 @@
             <CardTitle>Weekly Orders Overview</CardTitle>
           </CardHeader>
           <CardContent class="pl-2">
-            <TrendChart
-              title="Weekly Orders Trend"
-              icon="ph:chart-line"
-              :current-week-data="weeklyOrderStats.currentWeek"
-              :last-week-data="weeklyOrderStats.lastWeek"
-              :colors="['#3b82f6', '#93c5fd']"
-              :y-formatter="(value) => value.toString()"
-            />
+            <TrendChart title="Weekly Orders Trend" icon="ph:chart-line"
+              :current-week-data="dashboardData.weeklyOrderStats.currentWeek"
+              :last-week-data="dashboardData.weeklyOrderStats.lastWeek" :colors="['#3b82f6', '#93c5fd']"
+              :y-formatter="(value: number) => value.toString()" />
           </CardContent>
         </Card>
         <Card class="col-span-3">
           <CardHeader>
             <CardTitle>Recent Orders</CardTitle>
             <CardDescription>
-              You made 265 orders this month.
+              You made {{ dashboardData.recentOrders.length }} orders this month.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <RecentOrders :orders="recentOrders" />
+            <RecentOrders :orders="dashboardData.recentOrders" />
           </CardContent>
         </Card>
       </div>
@@ -102,14 +76,10 @@
             <CardTitle>Weekly Deductions Overview</CardTitle>
           </CardHeader>
           <CardContent class="pl-2">
-            <TrendChart
-              title="Weekly Deductions Trend"
-              icon="ph:currency-dollar"
-              :current-week-data="deductionStats.currentWeek"
-              :last-week-data="deductionStats.lastWeek"
-              :colors="['#ef4444', '#fca5a5']"
-              :y-formatter="(value) => '$' + value.toString()"
-            />
+            <TrendChart title="Weekly Deductions Trend" icon="ph:currency-dollar"
+              :current-week-data="dashboardData.deductionStats.currentWeek"
+              :last-week-data="dashboardData.deductionStats.lastWeek" :colors="['#ef4444', '#fca5a5']"
+              :y-formatter="(value: number) => '$' + value.toString()" />
           </CardContent>
         </Card>
         <Card class="col-span-3">
@@ -117,7 +87,7 @@
             <CardTitle>Team Information</CardTitle>
           </CardHeader>
           <CardContent>
-            <TeamInfo :team-info="teamInfo" />
+            <TeamInfo :team-info="dashboardData.teamInfo" />
           </CardContent>
         </Card>
       </div>
@@ -126,7 +96,7 @@
           <CardTitle>Driver Performance</CardTitle>
         </CardHeader>
         <CardContent>
-          <DriverPerformanceTable :drivers="drivers" />
+          <DriverPerformanceTable :drivers="dashboardData.drivers" />
         </CardContent>
       </Card>
     </div>
@@ -134,24 +104,64 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import TeamInfo from '@/components/dashboard/TeamInfo.vue'
-import TrendChart from '@/components/dashboard/TrendChart.vue'
-import DriverPerformanceTable from '@/components/dashboard/DriverPerformanceTable.vue'
-import RecentOrders from '@/components/dashboard/RecentOrders.vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useUpstash } from '~/composables/useUpstash'
 
-// ... (保留现有的 ref 定义)
+interface DashboardData {
+  totalRevenue: string;
+  revenueChange: string;
+  driverStats: Array<{
+    title: string;
+    icon: string;
+    value: number;
+    change: string;
+  }>;
+  weeklyOrderStats: {
+    currentWeek: number[];
+    lastWeek: number[];
+  };
+  recentOrders: Array<{
+    id: number;
+    driver: string;
+    amount: number;
+    status: string;
+  }>;
+  deductionStats: {
+    currentWeek: number[];
+    lastWeek: number[];
+  };
+  teamInfo: {
+    name: string;
+    location: string;
+    status: string;
+    warehouse: string;
+    contact: string;
+    phone: string;
+  };
+  drivers: Array<any>; // You might want to define a more specific type for drivers
+}
 
-const recentOrders = ref([
-  { id: 1, driver: 'Li Si', amount: 125, status: 'completed' },
-  { id: 2, driver: 'Wang Wu', amount: 80, status: 'processing' },
-  { id: 3, driver: 'Zhao Liu', amount: 150, status: 'completed' },
-  { id: 4, driver: 'Qian Qi', amount: 110, status: 'failed' },
-  { id: 5, driver: 'Sun Ba', amount: 95, status: 'completed' },
-])
+const { data, error, loading, getGlobalStats, startRealTimeRefresh, stopRealTimeRefresh } = useUpstash()
+
+const dashboardData = ref<DashboardData | null>(null)
 
 const refreshData = () => {
-  // 实现刷新数据的逻辑
-  console.log('Refreshing data...')
+  getGlobalStats()
 }
+
+onMounted(() => {
+  getGlobalStats()
+  startRealTimeRefresh('global:stats', 'hash', 60000) // Refresh every minute
+})
+
+onUnmounted(() => {
+  stopRealTimeRefresh()
+})
+
+// Watch for changes in the data from useUpstash
+watch(data, (newData: DashboardData | null) => {
+  if (newData) {
+    dashboardData.value = newData
+  }
+})
 </script>
