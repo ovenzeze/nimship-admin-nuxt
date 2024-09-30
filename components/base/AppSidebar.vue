@@ -1,41 +1,50 @@
 <script setup lang="ts">
+import { ref, computed, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
+import { useColorMode } from '#imports'
+import { useLogin } from '~/composables/useLogin'
+import { Button } from '~/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
 
 const route = useRoute();
+const { isAuthenticated, getUserDisplayInfo, logout } = useLogin()
+const colorMode = useColorMode()
+
+interface NavItem {
+  name: string;
+  icon: string;
+  href: string;
+  requiresAuth: boolean;
+  children?: Array<{
+    name: string;
+    href: string;
+  }>;
+}
 
 const props = defineProps<{
-  navItems: Array<{
-    name: string;
-    icon: string;
-    href: string;
-    requiresAuth: boolean;
-    children?: Array<{
-      name: string;
-      href: string;
-    }>;
-  }>;
-  user: {
-    name: string;
-    avatar: string;
-  } | null;
-  isAuthenticated: boolean;
+  navItems: NavItem[];
 }>();
 
 const emit = defineEmits(['logout', 'login']);
 
 const isSidebarOpen = ref(false);
-const colorMode = useColorMode();
 
 const toggleSidebar = async () => {
   isSidebarOpen.value = !isSidebarOpen.value;
   await nextTick();
-  // 如果这里有其他逻辑，确保不会立即将 isSidebarOpen 设置回 false
 };
 
 const toggleTheme = () => {
   colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark';
 };
 
-const languages = [
+interface Language {
+  code: string;
+  name: string;
+}
+
+const languages: Language[] = [
   { code: 'en', name: 'English' },
   { code: 'es', name: 'Español' },
   { code: 'fr', name: 'Français' },
@@ -43,13 +52,21 @@ const languages = [
 
 const currentLanguage = ref(languages[0]);
 
-const changeLanguage = (lang) => {
+const changeLanguage = (lang: Language) => {
   currentLanguage.value = lang;
   // Implement language change logic here
 };
 
 const filteredNavItems = computed(() => {
-  return props.navItems.filter(item => !item.requiresAuth || props.isAuthenticated).map(item => ({
+  return [
+    ...props.navItems,
+    {
+      name: 'Agent',
+      icon: 'ph:cat',
+      href: '/agent',
+      requiresAuth: false,
+    }
+  ].filter(item => !item.requiresAuth || isAuthenticated.value).map(item => ({
     ...item,
     active: isActiveRoute(item.href)
   }));
@@ -60,9 +77,9 @@ function isActiveRoute(href: string): boolean {
 }
 
 const isMenuOpen = ref(false);
-const activeMenuItem = ref(null);
+const activeMenuItem = ref<NavItem | null>(null);
 
-const toggleMenu = (item) => {
+const toggleMenu = (item: NavItem) => {
   if (activeMenuItem.value === item) {
     activeMenuItem.value = null;
   } else {
@@ -70,6 +87,17 @@ const toggleMenu = (item) => {
   }
   isMenuOpen.value = !!activeMenuItem.value;
 };
+
+const handleLogout = async () => {
+  await logout();
+  emit('logout');
+};
+
+const handleLogin = () => {
+  emit('login');
+};
+
+const userDisplayInfo = computed(() => getUserDisplayInfo.value);
 </script>
 
 <template>
@@ -82,23 +110,23 @@ const toggleMenu = (item) => {
             <Icon name="ph:list" class="h-5 w-6" />
           </Button>
           <a href="/" class="flex items-center justify-centergap-2">
-            <img src="/images/deth_logo_transparent.png" alt="DETH" class=" w-10 h-10" />
-            <!-- <span class="font-semibold text-lg">DETH</span> -->
+            <img src="/images/deth_logo_transparent.png" alt="DETH" class="w-10 h-10" />
           </a>
-          <div v-if="isAuthenticated && user">
+          <div v-if="isAuthenticated">
             <DropdownMenu>
               <DropdownMenuTrigger class="flex items-center">
-                <img :src="user.avatar" :alt="user.name" class="h-8 w-8 rounded-full" />
+                <Icon name="ph:user-circle" class="h-8 w-8 text-foreground" />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>{{ user.name }}</DropdownMenuLabel>
+                <DropdownMenuLabel>{{ userDisplayInfo.name }}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem @click="emit('logout')">Logout</DropdownMenuItem>
+                <DropdownMenuItem @click="handleLogout">Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <NuxtLink to="/login" v-else variant="ghost" size="sm" class="flex items-center content-center mr-2">
-            <Icon name="ph:signature" class="h-4 w-4 mr-1 text-foreground" />Login
+          <NuxtLink to="/login" v-else @click="handleLogin" variant="ghost" size="sm"
+            class="flex items-center content-center mr-2">
+            <Icon name="ph:user-circle" class="h-8 w-8 text-muted-foreground" />
           </NuxtLink>
         </div>
       </header>
@@ -108,11 +136,10 @@ const toggleMenu = (item) => {
         <nav class="flex flex-col items-center gap-4 py-5">
           <a href="/"
             class="group flex h-9 w-9 shrink-0 items-center justify-center rounded-full filter drop-shadow-lg dark:brightness-200 dark:invert">
-            <!-- <Icon name="ph:package-duotone" class="h-4 w-4 transition-all group-hover:scale-105" /> -->
             <img src="/images/deth_logo_transparent.png" alt="DETH" class="w-full " />
             <span class="sr-only">DETH</span>
           </a>
-          <div v-for="item in filteredNavItems" :key="item.name" class="relative group w-full  z-50">
+          <div v-for="item in filteredNavItems" :key="item.name" class="relative group w-full z-50">
             <div class="flex items-center">
               <a :href="item.href" :class="[
                 'flex h-9 w-full items-center justify-center transition-colors hover:text-foreground hover:bg-background hover:border-y hover:border-l',
@@ -165,20 +192,21 @@ const toggleMenu = (item) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <div v-if="isAuthenticated && user">
+          <div v-if="isAuthenticated">
             <DropdownMenu>
               <DropdownMenuTrigger class="flex h-9 w-9 items-center justify-center rounded-lg overflow-hidden">
-                <img :src="user.avatar" :alt="user.name" class="h-full w-full object-cover" />
+                <Icon name="ph:user-circle-fill" class="h-9 w-9 text-foreground" />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>{{ user.name }}</DropdownMenuLabel>
+                <DropdownMenuLabel>{{ userDisplayInfo.name }}</DropdownMenuLabel>
+                <DropdownMenuItem>ID: {{ userDisplayInfo.id }}</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem @click="emit('logout')">Logout</DropdownMenuItem>
+                <DropdownMenuItem @click="handleLogout">Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <Button v-else @click="emit('login')" variant="ghost" size="sm" class="h-9 w-9 p-0">
-            <Icon name="ph:sign-in" class="h-5 w-5" />
+          <Button v-else @click="handleLogin" variant="ghost" size="sm" class="h-9 w-9 p-0">
+            <Icon name="ph:user-circle" class="h-9 w-9 text-muted-foreground" />
           </Button>
         </div>
       </aside>
@@ -216,11 +244,15 @@ const toggleMenu = (item) => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <div v-if="isAuthenticated && user" class="flex items-center gap-2 p-2">
-              <img :src="user.avatar" :alt="user.name" class="h-8 w-8 rounded-full" />
-              <span>{{ user.name }}</span>
+            <div v-if="isAuthenticated" class="flex items-center gap-2 p-2">
+              <Icon name="ph:user-circle-fill" class="h-8 w-8 text-foreground" />
+              <span>{{ userDisplayInfo.name }}</span>
+              <Button @click="handleLogout" variant="ghost" size="sm" class="ml-auto">
+                Logout
+              </Button>
             </div>
-            <Button v-else @click="emit('login')" class="w-full">
+            <Button v-else @click="handleLogin" class="w-full">
+              <Icon name="ph:user-circle" class="h-8 w-8 mr-2 text-muted-foreground" />
               Login
             </Button>
           </div>

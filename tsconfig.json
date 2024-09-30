@@ -8,15 +8,31 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "lib": ["ESNext", "DOM"],
-    "types": ["@nuxt/types", "@nuxtjs/i18n", "@pinia/nuxt", "@nuxt/schema"]
+    "types": [
+      "@nuxt/types",
+      "@nuxtjs/i18n",
+      "@pinia/nuxt",
+      "@nuxt/schema",
+      "@vue/runtime-core"
+    ],
+    "paths": {
+      "~/*": ["./*"],
+      "@/*": ["./*"],
+      "#app": ["./.nuxt/types/app.d.ts"],
+      "#imports": ["./.nuxt/imports.d.ts"],
+      "vue": ["./node_modules/vue"]
+    },
+    "skipLibCheck": true
   },
   "extends": "./.nuxt/tsconfig.json",
   "include": [
     "./**/*.ts",
     "./**/*.d.ts",
     "./**/*.tsx",
-    "./**/*.vue"
+    "./**/*.vue",
+    "types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules"

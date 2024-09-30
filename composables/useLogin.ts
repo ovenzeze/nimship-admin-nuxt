@@ -1,11 +1,19 @@
 // useLogin.ts
 
+import { ref, computed } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import { useToast } from '~/components/ui/toast'
 import { useRoute, useRouter, useRuntimeConfig, useCookie } from '#app'
-import { useSupabaseUser, useSupabaseClient } from '#imports'
+import { useSupabaseClient } from '#imports'
+import type { User } from '@supabase/supabase-js'
+
+interface LoginFormValues {
+    email: string;
+    password?: string;
+    agreedToTerms: boolean;
+}
 
 export const useLogin = () => {
     const { toast } = useToast()
@@ -23,12 +31,38 @@ export const useLogin = () => {
     const route = useRoute()
     const router = useRouter()
 
-    const user = useSupabaseUser()
+    const user = ref<User | null>(null)
     const client = useSupabaseClient()
+
+    const getAuthenticatedUser = async () => {
+        try {
+            const { data: { user }, error } = await client.auth.getUser()
+            if (error) throw error
+            return user
+        } catch (error) {
+            console.error('Error getting authenticated user:', error)
+            return null
+        }
+    }
+
+    const refreshUser = async () => {
+        user.value = await getAuthenticatedUser()
+    }
 
     const userInfo = computed(() => {
         if (!user.value) return 'Not logged in'
         return `ID: ${user.value.id}\nEmail: ${user.value.email}`
+    })
+
+    const isAuthenticated = computed(() => !!user.value)
+
+    const getUserDisplayInfo = computed(() => {
+        if (!user.value) return null
+        return {
+            name: user.value.user_metadata?.full_name || user.value.email?.split('@')[0] || 'User',
+            id: user.value.id,
+            avatar: user.value.user_metadata?.avatar_url || `https://api.dicebear.com/6.x/initials/svg?seed=${user.value.email}`
+        }
     })
 
     const loginMethods = [
@@ -55,25 +89,20 @@ export const useLogin = () => {
     ]
 
     const formSchema = computed(() => {
-        const baseSchema = {
+        return toTypedSchema(z.object({
             email: z.string().email('Please enter a valid email address'),
+            password: loginMethod.value === 'password'
+                ? z.string().min(6, 'Password must be at least 6 characters long')
+                : z.string().optional(),
             agreedToTerms: z.boolean().refine(val => val === true, 'Please agree to the Terms of Service and Privacy Policy'),
-        }
-
-        if (loginMethod.value === 'password') {
-            return toTypedSchema(z.object({
-                ...baseSchema,
-                password: z.string().min(6, 'Password must be at least 6 characters long'),
-            }))
-        }
-
-        return toTypedSchema(z.object(baseSchema))
+        }))
     })
 
-    const { values, errors, validate, resetForm, meta } = useForm({
+    const { values, errors, validate, resetForm, meta } = useForm<LoginFormValues>({
         validationSchema: formSchema,
         initialValues: {
             email: '',
+            password: '',
             agreedToTerms: false,
         },
     })
@@ -82,7 +111,6 @@ export const useLogin = () => {
         console.log('login onSubmit', values)
         const result = await validate()
         console.log('validate result', result)
-        toast({ title: 'Validation Result', description: 'Validation result: ' + JSON.stringify(result), variant: 'destructive' })
         if (!result.valid) {
             // Display all validation errors
             Object.entries(result.errors).forEach(([field, error]) => {
@@ -91,7 +119,7 @@ export const useLogin = () => {
             return
         }
 
-        email.value = values.email || ''
+        email.value = values.email
         password.value = values.password || ''
         agreedToTerms.value = values.agreedToTerms
         await signIn()
@@ -116,28 +144,41 @@ export const useLogin = () => {
 
     async function signInWithGoogle() {
         isLoading.value = true
-        const { error } = await client.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`
-            }
-        })
-        handleSignInResult(error)
+        try {
+            const { error } = await client.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: `${window.location.origin}/auth/callback`
+                }
+            })
+            handleSignInResult(error)
+        } catch (error) {
+            console.error('An error occurred during Google sign in:', error);
+            handleSignInResult(error)
+        } finally {
+            isLoading.value = false
+        }
     }
 
     async function signInWithGithub() {
         isLoading.value = true
-        const { error } = await client.auth.signInWithOAuth({
-            provider: 'github',
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`
-            }
-        })
-        handleSignInResult(error)
+        try {
+            const { error } = await client.auth.signInWithOAuth({
+                provider: 'github',
+                options: {
+                    redirectTo: `${window.location.origin}/auth/callback`
+                }
+            })
+            handleSignInResult(error)
+        } catch (error) {
+            console.error('An error occurred during GitHub sign in:', error);
+            handleSignInResult(error)
+        } finally {
+            isLoading.value = false
+        }
     }
 
     function handleSignInResult(error: any, isMagicLink = false) {
-        isLoading.value = false
         if (error) {
             console.error('Sign in error details:', error);
             toast({ title: 'Error', description: error.message || 'An error occurred during sign in. Please try again.', variant: 'destructive' })
@@ -152,6 +193,7 @@ export const useLogin = () => {
         } else {
             toast({ title: 'Success', description: 'You have successfully signed in.' })
             currentState.value = 'success'
+            refreshUser()
             router.push('/')
         }
     }
@@ -197,11 +239,18 @@ export const useLogin = () => {
             return
         }
         isLoading.value = true
-        const { error } = await client.auth.signInWithPassword({
-            email: email.value,
-            password: password.value,
-        })
-        handleSignInResult(error)
+        try {
+            const { error } = await client.auth.signInWithPassword({
+                email: email.value,
+                password: password.value,
+            })
+            handleSignInResult(error)
+        } catch (error) {
+            console.error('An error occurred during password sign in:', error);
+            handleSignInResult(error)
+        } finally {
+            isLoading.value = false
+        }
     }
 
     const startCountdown = () => {
@@ -227,6 +276,21 @@ export const useLogin = () => {
         return !!meta.value.touched[field as keyof typeof meta.value.touched]
     }
 
+    const logout = async () => {
+        try {
+            await client.auth.signOut()
+            user.value = null
+            toast({ title: 'Success', description: 'You have been logged out.' })
+            router.push('/login')
+        } catch (error) {
+            console.error('Error during logout:', error)
+            toast({ title: 'Error', description: 'An error occurred during logout. Please try again.', variant: 'destructive' })
+        }
+    }
+
+    // Initialize user on composable creation
+    refreshUser()
+
     return {
         email,
         password,
@@ -249,5 +313,10 @@ export const useLogin = () => {
         validateField,
         isFieldTouched,
         magicLinkSentMessage,
+        isAuthenticated,
+        getAuthenticatedUser,
+        refreshUser,
+        getUserDisplayInfo,
+        logout,
     }
 }

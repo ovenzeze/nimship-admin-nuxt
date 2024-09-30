@@ -1,95 +1,167 @@
 <template>
-  <div class="w-full">
-    <!-- 概览卡片 -->
-    <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 mb-10">
-      <Card v-for="card in overviewCards" :key="card.title">
-        <CardHeader v-if="card.title" class="pb-3">
-          <CardTitle>{{ card.title }}</CardTitle>
-          <CardDescription v-if="card.description" class="max-w-lg text-balance leading-relaxed">
-            {{ card.description }}
-          </CardDescription>
+  <div class="flex-col md:flex">
+    <div class="border-b">
+      <div class="flex h-16 items-center px-4">
+        <h2 class="text-lg font-semibold">Dashboard</h2>
+        <Button variant="outline" class="ml-auto h-8 lg:flex" @click="refreshData">
+          <Icon name="ph:arrows-clockwise" class="mr-2 h-4 w-4" />
+          Refresh Data
+        </Button>
+      </div>
+    </div>
+    <div v-if="loading" class="flex items-center justify-center h-full">
+      <p>Loading dashboard data...</p>
+    </div>
+    <div v-else-if="error" class="flex items-center justify-center h-full">
+      <p>Error loading dashboard data: {{ error }}</p>
+    </div>
+    <div v-else-if="dashboardData" class="flex-1 space-y-4 p-8 pt-6">
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle class="text-sm font-medium">
+              Total Revenue
+            </CardTitle>
+            <Icon name="ph:currency-dollar" class="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div class="text-2xl font-bold">{{ dashboardData.totalRevenue }}</div>
+            <p class="text-xs text-muted-foreground">
+              {{ dashboardData.revenueChange }} from last month
+            </p>
+          </CardContent>
+        </Card>
+        <Card v-for="(stat, index) in dashboardData.driverStats" :key="index">
+          <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle class="text-sm font-medium">
+              {{ stat.title }}
+            </CardTitle>
+            <Icon :name="stat.icon" class="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div class="text-2xl font-bold">{{ stat.value }}</div>
+            <p class="text-xs text-muted-foreground">
+              {{ stat.change }}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card class="col-span-4">
+          <CardHeader>
+            <CardTitle>Weekly Orders Overview</CardTitle>
+          </CardHeader>
+          <CardContent class="pl-2">
+            <TrendChart title="Weekly Orders Trend" icon="ph:chart-line"
+              :current-week-data="dashboardData.weeklyOrderStats.currentWeek"
+              :last-week-data="dashboardData.weeklyOrderStats.lastWeek" :colors="['#3b82f6', '#93c5fd']"
+              :y-formatter="(value: number) => value.toString()" />
+          </CardContent>
+        </Card>
+        <Card class="col-span-3">
+          <CardHeader>
+            <CardTitle>Recent Orders</CardTitle>
+            <CardDescription>
+              You made {{ dashboardData.recentOrders.length }} orders this month.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RecentOrders :orders="dashboardData.recentOrders" />
+          </CardContent>
+        </Card>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card class="col-span-4">
+          <CardHeader>
+            <CardTitle>Weekly Deductions Overview</CardTitle>
+          </CardHeader>
+          <CardContent class="pl-2">
+            <TrendChart title="Weekly Deductions Trend" icon="ph:currency-dollar"
+              :current-week-data="dashboardData.deductionStats.currentWeek"
+              :last-week-data="dashboardData.deductionStats.lastWeek" :colors="['#ef4444', '#fca5a5']"
+              :y-formatter="(value: number) => '$' + value.toString()" />
+          </CardContent>
+        </Card>
+        <Card class="col-span-3">
+          <CardHeader>
+            <CardTitle>Team Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TeamInfo :team-info="dashboardData.teamInfo" />
+          </CardContent>
+        </Card>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Driver Performance</CardTitle>
         </CardHeader>
-        <CardContent v-if="card.value">
-          <div class="text-4xl font-bold">{{ card.value }}</div>
-          <div v-if="card.change" class="text-xs text-muted-foreground">
-            {{ card.change }} {{ card.period }}
-          </div>
+        <CardContent>
+          <DriverPerformanceTable :drivers="dashboardData.drivers" />
         </CardContent>
-        <CardFooter v-if="card.buttonText || card.progressValue !== undefined">
-          <Button v-if="card.buttonText" @click="card.onClick">{{ card.buttonText }}</Button>
-          <Progress v-if="card.progressValue !== undefined" :model-value="card.progressValue" :aria-label="`${card.progressValue}% ${card.changeType}`" />
-        </CardFooter>
       </Card>
     </div>
-
-    <!-- 订单表格 -->
-    <Card>
-      <CardHeader>
-        <CardTitle>Recent Orders</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Customer</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead class="text-right">Amount</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow v-for="order in orders" :key="order.email">
-              <TableCell>{{ order.customer }}</TableCell>
-              <TableCell>{{ order.type }}</TableCell>
-              <TableCell>
-                <Badge :variant="order.status === 'Fulfilled' ? 'secondary' : 'outline'">
-                  {{ order.status }}
-                </Badge>
-              </TableCell>
-              <TableCell>{{ order.date }}</TableCell>
-              <TableCell class="text-right">${{ order.amount.toFixed(2) }}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useUpstash } from '~/composables/useUpstash'
 
-// 概览卡片数据
-const overviewCards = ref([
-  {
-    title: 'Your Orders',
-    description: 'Introducing Our Dynamic Orders Dashboard for Seamless Management and Insightful Analysis.',
-    buttonText: 'Create New Order',
-    onClick: () => console.log('Create New Order clicked')
-  },
-  {
-    title: 'This Week',
-    value: '$1,329',
-    change: '+25%',
-    changeType: 'increase',
-    period: 'from last week',
-    progressValue: 25
-  },
-  {
-    title: 'This Month',
-    value: '$5,329',
-    change: '+10%',
-    changeType: 'increase',
-    period: 'from last month',
-    progressValue: 12
+interface DashboardData {
+  totalRevenue: string;
+  revenueChange: string;
+  driverStats: Array<{
+    title: string;
+    icon: string;
+    value: number;
+    change: string;
+  }>;
+  weeklyOrderStats: {
+    currentWeek: number[];
+    lastWeek: number[];
+  };
+  recentOrders: Array<{
+    id: number;
+    driver: string;
+    amount: number;
+    status: string;
+  }>;
+  deductionStats: {
+    currentWeek: number[];
+    lastWeek: number[];
+  };
+  teamInfo: {
+    name: string;
+    location: string;
+    status: string;
+    warehouse: string;
+    contact: string;
+    phone: string;
+  };
+  drivers: Array<any>; // You might want to define a more specific type for drivers
+}
+
+const { data, error, loading, getGlobalStats, startRealTimeRefresh, stopRealTimeRefresh } = useUpstash()
+
+const dashboardData = ref<DashboardData | null>(null)
+
+const refreshData = () => {
+  getGlobalStats()
+}
+
+onMounted(() => {
+  getGlobalStats()
+  startRealTimeRefresh('global:stats', 'hash', 60000) // Refresh every minute
+})
+
+onUnmounted(() => {
+  stopRealTimeRefresh()
+})
+
+// Watch for changes in the data from useUpstash
+watch(data, (newData: DashboardData | null) => {
+  if (newData) {
+    dashboardData.value = newData
   }
-])
-
-// 订单数据
-const orders = ref([
-  { customer: 'Liam Johnson', email: 'liam@example.com', type: 'Sale', status: 'Fulfilled', date: '2023-06-23', amount: 250.00 },
-  { customer: 'Olivia Smith', email: 'olivia@example.com', type: 'Refund', status: 'Declined', date: '2023-06-24', amount: 150.00 },
-  { customer: 'Noah Williams', email: 'noah@example.com', type: 'Sale', status: 'Fulfilled', date: '2023-06-25', amount: 350.00 },
-  { customer: 'Emma Brown', email: 'emma@example.com', type: 'Sale', status: 'Fulfilled', date: '2023-06-26', amount: 450.00 },
-])
+})
 </script>

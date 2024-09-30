@@ -37,7 +37,8 @@ const isActive = (path: string) => props.currentPath === path
 
 const formatTitle = (title: string): string => {
   title = title.replace(/\.[^/.]+$/, "")
-  title = title.replace(/_/g, ' ')
+  title = title.replace(/_|-/g, ' ')
+  title = title.replace(/documentation|docs|document/gi, '')
   return title.split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
