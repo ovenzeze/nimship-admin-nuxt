@@ -6,7 +6,6 @@ import type { FetchPayRecord } from "~/types/payment"
 
 dayjs.extend(utc)
 
-
 type PaymentStatusItem = { [key in PaymentStatus]: PaymentStatusInfo }
 /**
  * Map of payment status to their corresponding information
@@ -22,26 +21,26 @@ const paymentStatusMap: PaymentStatusItem = {
   [PaymentStatus.OTHERS]: { name: 'OTHERS', status: 'PAID', color: 'purple' },
 };
 
-
-const getPayRcord = (driver: FetchPayRecord): PayRecord => {
+const getPayRcord = (driver: FetchPayRecord): FetchPayRecord => {
   const cycleStart = dayjs.utc(driver.cycle_start).format('MM/DD/YYYY')
   const cycleEnd = dayjs.utc(driver.cycle_start).add(6, 'day').format('MM/DD/YYYY')
+  const name = String(driver.contact?.first_name).toUpperCase() + ' ' + String(driver.contact?.last_name).toUpperCase()
 
   return {
     ...driver,
-    name: String(driver.contact?.first_name).toUpperCase() + ' ' + String(driver.contact?.last_name).toUpperCase(),
+    name,
+    full_name: name,
+    formattedGrossPay: driver.formattedGrossPay || '',
+    formattedNetPay: driver.formattedNetPay || '',
+    formattedDeductionAmount: driver.formattedDeductionAmount || '',
+    formattedCycleStart: driver.formattedCycleStart || cycleStart,
+    formattedPaymentDate: driver.payment_time ? dayjs(driver.payment_time).format('MM/DD/YYYY HH:mm:ss') : undefined,
+    formattedActualAmountPaid: driver.formattedActualAmountPaid || '',
+    status: paymentStatusMap[driver.payment_method as PaymentStatus]?.status || 'PENDING',
     cycle_start: cycleStart,
     cycle_end: cycleEnd,
     team_name: driver.team_name as TeamName,
     warehouse: driver.warehouse as Warehouse,
-    driver_id: Number(driver.custom_uid),
-    account: driver.contact?.account_number || '',
-    routing: driver.contact?.routing_number || '',
-    routing_ending: driver.contact?.routing_number?.slice(-4) || '',
-    account_ending: driver.contact?.account_number?.slice(-4) || '',
-    payment_time: dayjs(driver.payment_time).format('MM/DD/YYYY HH:mm:ss'),
-    payment_method: driver.payment_method as PaymentStatus,
-    payment_status: paymentStatusMap[driver.payment_method as PaymentStatus] || paymentStatusMap[PaymentStatus.OTHERS],
   }
 }
 

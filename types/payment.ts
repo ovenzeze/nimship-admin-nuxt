@@ -1,6 +1,7 @@
 import type { TeamName, Warehouse as BaseWarehouse, PayRecord, PaymentRecord } from "."
+import type { Database } from './database'
 
-export type Warehouse = BaseWarehouse | 'ALL'
+export type Warehouse = BaseWarehouse | 'ALL' | ''
 
 export type FetchPaymentRecordsOptions = {
     warehouse?: Warehouse
@@ -10,30 +11,26 @@ export type FetchPaymentRecordsOptions = {
     page?: number
 }
 
-export type FetchPayRecord = PaymentRecord & {
-
+export type FetchPayRecord = Omit<PaymentRecord, 'haulblaze_contact'> & {
     contact?: {
         first_name: string,
         last_name: string,
-        email: string,
-        phone: string,
-        driver_license_no: string,
+        email: string | null,
+        phone: string | null,
+        driver_license_no: string | null,
         routing_number?: string,
         account_number?: string,
     },
-    deductions?: {
-        amount: number,
-        reason: string,
-        status: string,
-    }[],
-    full_name: string
-    formattedGrossPay: string
-    formattedNetPay: string
-    formattedDeductionAmount: string
-    formattedCycleStart: string
-    formattedPaymentDate?: string
-    formattedActualAmountPaid?: string
-    status: string
+    name: string,
+    full_name: string,
+    formattedGrossPay: string,
+    formattedNetPay: string,
+    formattedDeductionAmount: string,
+    formattedCycleStart: string,
+    formattedPaymentDate?: string,
+    formattedActualAmountPaid?: string,
+    status: string,
+    haulblaze_contact?: Database['public']['Tables']['haulblaze_contact']['Row'] | null
 }
 
 export type PaymentStatusItem = 'ALL' | 'PENDING' | 'HOLD' | 'PAID'

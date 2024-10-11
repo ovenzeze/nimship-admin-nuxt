@@ -8,19 +8,12 @@ export type DeliveryRecordView = Database['public']['Views']['delivery_records_v
 export type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
 export type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
 
-
 // Enum types
 export type DriverType = Database['public']['Enums']['driver_type_enum']
-
 export type Status = Database['public']['Enums']['status_enum']
-
-export type Warehouse = Database['public']['Enums']['warehouse_enum']
-
+export type Warehouse = Database['public']['Enums']['warehouse_enum'] | 'ALL' | ''
 export type TeamName = Database['public']['Enums']['team_name_enum']
-
 export type CustomId = Database['public']['Enums']['custom_id_enum']
-
-
 
 export type Contact = Database['public']['Tables']['haulblaze_contact']['Row'] & {
     employment_status?: string;
@@ -28,31 +21,11 @@ export type Contact = Database['public']['Tables']['haulblaze_contact']['Row'] &
     qualification: Qualification
 }
 
-export type PayRecord = FetchPayRecord & {
-    name: string
-    uid: string | null
-    driver_id: number
-    gross_pay: number
-    net_pay: number
-    deduction_amount: number
-    cycle_start: string
-    warehouse: Warehouse
-    team_name: TeamName
-    payment_method?: number
-    payment_date?: string
-    actual_amount_paid?: number
-    payment_status: PaymentStatusInfo
-    routing: string
-    account: string
-    routing_ending: string
-    account_ending: string
-}
+export type PayRecord = FetchPayRecord
 
 // Enum generator from database types
-export const ConatctFields = createEnumFromType<Contact>();
-
+export const HaulblazeContactFields = createEnumFromType<Contact>();
 export const PayRecordFields = createEnumFromType<PayRecord>();
-
 
 export enum EnumType {
     'CYCLE' = 'CYCLE',
@@ -156,15 +129,9 @@ export type PaginationState = {
     pageSize: number
 }
 
-// export type Qualification = {
-//     dl: boolean
-//     tax: boolean
-//     vehicle: boolean
-// }
-
 export type PaymentStatusInfo = {
     name: string
-    status: string
+    status: 'PENDING' | 'PAID' | 'HOLD' | 'VOID'
     color: string
 }
 

@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, h } from 'vue'
 import { useToast } from '@/components/ui/toast'
 import type { DriverFilters, HaulblazeContact, DriverColumn, Contact, QualificationIcon, Qualification } from '~/types'
 import { getContact } from '~/utils/driver'
@@ -88,32 +88,37 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { useDriver } from '~/composables/useDriver'
+import QualificationCell from '~/components/driver/QualificationCell.vue'
 
 const { drivers, fetchDrivers, updateDriver, createDriver, totalCount } = useDriver()
 const { toast } = useToast()
 const loading = ref(false)
 
+const qualificationIcons: QualificationIcon[] = [
+  { name: 'insurance', icon: 'i-mdi-car-insurance', tooltip: 'Insurance' },
+  { name: 'license', icon: 'i-mdi-card-account-details-outline', tooltip: 'License' },
+  { name: 'vehicle', icon: 'i-mdi-car', tooltip: 'Vehicle' },
+]
+
 const columns: DriverColumn[] = [
-  { id: 'name', header: 'Name' },
-  { id: 'driver_id', header: 'Driver ID' },
-  { id: 'warehouse', header: 'Warehouse' },
-  { id: 'phone', header: 'Phone' },
-  { id: 'enroll_time', header: 'Enroll Time' },
+  { id: 'name', header: 'Name', cell: (props) => h('span', props.row.name) },
+  { id: 'uid', header: 'Driver ID', cell: (props) => h('span', props.row.uid) },
+  { id: 'warehouse', header: 'Warehouse', cell: (props) => h('span', props.row.warehouse) },
+  { id: 'phone', header: 'Phone', cell: (props) => h('span', props.row.phone) },
+  { id: 'enroll_time', header: 'Enroll Time', cell: (props) => h('span', formatDate(props.row.enroll_time)) },
   {
     id: 'qualification',
     header: 'Qualification',
-    cell: (props) => h(QualificationCell, { qualification: props.row.qualification, icons: qualificationIcons as QualificationIcon[] })
+    cell: (props) => h(QualificationCell, { qualification: props.row.qualification, icons: qualificationIcons })
   },
-  { id: 'dl_expired_time', header: 'DL Expiry' },
-  { id: 'status', header: 'Status' },
-  { id: 'team_name', header: 'Team' },
-  { id: 'email', header: 'Email' },
-  // { id: 'available', header: 'Available' },
-  // { id: 'rating', header: 'Rating' },
-  // { id: 'completed_trips', header: 'Trips' },
-  { id: 'driver_type', header: 'Type' },
-  { id: 'employment_status', header: 'Employment Status' },
+  { id: 'dl_expired_time', header: 'DL Expiry', cell: (props) => h('span', formatDate(props.row.dl_expired_time)) },
+  { id: 'status', header: 'Status', cell: (props) => h('span', props.row.status) },
+  { id: 'team_name', header: 'Team', cell: (props) => h('span', props.row.team_name) },
+  { id: 'email', header: 'Email', cell: (props) => h('span', props.row.email) },
+  { id: 'driver_type', header: 'Type', cell: (props) => h('span', props.row.driver_type) },
+  { id: 'employment_status', header: 'Employment Status', cell: (props) => h('span', props.row.employment_status) },
 ]
+
 const filters = ref<DriverFilters>({
   warehouse: null,
   team_name: '',
@@ -244,20 +249,22 @@ const closeMobileDetailsModal = () => {
   selectedDriver.value = null
 }
 
+const formatDate = (date: string | null | undefined) => {
+  return date ? new Date(date).toLocaleDateString() : 'N/A'
+}
+
 const formatCellValue = (row: Contact, columnId: keyof Contact) => {
   switch (columnId) {
     case 'enroll_time':
-      return row.enroll_time ? new Date(row.enroll_time).toLocaleDateString() : 'N/A'
     case 'dl_expired_time':
-      return row.dl_expired_time ? new Date(row.dl_expired_time).toLocaleDateString() : 'N/A'
-    // case 'available':
-    //   return row.available ? 'Yes' : 'No'
+      return formatDate(row[columnId] as string | null | undefined)
     case 'qualification':
       return row.qualification ? Object.keys(row.qualification).filter(key => row.qualification[key as keyof Qualification]).join(', ') : 'N/A'
     default:
       return row[columnId] || 'N/A'
   }
 }
+
 watch([filters, sorting, columnFilters], fetchRecords, { deep: true })
 
 onMounted(async () => {
