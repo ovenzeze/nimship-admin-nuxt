@@ -115,7 +115,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
           <div v-if="isAuthenticated">
             <DropdownMenu>
               <DropdownMenuTrigger class="flex items-center">
-                <Icon name="ph:user-circle" class="h-8 w-8 text-foreground" />
+                <!-- <Icon name="ph:user-circle" class="h-8 w-8 text-foreground" /> -->
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuLabel>{{ userDisplayInfo.name }}</DropdownMenuLabel>
@@ -126,7 +126,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
           </div>
           <NuxtLink to="/login" v-else @click="handleLogin" variant="ghost" size="sm"
             class="flex items-center content-center mr-2">
-            <Icon name="ph:user-circle" class="h-8 w-8 text-muted-foreground" />
+            <Icon name="ph:user-circle" class="h-4 w-4 text-muted-foreground" />
           </NuxtLink>
         </div>
       </header>
@@ -252,7 +252,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
               </Button>
             </div>
             <Button v-else @click="handleLogin" class="w-full">
-              <Icon name="ph:user-circle" class="h-8 w-8 mr-2 text-muted-foreground" />
+              <Icon name="ph:user-circle" class="h-4 w-4 mr-2 text-muted-foreground" />
               Login
             </Button>
           </div>

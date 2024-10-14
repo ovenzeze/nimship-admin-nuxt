@@ -14,7 +14,7 @@ interface MenuItem {
 export function useMenu() {
   const menuItems = ref<MenuItem[]>([
     { name: 'Dashboard', icon: 'ph:house', href: '/', active: true, requiresAuth: false, disabled: false },
-    { name: 'Driver', icon: 'ph:car-simple', href: '/driver', active: false, requiresAuth: false, disabled: false },
+    { name: 'Driver', icon: 'ph:car-simple', href: '/driverMangement', active: false, requiresAuth: false, disabled: false },
     { name: 'Payment', icon: 'ph:credit-card', href: '/payment', active: false, requiresAuth: false, disabled: false },
     { name: 'Delivery', icon: 'ph:package', href: '/delivery', active: false, requiresAuth: false, disabled: false },
     { name: 'Invoice', icon: 'ph:invoice-light', href: '/invoice', active: false, requiresAuth: false, disabled: false },

@@ -3,8 +3,10 @@
         <TooltipProvider v-for="item in qualificationItems" :key="item.name">
             <Tooltip>
                 <TooltipTrigger>
-                    <div
-                        :class="['flex items-center justify-center group cursor-pointer border-r border-border  py-1 px-2.5', item.isVerified ? 'opacity-85' : 'opacity-25']">
+                    <div :class="[
+                        'flex items-center justify-center group cursor-pointer border-r border-border py-1 px-2.5',
+                        item.isVerified ? 'opacity-85' : 'opacity-25'
+                    ]">
                         <Icon :name="item.icon" class="w-4 h-4"></Icon>
                     </div>
                 </TooltipTrigger>
@@ -26,11 +28,16 @@ const props = defineProps<{
     icons: QualificationIcon[]
 }>()
 
-const qualificationItems = computed(() =>
-    props.icons.map((item) => ({
+const qualificationItems = computed(() => {
+    if (!Array.isArray(props.icons)) {
+        console.warn('Expected icons prop to be an array, but received:', props.icons)
+        return []
+    }
+
+    return props.icons.map((item) => ({
         ...item,
-        isVerified: props.qualification[item.name as keyof Contact['qualification']],
+        isVerified: props.qualification[item.name as keyof Contact['qualification']] ?? false,
         tooltipText: `${item.tooltip}: ${props.qualification[item.name as keyof Contact['qualification']] ? 'Verified' : 'Not Verified'}`
     }))
-)
+})
 </script>

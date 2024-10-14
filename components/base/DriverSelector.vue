@@ -2,7 +2,7 @@
   <Popover>
     <PopoverTrigger as-child>
       <div class="relative" ref="inputWrapper">
-        <Input v-model="searchQuery" placeholder="Search by name or id" @focus="handleFocus" @input="handleInput"
+        <Input v-model="searchQuery" placeholder="Search driver by name or id" @focus="handleFocus" @input="handleInput"
           :class="['min-w-[300px] h-10']" />
         <Button v-if="selectedDriver" variant="ghost" size="icon"
           class="absolute right-2 top-1/2 transform -translate-y-1/2" @click="clearSelection">
@@ -18,7 +18,7 @@
           Unable to load drivers. Please try again later.
         </CommandEmpty>
         <template v-else>
-          <CommandEmpty v-if="searchPerformed && drivers.length === 0"
+          <CommandEmpty v-if="searchPerformed && drivers && drivers.length === 0"
             class="p-2 text-center text-sm text-muted-foreground w-full flex items-center justify-center h-[100px]">
             No drivers found.
           </CommandEmpty>
@@ -71,13 +71,15 @@ const emit = defineEmits<{
 }>()
 
 const searchQuery = ref('')
+const drivers = ref([])
 const debouncedSearchQuery = useDebounce(searchQuery, 300)
 const selectedDriver = ref<Driver | null>(null)
 const searchPerformed = ref(false)
 const inputWrapper = ref<HTMLElement | null>(null)
 const inputWidth = ref(300)
 
-const { drivers, isLoading, error, recentSearches, searchDrivers, addToRecentSearches, getFrequentlyUsedDrivers } = useDriver()
+
+const { isLoading, error, recentSearches, searchDrivers, addToRecentSearches, getFrequentlyUsedDrivers } = useDriver()
 
 const noDriversLoaded = computed(() => {
   return !isLoading.value && error.value !== null && drivers.value.length === 0 && recentSearches.value.length === 0
@@ -86,7 +88,9 @@ const noDriversLoaded = computed(() => {
 watch(debouncedSearchQuery, async (newQuery) => {
   if (newQuery) {
     searchPerformed.value = true
-    await searchDrivers(newQuery)
+    const result = await searchDrivers(newQuery)
+    drivers.value = result
+
   } else {
     searchPerformed.value = false
     await getFrequentlyUsedDrivers()

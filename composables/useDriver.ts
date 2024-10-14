@@ -1,22 +1,24 @@
-import { useSupabaseClient } from '#imports'
+// useDriver.ts
+import { ref, computed } from 'vue'
 import { type HaulblazeContact, type DriverFilters, HaulblazeContactFields } from '~/types'
 
 export const useDriver = () => {
   const supabase = useSupabaseClient()
-  const drivers: Ref<HaulblazeContact[]> = ref([])
-  const totalCount: Ref<number> = ref(0)
-  const loading: Ref<boolean> = ref(false)
-  const error: Ref<Error | null> = ref(null)
-  const recentSearches: Ref<HaulblazeContact[]> = ref([])
-  const isLoading: Ref<boolean> = ref(false)
+  const drivers = ref<HaulblazeContact[]>([])
+  const totalCount = ref(0)
+  const loading = ref(false)
+  const error = ref<Error | null>(null)
+  const recentSearches = ref<HaulblazeContact[]>([])
+  const isLoading = ref(false)
 
   const fetchDrivers = async (
-    filters: DriverFilters,
-    sorting: { id: string; desc: boolean }[],
-    columnFilters: { id: string; value: any }[],
-    pagination: { pageIndex: number; pageSize: number }
+    page: number,
+    pageSize: number,
+    sort: { column: string; direction: 'asc' | 'desc' },
+    search?: string,
+    statusFilter?: string[],
+    filters?: DriverFilters
   ) => {
-    console.log('Fetching drivers with params:', { filters, sorting, columnFilters, pagination })
     loading.value = true
     error.value = null
 
@@ -26,38 +28,32 @@ export const useDriver = () => {
         .select('*', { count: 'exact' })
 
       // Apply filters
-      if (filters.warehouse) {
-        query = query.eq('warehouse', filters.warehouse)
-      }
-      if (filters.team_name) {
-        query = query.eq('team_name', filters.team_name)
-      }
-      if (filters.driver_type) {
-        query = query.eq('driver_type', filters.driver_type)
-      }
-      if (filters.status) {
-        query = query.eq('status', filters.status)
-      }
-      if (filters.employment_status) {
-        query = query.eq('employment_status', filters.employment_status)
+      if (filters) {
+        if (filters.warehouse) query = query.eq('warehouse', filters.warehouse)
+        if (filters.team_name) query = query.eq('team_name', filters.team_name)
+        if (filters.driver_type) query = query.eq('driver_type', filters.driver_type)
+        if (filters.status) query = query.eq('status', filters.status)
+        if (filters.uid) query = query.eq('uid', filters.uid)
+        if (filters.employment_status) query = query.eq('employment_status', filters.employment_status)
       }
 
-      // Apply column filters
-      columnFilters.forEach(filter => {
-        query = query.ilike(filter.id, `%${filter.value}%`)
-      })
+      // Apply search
+      if (search) {
+        query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,driver_id.eq.${search}`)
+      }
+
+      // Apply status filter
+      if (statusFilter && statusFilter.length > 0) {
+        query = query.in('status', statusFilter)
+      }
 
       // Apply sorting
-      sorting.forEach(sort => {
-        query = query.order(sort.id, { ascending: !sort.desc })
-      })
+      query = query.order(sort.column, { ascending: sort.direction === 'asc' })
 
       // Apply pagination
-      const from = pagination.pageIndex * pagination.pageSize
-      const to = from + pagination.pageSize - 1
+      const from = (page - 1) * pageSize
+      const to = from + pageSize - 1
       query = query.range(from, to)
-
-      console.log('Executing Supabase query')
 
       const { data, error: fetchError, count } = await query
 
@@ -65,37 +61,49 @@ export const useDriver = () => {
         throw fetchError
       }
 
-      console.log('Fetched data:', data)
-      console.log('Total count:', count)
-
       drivers.value = data as HaulblazeContact[]
       totalCount.value = count || 0
+
+      return { drivers: data as HaulblazeContact[], total: count || 0 }
     } catch (err) {
       error.value = err as Error
       console.error('Error fetching drivers:', err)
+      throw err
     } finally {
       loading.value = false
     }
   }
 
-  const stripExtraProperties = (driver: HaulblazeContact): Partial<HaulblazeContact> => {
-    const {
-      uid,
-      haulblaze_id,
-      first_name,
-      last_name,
-      driver_type,
-      email,
-      phone,
-      team_name,
-      warehouse,
-      status,
-      enroll_time,
-      dl_expired_time,
-      available,
-      rating,
-      completed_trips
-    } = driver;
+  const stripExtraProperties = (driver: HaulblazeContact): HaulblazeContact => {
+    return {
+      account_number: driver.account_number,
+      commisson_rate: driver.commisson_rate,
+      date_of_birth: driver.date_of_birth,
+      dl_expired_time: driver.dl_expired_time,
+      driver_id: driver.driver_id,
+      driver_license_no: driver.driver_license_no,
+      driver_type: driver.driver_type,
+      email: driver.email,
+      enroll_time: driver.enroll_time,
+      first_name: driver.first_name,
+      has_notification: driver.has_notification,
+      haulblaze_id: driver.haulblaze_id,
+      id: driver.id,
+      last_name: driver.last_name,
+      last_update: driver.last_update,
+      mail_city: driver.mail_city,
+      mail_state: driver.mail_state,
+      mail_street: driver.mail_street,
+      mail_zip: driver.mail_zip,
+      phone: driver.phone,
+      routing_number: driver.routing_number,
+      social_security_no: driver.social_security_no,
+      status: driver.status,
+      team_name: driver.team_name,
+      uid: driver.uid,
+      warehouse: driver.warehouse,
+      zelle: driver.zelle
+    };
 
     return {
       uid,
@@ -132,8 +140,6 @@ export const useDriver = () => {
         throw updateError
       }
 
-      console.log('Updated driver:', data)
-
       // Update the local state
       const index = drivers.value.findIndex(d => d.uid === driver.uid)
       if (index !== -1) {
@@ -164,8 +170,6 @@ export const useDriver = () => {
       if (createError) {
         throw createError
       }
-
-      console.log('Created driver:', data)
 
       // Add the new driver to the local state
       drivers.value.push(data[0] as HaulblazeContact)
@@ -198,6 +202,7 @@ export const useDriver = () => {
         searchCondition = `first_name.ilike.%${query}%,last_name.ilike.%${query}%`
       }
 
+      console.log('[searchDrivers]Req:', searchCondition)
       const { data, error: searchError } = await supabase
         .from('haulblaze_contact')
         .select('*')
@@ -208,28 +213,24 @@ export const useDriver = () => {
         throw searchError
       }
 
-      drivers.value = data as HaulblazeContact[]
+      console.log('[searchDrivers]Rsp:', data)
+
+      return data as HaulblazeContact[]
     } catch (err) {
       error.value = err as Error
       console.error('Error searching drivers:', err)
+      throw err
     } finally {
       clearTimeout(loadingTimeout)
       isLoading.value = false
     }
   }
 
-
   const addToRecentSearches = (driver: HaulblazeContact) => {
-
     const index = recentSearches.value.findIndex(d => d.uid === driver.uid)
-
     if (index !== -1) recentSearches.value.splice(index, 1)
-
     recentSearches.value.unshift(driver)
-
     if (recentSearches.value.length > 5) recentSearches.value.pop()
-
-    // TODO: Consider persisting recent searches to local storage or a database
   }
 
   const getFrequentlyUsedDrivers = async () => {
@@ -247,10 +248,11 @@ export const useDriver = () => {
         throw fetchError
       }
 
-      drivers.value = data as HaulblazeContact[]
+      return data as HaulblazeContact[]
     } catch (err) {
       error.value = err as Error
       console.error('Error fetching frequently used drivers:', err)
+      throw err
     } finally {
       clearTimeout(loadingTimeout)
       isLoading.value = false
@@ -269,6 +271,8 @@ export const useDriver = () => {
     createDriver,
     searchDrivers,
     addToRecentSearches,
-    getFrequentlyUsedDrivers,
+    getFrequentlyUsedDrivers
   }
 }
+
+

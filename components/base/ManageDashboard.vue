@@ -1,12 +1,6 @@
 <template>
   <div class="flex-col md:flex">
-    <div v-if="loading" class="flex items-center justify-center h-full">
-      <p>Loading dashboard data...</p>
-    </div>
-    <div v-else-if="error" class="flex items-center justify-center h-full">
-      <p>Error loading dashboard data: {{ error }}</p>
-    </div>
-    <div v-else-if="dashboardData" class="flex-1 space-y-4 pt-6">
+    <div class="flex-1 space-y-4 pt-6">
       <div class="grid md:grid-cols-6 gap-4">
 
         <TeamInfo :team-info="dashboardData.teamInfo" class="col-span-2" />
@@ -48,7 +42,7 @@
         <TrendChart title="Weekly Orders Trend" icon="ph:chart-line"
           :current-week-data="formatWeeklyData(dashboardData.weeklyOrderStats.currentWeek)"
           :last-week-data="formatWeeklyData(dashboardData.weeklyOrderStats.lastWeek)" :colors="['#3b82f6', '#93c5fd']"
-          :y-formatter="(value: number) => value.toString()" chartType="line" />
+          :y-formatter="(value: number) => value.toString()" />
         <TrendChart title="Weekly Deductions Trend" icon="ph:currency-dollar"
           :current-week-data="formatWeeklyData(dashboardData.deductionStats.currentWeek)"
           :last-week-data="formatWeeklyData(dashboardData.deductionStats.lastWeek)" :colors="['#ef4444', '#fca5a5']"

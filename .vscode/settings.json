@@ -27,5 +27,6 @@
     "retool.config.json": true
   },
   "i18n-ally.localesPaths": [],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "CodeGPT.apiKey": "Bedrock"
 }

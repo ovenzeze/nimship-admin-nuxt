@@ -82,6 +82,7 @@ export interface DriverFilters {
     driver_type: string | null
     status: string | null
     employment_status: string | null
+    uid: string | null
 }
 
 export type Qualification = {

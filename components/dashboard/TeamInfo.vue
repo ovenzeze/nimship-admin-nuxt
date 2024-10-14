@@ -2,10 +2,10 @@
   <Card class="w-full max-w-md mx-auto">
     <CardHeader>
       <CardTitle class="flex items-center space-x-2">
-        <Icon name="ph:users" class="h-6 w-6 text-primary" />
-        <span>{{ teamInfo.name }}</span>
+        <!-- <Icon name="ph:users" class="h-6 w-6 text-primary" /> -->
+        <span class="uppercase">{{ teamInfo.name }}</span>
       </CardTitle>
-      <CardDescription>
+      <CardDescription class="pt-2">
         <Badge :variant="teamInfo.status === 'Active' ? 'success' : 'warning'">
           {{ teamInfo.status }}
         </Badge>

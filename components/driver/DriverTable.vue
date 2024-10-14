@@ -1,467 +1,320 @@
 <template>
-    <div class="w-full h-full flex flex-col relative">
-        <div class="flex-grow overflow-auto">
-            <div class="min-w-full inline-block align-middle">
-                <div class="overflow-hidden">
-                    <Table class="min-w-full h-full overflow-scroll flex">
-                        <TableHeader class="absolute top-0 left-0 w-full z-10  bg-secondary">
-                            <TableRow>
-                                <TableHead v-for="column in visibleColumns" :key="column.id" :class="[
-                                    'text-center text-xs font-semibold uppercase tracking-wider px-2 py-3 whitespace-nowrap min-w-32 text-text-primary',
-                                    getColumnVisibilityClass(column.id)
-                                ]">
-                                    {{ column.header }}
-                                </TableHead>
-                                <TableHead class="text-center px-2 py-3 sticky-action">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody class="overflow-hidden w-full relative mt-10">
-                            <TransitionGroup name="list" tag="div">
-                                <TableRow v-for="row in data" :key="row.id"
-                                    class="transition-all duration-300 ease-in-out hover:bg-muted/50 min-h-20 h-20 w-full"
-                                    @click="handleRowClick(row)">
-                                    <TableCell v-for="column in visibleColumns" :key="column.id" :class="[
-                                        'flex flex-row items-center justify-center text-center relative px-2 min-w-32',
-                                        getColumnVisibilityClass(column.id)
-                                    ]">
-                                        <template v-if="column.id === 'qualification'">
-                                            <QualificationCell :qualification="row.qualification"
-                                                :icons="qualificationIcons" />
-                                        </template>
-                                        <template v-else-if="column.id === 'driver_id'">
-                                            <p>{{ row.driver_id[0] || 'N/A' }}</p>
-                                        </template>
-                                        <component v-else :is="getCellComponent(column.id)"
-                                            :class="[getCellClass(row, column.id), { 'cursor-pointer': isEditableField(column.id) }]"
-                                            @click.stop="isEditableField(column.id) && showPopover(row, column)">
-                                            <transition name="cell-update" mode="out-in">
-                                                <span :key="formatCellValue(row, column.id)"
-                                                    class="max-w-28 truncate line-clamp-1 text-ellipsis hover:placeholder-shown:text-ellipsis">
-                                                    {{ formatCellValue(row, column.id) }}
-                                                </span>
-                                            </transition>
-                                        </component>
-                                        <transition name="fade">
-                                            <div v-if="getCellLoadingState(row.uid, column.id)"
-                                                class="absolute inset-0 flex items-center justify-center bg-background/50">
-                                                <Loader2 class="h-4 w-4 animate-spin" />
-                                            </div>
-                                        </transition>
-                                    </TableCell>
-                                    <TableCell class="text-center px-2 py-2 ">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" class="h-8 w-8 p-0">
-                                                    <span class="sr-only">Open menu</span>
-                                                    <MoreHorizontal class="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem @click.stop="editDriver(row)">Edit
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem @click.stop="deleteDriver(row)">Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            </TransitionGroup>
-                        </TableBody>
-                    </Table>
+    <div class="w-full flex flex-col md:px-2 md:py-4 ">
+        <UCard class="w-full flex flex-col" :ui="cardStyle">
+            <template #header>
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="flex flex-wrap gap-2">
+                        <DriverSelector modelValue="" @update:model-value="handleDriverChange" />
+                        <!-- <UButton color="primary" icon="i-heroicons-plus-20-solid" @click="$emit('add')">
+                            Add Driver
+                        </UButton> -->
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <UButton color="accent" variant="soft" icon="i-heroicons-funnel"
+                            @click="isFilterOpen = !isFilterOpen">
+                            Filters
+                        </UButton>
+                        <UButton color="accent" variant="soft" icon="i-heroicons-bell-slash"
+                            @click="isFilterOpen = !isFilterOpen">
+                            Reset
+                        </UButton>
+                        <!-- <UButton color="primary" icon="i-heroicons-plus-20-solid" @click="$emit('add')">
+                            Add Driver
+                        </UButton> -->
+                    </div>
+                </div>
+            </template>
+
+            <div class="flex-1 overflow-x-auto">
+                <div class="inline-block min-w-full align-middle">
+                    <UTable :rows="drivers" :columns="visibleColumns" v-model:sort="sort" :loading="loading"
+                        @select="selectRow" :ui="tableStyle" class="flex-1 w-full m-0">
+                        <template #team_name-data="{ row }">
+                            <UBadge :label="row.team_name" color="gray" variant="subtle" size="xs"
+                                :ui="{ rounded: 'rounded-full' }" />
+                        </template>
+                        <template #first_name-data="{ row }">
+                            <p>{{ row.first_name + " " + row.last_name }}</p>
+                        </template>
+                        <template #warehouse-data="{ row }">
+                            <UBadge :label="row.warehouse" color="indigo" variant="subtle"
+                                :ui="{ rounded: 'rounded-full' }" />
+                        </template>
+                        <template #driver_id-data="{ row }">
+                            <UBadge v-for="item in row.driver_id" :label="item" color="emerald" variant="subtle"
+                                :ui="{ rounded: 'rounded-full' }" class="px-2" />
+                        </template>
+                        <template #driver_type-data="{ row }">
+                            <UBadge :label="row.driver_type" color="amber" variant="subtle"
+                                :ui="{ rounded: 'rounded-full' }" />
+                        </template>
+                        <template #enroll_time-data="{ row }">
+                            {{ formatDate(row.enroll_time) }}
+                        </template>
+                        <template #dl_expired_time-data="{ row }">
+                            {{ formatDate(row.dl_expired_time) }}
+                        </template>
+                        <template #has_notification-data="{ row }">
+                            <UIcon :name="row.has_notification ? 'i-heroicons-bell' : 'i-heroicons-bell-slash'"
+                                :class="row.has_notification ? 'text-green-500' : 'text-gray-400'" />
+                        </template>
+                        <template #status-data="{ row }">
+                            <UBadge size="sm" :label="row.status" :color="getStatusColor(row.status)" variant="subtle"
+                                class="uppercase" />
+                        </template>
+                        <template #actions-data="{ row }">
+                            <UButton icon="i-heroicons-pencil" size="xs" color="blue" variant="outline"
+                                :ui="{ rounded: 'rounded-full' }" square @click="$emit('edit', row)" />
+                        </template>
+                    </UTable>
                 </div>
             </div>
-        </div>
-        <transition name="fade">
-            <div v-if="loading"
-                class="fixed bottom-0 left-0 w-full flex justify-center items-center h-full transition-all duration-300 bg-background/50">
-                <Loader2 class="h-6 w-6 animate-spin" />
-            </div>
-        </transition>
-        <div v-if="!loading && data.length === 0" class="flex justify-center items-center h-24">
-            No data available
-        </div>
 
-        <!-- Single Popover for editing -->
-        <Popover v-model:open="isPopoverOpen" :trap-focus="false" :close-on-outside-click="true">
-            <PopoverTrigger as="div" :style="popoverTriggerStyle" />
-            <transition name="popover" mode="out-in">
-                <PopoverContent class="p-0" :style="popoverContentStyle">
-                    <div v-if="popoverLoading" class="flex justify-center items-center h-10">
-                        <Loader2 class="h-4 w-4 animate-spin" />
-                    </div>
-                    <div v-else-if="editingColumn && editingColumn.id !== 'available'"
-                        class="max-h-[300px] overflow-y-auto">
-                        <div v-for="option in popoverOptions" :key="option.value"
-                            class="px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                            :class="{ 'bg-accent text-accent-foreground': option.value === editingValue }"
-                            @click="selectOption(option.value)">
-                            {{ option.label }}
-                        </div>
-                    </div>
-                    <div v-else class="p-2">
-                        <Switch v-model="editingValue" @update:modelValue="updateEditingField" />
-                    </div>
-                </PopoverContent>
-            </transition>
-        </Popover>
+            <template #footer>
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <p class="text-sm text-gray-700 hidden md:block">
+                        Showing <span class="font-medium">{{ pageFrom }}</span> to <span class="font-medium">{{ pageTo
+                            }}</span> of <span class="font-medium">{{ totalDrivers }}</span> results
+                    </p>
+                    <UPagination v-model="currentPage" :page-count="totalPages" :total="totalDrivers" :ui="{
+                        wrapper: 'flex items-center gap-1',
+                        rounded: '!rounded-full w-[26px] h-[26px] justify-center',
+                        default: {
+                            activeButton: {
+                                variant: 'outline'
+                            }
+                        }
+                    }" />
+                </div>
+            </template>
+        </UCard>
+
+        <UModal v-model="isColumnSelectorOpen">
+            <UCard>
+                <template #header>
+                    <h3 class="text-base font-semibold leading-6 text-gray-900">Select Columns</h3>
+                </template>
+                <div class="space-y-2">
+                    <UCheckbox v-for="column in columns" :key="column.key" v-model="selectedColumns"
+                        :label="column.label" :value="column.key" />
+                </div>
+            </UCard>
+        </UModal>
     </div>
 </template>
 
-
-<style scoped>
-.table-container {
-    height: 100%;
-    overflow-y: auto;
-}
-
-.sticky-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.sticky-action {
-    position: sticky;
-    right: 0;
-    z-index: 10;
-}
-
-.list-enter-active,
-.list-leave-active {
-    transition: all 0.5s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-    opacity: 0;
-    transform: translateY(30px);
-}
-
-.list-move {
-    transition: transform 0.5s ease;
-}
-
-.cell-update-enter-active,
-.cell-update-leave-active {
-    transition: all 0.3s ease;
-}
-
-.cell-update-enter-from,
-.cell-update-leave-to {
-    opacity: 0;
-    transform: scale(0.9);
-}
-
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-}
-
-.popover-enter-active,
-.popover-leave-active {
-    transition: all 0.3s ease;
-}
-
-.popover-enter-from,
-.popover-leave-to {
-    opacity: 0;
-    transform: scale(0.95);
-}
-</style>
-
-
-
 <script setup lang="ts">
-import { MoreHorizontal, Loader2 } from 'lucide-vue-next'
-import type { HaulblazeContact, DriverColumn, Contact, QualificationIcon } from '~/types/index'
-import { useEnums } from '~/composables/useEnums'
-import { getBadgeClass } from '~/utils/colorUtils'
-import { EnumType } from '~/types/index'
-import { getContact } from '~/utils/driver'
-import { useDriver } from '~/composables/useDriver'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import { useToast } from '@/components/ui/toast'
-import QualificationCell from './QualificationCell.vue'
-
-dayjs.extend(relativeTime)
+import { ref, computed } from 'vue'
+import type { HaulblazeContact } from '~/types'
+import DriverSelector from '../base/DriverSelector.vue';
 
 const props = defineProps<{
-    data: Contact[]
-    columns: DriverColumn[]
-    loading?: boolean
-    dimensions?: {
-        width: string
-        maxWidth: string
-        height: string
-        maxHeight: string
-    }
+    drivers: HaulblazeContact[]
+    loading: boolean
+    totalDrivers: number
+    currentPage: number
+    pageSize: number
 }>()
 
 const emit = defineEmits<{
-    'update:sorting': [sorting: any]
-    'update:columnFilters': [columnFilters: any]
-    'update:driver': [driver: HaulblazeContact]
-    'edit-driver': [driver: HaulblazeContact]
-    'select-driver': [driver: Contact]
+    (e: 'update:sort', sort: { column: string; direction: 'asc' | 'desc' }): void
+    (e: 'update:page', page: number): void
+    (e: 'update:pageSize', pageSize: number): void
+    (e: 'edit', driver: HaulblazeContact): void
+    (e: 'add'): void
 }>()
 
-const { getEnumsByType } = useEnums()
-const { updateDriver } = useDriver()
-const { toast } = useToast()
 
-const visibleColumns = computed(() => props.columns)
-const popoverLoading = ref(false)
-const isPopoverOpen = ref(false)
-const editingRow = ref<HaulblazeContact | null>(null)
-const editingColumn = ref<DriverColumn | null>(null)
-const editingValue = ref<any>(null)
-const popoverOptions = ref<{ value: string, label: string }[]>([])
-const popoverTriggerStyle = ref({
-    position: 'absolute',
-    left: '0px',
-    top: '0px',
-    width: '1px',
-    height: '1px',
-})
-const popoverContentStyle = ref({})
-const cellLoadingStates = ref<{ [key: string]: boolean }>({})
+const columns = [
+    { key: 'team_name', label: 'Team', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'first_name', label: 'First Name', class: 'w-[100px] min-w-[100px] max-w-[200px]', sortable: false },
+    // { key: 'last_name', label: 'Last Name', class: 'w-[100px] min-w-[100px] max-w-[200px]', sortable: false },
+    { key: 'warehouse', label: 'Warehouse', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
 
-const tableDimensionsStyle = computed(() => ({
-    width: props.dimensions?.width || '100%',
-    maxWidth: props.dimensions?.maxWidth || 'none',
-    height: props.dimensions?.height || '100%',
-    maxHeight: props.dimensions?.maxHeight || 'none',
-}))
+    { key: 'driver_id', label: 'Driver ID', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'enroll_time', label: 'Enroll Time', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'driver_license_no', label: 'DL No.', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'dl_expired_time', label: 'DL Expired Time', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'social_security_no', label: 'SSN', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
 
-const qualificationIcons: QualificationIcon[] = [
-    { name: 'dl', icon: 'lucide:lock-keyhole', tooltip: 'Driver License' },
-    { name: 'tax', icon: 'lucide:tree-deciduous', tooltip: 'Tax Documents' },
-    { name: 'vehicle', icon: 'lucide:car', tooltip: 'Vehicle Information' },
+
+    { key: 'date_of_birth', label: 'DOB', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'phone', label: 'Phone', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'email', label: 'Email', class: 'w-[150px] min-w-[150px] max-w-[250px]', sortable: false },
+
+
+    { key: 'account_number', label: 'Account No.', class: 'w-[120px] min-w-[180px] max-w-[200px]', sortable: false },
+    { key: 'routing_number', label: 'Routing No.', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'zelle', label: 'Zelle', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+
+
+    { key: 'commisson_rate', label: 'Rate', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'driver_type', label: 'Driver Type', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'has_notification', label: 'Notifications', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    // { key: 'haulblaze_id', label: 'Haulblaze ID', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    // { key: 'id', label: 'ID', class: 'w-[80px] min-w-[80px] max-w-[120px]', sortable: false },
+    { key: 'last_update', label: 'Last Update', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    // { key: 'mail_city', label: 'Mail City', class: 'w-[100px] min-w-[100px] max-w-[200px]', sortable: false },
+    // { key: 'mail_state', label: 'Mail State', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'mail_street', label: 'Mail', class: 'w-[150px] min-w-[150px] max-w-[250px]', sortable: false },
+    // { key: 'mail_zip', label: 'Mail ZIP', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'status', label: 'Status', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    // { key: 'uid', label: 'UID', class: 'w-[200px] min-w-[200px] max-w-[300px]', sortable: false },
+    { key: 'actions', label: 'Actions', class: 'w-[80px] min-w-[80px] max-w-[120px] sticky right-0', sortable: false },
 ]
 
-const columnPriority = {
-    name: 1,
-    status: 2,
-    warehouse: 3,
-    team_name: 4,
-    driver_type: 5,
-    phone: 6,
-    email: 7,
-    available: 8,
-    rating: 9,
-    completed_trips: 10,
-    enroll_time: 11,
-    dl_expired_time: 12,
-    qualification: 13,
-    employment_status: 14,
+const sort = ref({ column: 'first_name', direction: 'asc' })
+const search = ref('')
+const isFilterOpen = ref(false)
+const selectedRows = ref<HaulblazeContact[]>([])
+const isColumnSelectorOpen = ref(false)
+const selectedColumns = ref(columns.map(col => col.key))
+
+const visibleColumns = computed(() => columns.filter(col => selectedColumns.value.includes(col.key)))
+
+function selectRow(row: HaulblazeContact) {
+    const index = selectedRows.value.findIndex(item => item.uid === row.uid)
+    if (index === -1) {
+        selectedRows.value.push(row)
+    } else {
+        selectedRows.value.splice(index, 1)
+    }
 }
 
-const getColumnVisibilityClass = (columnId: string) => {
-    const priority = columnPriority[columnId as keyof typeof columnPriority] || 99
-    if (priority <= 3) return 'table-cell'
-    if (priority <= 5) return 'hidden sm:table-cell'
-    if (priority <= 8) return 'hidden md:table-cell'
-    return 'hidden lg:table-cell'
-}
-
-const getCellComponent = (columnId: keyof Contact) => {
-    switch (columnId) {
-        case 'status':
-        case 'driver_type':
-        case 'warehouse':
-            return 'div'
-        case 'team_name':
-            return 'div'
+const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+        case 'active':
+            return 'emerald'
+        case 'inactive':
+            return 'orange'
         default:
-            return 'span'
+            return 'gray'
     }
 }
 
-const getCellClass = (row: Contact, columnId: keyof Contact) => {
-    switch (columnId) {
-        case 'status':
-            return [getBadgeClass(row[columnId] as string, columnId), 'opcity-25']
-        case 'name':
-            return 'text-xs font-medium'
-        case 'driver_type':
-            return getBadgeClass(row[columnId] as string, columnId)
-        case 'warehouse':
-            return getBadgeClass(row[columnId] as string, columnId)
-        case 'team_name':
-            return getBadgeClass(row[columnId] as string, columnId)
-        default:
-            return ''
-    }
-}
-
-const formatCellValue = (row: HaulblazeContact, columnId: keyof Contact) => {
-    const Contact = getContact(row)
-    switch (columnId) {
-        case 'name':
-            return Contact.name
-        case 'enroll_time':
-            return Contact.enroll_time ? dayjs(Contact.enroll_time).fromNow() : 'N/A'
-        case 'dl_expired_time':
-            return Contact.dl_expired_time ? dayjs(Contact.dl_expired_time).format('YYYY-MM-DD') : 'N/A'
-        case 'rating':
-            return Contact.rating ? Contact.rating.toFixed(1) : 'N/A'
-        case 'available':
-            return Contact.available ? 'Yes' : 'No'
-        case 'completed_trips':
-            return Contact.completed_trips || 'N/A'
-        default:
-            return Contact[columnId] || 'N/A'
-    }
-}
-
-const isEditableField = (columnId: keyof Contact) => {
-    return ['status', 'driver_type', 'warehouse', 'team_name', 'available'].includes(columnId)
-}
-
-const getOptionsForField = async (field: keyof Contact) => {
-    popoverLoading.value = true
-    try {
-        let enumType: EnumType
-        switch (field) {
-            case 'driver_type':
-                enumType = EnumType.DRIVER_TYPE
-                break
-            case 'status':
-                enumType = EnumType.STATUS
-                break
-            case 'team_name':
-                enumType = EnumType.TEAM_NAME
-                break
-            case 'warehouse':
-                enumType = EnumType.WAREHOUSE_CODE
-                break
-            default:
-                return []
-        }
-        const options = await getEnumsByType(enumType)
-        return options.map(item => ({ value: item.value, label: item.label }))
-    } finally {
-        popoverLoading.value = false
-    }
-}
-
-const showPopover = async (row: HaulblazeContact, column: DriverColumn) => {
-    editingRow.value = row
-    editingColumn.value = column
-    editingValue.value = row[column.id as keyof HaulblazeContact]
-
-    if (column.id !== 'available') {
-        popoverOptions.value = await getOptionsForField(column.id as keyof Contact)
-    }
-
-    const cellElement = event.target as HTMLElement
-    const rect = cellElement.getBoundingClientRect()
-    const contentWidth = Math.max(rect.width * 1.5, 180)
-    popoverTriggerStyle.value = {
-        position: 'fixed',
-        left: `${(rect.left / 2) + contentWidth / 2}px`,
-        top: `${rect.bottom}px`,
-        width: '1px',
-        height: '1px',
-    }
-    popoverContentStyle.value = {
-        minWidth: '180px',
-        width: `${rect.width * 1.5}px`,
-    }
-
-    isPopoverOpen.value = true
-}
-
-const selectOption = async (value: any) => {
-    if (editingRow.value && editingColumn.value) {
-        const driverUid = editingRow.value.uid
-        const columnId = editingColumn.value.id
-        setCellLoadingState(driverUid, columnId, true)
-
-        try {
-            await updateEditingField(value)
-            editingValue.value = value
-        } finally {
-            setCellLoadingState(driverUid, columnId, false)
-        }
-    }
-}
-
-const updateEditingField = async (value: any) => {
-    if (editingRow.value && editingColumn.value) {
-        const columnId = editingColumn.value.id
-        const updatedDriver = {
-            uid: editingRow.value.uid,
-            [columnId]: value
-        }
-
-        try {
-            const result = await updateDriver(updatedDriver as HaulblazeContact)
-            isPopoverOpen.value = false
-
-            // Update the local data to reflect the change
-            const index = props.data.findIndex(d => d.uid === updatedDriver.uid)
-            if (index !== -1) {
-                props.data[index] = { ...props.data[index], ...result }
-            }
-
-            emit('update:driver', result)
-
-            toast({
-                title: 'Success',
-                description: `Successfully updated ${columnId} for driver ${result.first_name} ${result.last_name}`,
-            })
-        } catch (error) {
-            console.error('Error updating driver:', error)
-            toast({
-                title: 'Error',
-                description: `Failed to update ${columnId} for driver ${editingRow.value.first_name} ${editingRow.value.last_name}`,
-                variant: 'destructive',
-            })
-        }
-    }
-}
-
-const setCellLoadingState = (driverUid: string, columnId: string, isLoading: boolean) => {
-    const key = `${driverUid}-${columnId}`
-    cellLoadingStates.value[key] = isLoading
-}
-
-const getCellLoadingState = (driverUid: string, columnId: string) => {
-    const key = `${driverUid}-${columnId}`
-    return cellLoadingStates.value[key] || false
-}
-
-const editDriver = (driver: HaulblazeContact) => {
-    emit('edit-driver', driver)
-}
-
-const deleteDriver = (driver: HaulblazeContact) => {
-    console.log('Delete driver:', driver)
-    // Implement delete functionality
-}
-
-const handleRowClick = (row: Contact) => {
-    if (window.innerWidth < 768) { // Assuming 768px as the breakpoint for mobile devices
-        emit('select-driver', row)
-    }
-}
-
-onMounted(() => {
-    console.log('DriverTable mounted')
+const currentPage = computed({
+    get: () => props.currentPage,
+    set: (value) => emit('update:page', value)
 })
 
-watch(() => props.data, (newData) => {
-    console.log('DriverTable data updated:', newData)
-}, { deep: true, immediate: true })
-
-watch(() => props.loading, (newLoading) => {
-    console.log('DriverTable loading state:', newLoading)
+const pageSize = computed({
+    get: () => props.pageSize,
+    set: (value) => emit('update:pageSize', value)
 })
+
+const pageFrom = computed(() => (currentPage.value - 1) * pageSize.value + 1)
+const pageTo = computed(() => Math.min(currentPage.value * pageSize.value, props.totalDrivers))
+const totalPages = computed(() => Math.ceil(props.totalDrivers / pageSize.value))
+
+const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString()
+}
+
+const isExpired = (dateString: string) => {
+    return new Date(dateString) < new Date()
+}
+const tableStyle = {
+    wrapper: 'flex-1 flex-shrink-0',
+    base: '',
+    divide: 'divide-border',
+    thead: '',
+    tbody: ' rounded-lg',
+    caption: 'text-sm text-muted-foreground',
+    tr: {
+        base: 'border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted py-3 border-border/50',
+        selected: 'bg-muted',
+        active: 'hover:bg-muted/50 cursor-pointer',
+    },
+    th: {
+        base: ' bg-accent dark:bg-background px-4 w-[120px] text-center align-middle font-medium text-muted-foreground border-b backdrop-blur-[4px] [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis',
+        padding: 'px-4',
+        color: 'text-primary',
+        font: 'font-semibold',
+        size: 'text-sm',
+    },
+    td: {
+        base: 'h-12 px-4 w-[120px] text-center align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis bg-muted-background/80',
+        padding: 'px-4 py-3',
+        color: 'text-muted-foreground',
+        font: '',
+        size: 'text-xs',
+    },
+    checkbox: {
+        padding: 'ps-4',
+    },
+    loadingState: {
+        wrapper: 'flex flex-col items-center justify-center h-24 p-4',
+        label: 'text-sm text-center text-muted-foreground',
+        icon: 'w-6 h-6 mx-auto text-muted-foreground animate-spin',
+    },
+    emptyState: {
+        wrapper: 'flex flex-col items-center justify-center h-24 p-4',
+        label: 'text-sm text-center text-muted-foreground',
+        icon: 'w-6 h-6 mx-auto text-muted-foreground mb-2',
+    },
+    expand: {
+        icon: 'transition-transform duration-200',
+    },
+    progress: {
+        wrapper: 'absolute inset-x-0 bottom-0 h-1',
+    },
+    default: {
+        sortAscIcon: 'i-ph-arrow-up-thin text-xs w-4 h-4',
+        sortDescIcon: 'i-ph-arrow-down-thin text-xs',
+        sortButton: {
+            icon: 'i-heroicons-arrows-up-down-12-solid',
+            trailing: true,
+            square: true,
+            color: 'red',
+            variant: 'ghost',
+            class: '-m-1 h-4 w-4 p-0',
+        },
+        expandButton: {
+            icon: 'i-ph-caret-down-thin text-xs',
+            color: 'gray',
+            variant: 'ghost',
+            size: 'xs',
+            class: '-my-1 h-6 w-6 p-0',
+        },
+        checkbox: {
+            color: 'primary',
+        },
+        progress: {
+            color: 'primary',
+            animation: 'indeterminate',
+        },
+        loadingState: {
+            icon: 'i-ph-circle-notch',
+            label: 'Loading...',
+        },
+        emptyState: {
+            icon: 'i-ph-stack',
+            label: 'No items.',
+        },
+    },
+}
+
+const cardStyle = {
+    base: 'w-full flex flex-col overflow-hidden border ',
+    background: 'bg-background',
+    divide: 'divide-y divide-border',
+    ring: 'ring-0',
+    rounded: 'rounded-md',
+    shadow: 'shadow-sm',
+    body: {
+        base: 'flex-1 flex flex-row h-full w-full overflow-hidden',
+        background: '',
+        padding: '',
+    },
+    header: {
+        base: 'w-full flex-shrink-0',
+        background: '',
+        padding: 'px-6 py-3',
+    },
+    footer: {
+        base: 'flex-shrink-0 mb-10',
+        background: '',
+        padding: 'px-6 py-2',
+    },
+}
 </script>

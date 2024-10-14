@@ -102,7 +102,7 @@ const qualificationIcons: QualificationIcon[] = [
 
 const columns: DriverColumn[] = [
   { id: 'name', header: 'Name', cell: (props) => h('span', props.row.name) },
-  { id: 'uid', header: 'Driver ID', cell: (props) => h('span', props.row.uid) },
+  { id: 'driver_id', header: 'Driver ID', cell: (props) => h('span', props.row.driver_id) },
   { id: 'warehouse', header: 'Warehouse', cell: (props) => h('span', props.row.warehouse) },
   { id: 'phone', header: 'Phone', cell: (props) => h('span', props.row.phone) },
   { id: 'enroll_time', header: 'Enroll Time', cell: (props) => h('span', formatDate(props.row.enroll_time)) },
@@ -114,9 +114,9 @@ const columns: DriverColumn[] = [
   { id: 'dl_expired_time', header: 'DL Expiry', cell: (props) => h('span', formatDate(props.row.dl_expired_time)) },
   { id: 'status', header: 'Status', cell: (props) => h('span', props.row.status) },
   { id: 'team_name', header: 'Team', cell: (props) => h('span', props.row.team_name) },
-  { id: 'email', header: 'Email', cell: (props) => h('span', props.row.email) },
   { id: 'driver_type', header: 'Type', cell: (props) => h('span', props.row.driver_type) },
-  { id: 'employment_status', header: 'Employment Status', cell: (props) => h('span', props.row.employment_status) },
+  { id: 'email', header: 'Email', cell: (props) => h('span', { class: 'uppercase' }, props.row.email) },
+  // { id: 'employment_status', header: 'Employment Status', cell: (props) => h('span', props.row.employment_status) },
 ]
 
 const filters = ref<DriverFilters>({

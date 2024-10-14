@@ -6,7 +6,7 @@
           <Icon :name="icon" class="w-5 h-5 mr-2" />
           {{ title }}
         </div>
-        <div class="flex justify-end">
+        <div class="flex justify-end hidden md:block">
           <Select v-model="chartType">
             <SelectTrigger class="w-[180px]">
               <SelectValue placeholder="Select chart type" />
@@ -20,11 +20,11 @@
       </CardTitle>
     </CardHeader>
     <CardContent>
-      <div class="h-full w-full">
+      <div class="h-auto w-full">
         <AreaChart v-if="chartType === 'area'" :data="chartData" :index="indexKey" :categories="categories"
-          :value-formatter="yFormatter" :y-axis-width="40" class="max-h-[200px] md:max-h-[400px]" />
+          :value-formatter="yFormatter" :y-axis-width="40" class=" md:max-h-full" />
         <LineChart v-else :data="chartData" :index="indexKey" :categories="categories" :colors="colors"
-          :value-formatter="yFormatter" :y-axis-width="40" class="max-h-[200px] md:max-h-[400px]" />
+          :value-formatter="yFormatter" :y-axis-width="40" class="max-h-[200px] md:max-h-full" />
       </div>
     </CardContent>
   </Card>
