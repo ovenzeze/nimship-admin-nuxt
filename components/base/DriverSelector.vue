@@ -3,7 +3,7 @@
     <PopoverTrigger as-child>
       <div class="relative" ref="inputWrapper">
         <Input v-model="searchQuery" placeholder="Search driver by name or id" @focus="handleFocus" @input="handleInput"
-          :class="['min-w-[300px] h-10']" />
+          class="min-w-[300px] h-9" />
         <Button v-if="selectedDriver" variant="ghost" size="icon"
           class="absolute right-2 top-1/2 transform -translate-y-1/2" @click="clearSelection">
           <Icon name="ph:x" class="w-4 h-4" />

@@ -4,7 +4,7 @@
             <template #header>
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div class="flex flex-wrap gap-2">
-                        <DriverSelector modelValue="" @update:model-value="handleDriverChange" />
+                        <DriverSelector modelValue="" @update:model-value="handleDriverChange" class="rounded-full" />
                         <!-- <UButton color="primary" icon="i-heroicons-plus-20-solid" @click="$emit('add')">
                             Add Driver
                         </UButton> -->
@@ -226,7 +226,7 @@ const tableStyle = {
         active: 'hover:bg-muted/50 cursor-pointer',
     },
     th: {
-        base: ' bg-accent dark:bg-background px-4 w-[120px] text-center align-middle font-medium text-muted-foreground border-b backdrop-blur-[4px] [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis',
+        base: ' bg-accent rounded-lg shadow-lg dark:bg-background px-4 w-[120px] text-center align-middle font-medium text-muted-foreground border-b backdrop-blur-[4px] [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis',
         padding: 'px-4',
         color: 'text-primary',
         font: 'font-semibold',
@@ -312,7 +312,7 @@ const cardStyle = {
         padding: 'px-6 py-3',
     },
     footer: {
-        base: 'flex-shrink-0 mb-10',
+        base: 'flex-shrink-0 mb-10 md:mb-0',
         background: '',
         padding: 'px-6 py-2',
     },
