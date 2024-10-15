@@ -47,6 +47,7 @@
 <script setup lang="ts">
 import { useWindowSize, useResizeObserver } from '@vueuse/core'
 import { useDevice } from '@/composables/useDevice'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 const { isMobile } = useDevice()
 

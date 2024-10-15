@@ -2,7 +2,7 @@
     <div class="w-full h-full flex flex-col">
         <div class="flex-grow overflow-auto relative">
             <Table class="w-full">
-                <TableHeader class="sticky top-0 bg-white z-20">
+                <TableHeader class="sticky top-0 bg-background z-20">
                     <TableRow>
                         <TableHead v-for="column in visibleColumns.filter(col => col.id !== 'payment_method')"
                             :key="column.id">

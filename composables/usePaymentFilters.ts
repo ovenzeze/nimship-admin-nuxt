@@ -5,7 +5,7 @@ import { type FilterOptions, type EnumItem, type TeamName, EnumType } from '~/ty
 import { type Warehouse, type PaymentStatusItem } from '~/types/payment';
 import { useCookie } from '#app';
 
-export function usePaymentFilters(initialWarehouses: Ref<Warehouse[]>) {
+export function usePaymentFilters(initialWarehouses: Warehouse[]) {
     const { getEnumsByType } = useEnums();
 
     // State
@@ -20,7 +20,7 @@ export function usePaymentFilters(initialWarehouses: Ref<Warehouse[]>) {
     // Computed properties
     const warehouseOptions = computed(() => [
         { value: 'ALL' as const, label: 'ALL', icon: getWarehouseIcon('ALL') },
-        ...initialWarehouses.value.filter(wh => wh !== 'ALL').map((wh) => ({ value: wh, label: wh, icon: getWarehouseIcon(wh) }))
+        ...initialWarehouses.filter(wh => wh !== 'ALL').map((wh) => ({ value: wh, label: wh, icon: getWarehouseIcon(wh) }))
     ]);
 
     const statusOptions = computed(() => (['ALL', 'PENDING', 'HOLD', 'PAID'] as const).map(status => ({
