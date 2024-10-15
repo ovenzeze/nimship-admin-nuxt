@@ -1,13 +1,10 @@
 <template>
-    <div class="w-full flex flex-col md:px-2 md:py-4 ">
+    <div class="w-full flex flex-col md:px-2 md:py-4">
         <UCard class="w-full flex flex-col" :ui="cardStyle">
             <template #header>
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div class="flex flex-wrap gap-2">
                         <DriverSelector modelValue="" @update:model-value="handleDriverChange" class="rounded-full" />
-                        <!-- <UButton color="primary" icon="i-heroicons-plus-20-solid" @click="$emit('add')">
-                            Add Driver
-                        </UButton> -->
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <UButton color="accent" variant="soft" icon="i-heroicons-funnel"
@@ -18,17 +15,14 @@
                             @click="isFilterOpen = !isFilterOpen">
                             Reset
                         </UButton>
-                        <!-- <UButton color="primary" icon="i-heroicons-plus-20-solid" @click="$emit('add')">
-                            Add Driver
-                        </UButton> -->
                     </div>
                 </div>
             </template>
 
-            <div class="flex-1 overflow-x-auto">
-                <div class="inline-block min-w-full align-middle">
+            <div class="flex-1 overflow-auto relative max-h-[calc(100vh-200px)]">
+                <div class=" min-w-full align-middle">
                     <UTable :rows="drivers" :columns="visibleColumns" v-model:sort="sort" :loading="loading"
-                        @select="selectRow" :ui="tableStyle" class="flex-1 w-full m-0">
+                        @select="selectRow" :ui="tableStyle" class="flex-1 w-full m-0 sticky-header">
                         <template #team_name-data="{ row }">
                             <UBadge :label="row.team_name" color="gray" variant="subtle" size="xs"
                                 :ui="{ rounded: 'rounded-full' }" />
@@ -41,8 +35,8 @@
                                 :ui="{ rounded: 'rounded-full' }" />
                         </template>
                         <template #driver_id-data="{ row }">
-                            <UBadge v-for="item in row.driver_id" :label="item" color="emerald" variant="subtle"
-                                :ui="{ rounded: 'rounded-full' }" class="px-2" />
+                            <UBadge v-for="item in row.driver_id" :key="item" :label="item" color="emerald"
+                                variant="subtle" :ui="{ rounded: 'rounded-full' }" class="px-2" />
                         </template>
                         <template #driver_type-data="{ row }">
                             <UBadge :label="row.driver_type" color="amber" variant="subtle"
@@ -63,9 +57,12 @@
                                 class="uppercase" />
                         </template>
                         <template #actions-data="{ row }">
-                            <UButton icon="i-heroicons-pencil" size="xs" color="blue" variant="outline"
-                                :ui="{ rounded: 'rounded-full' }" square @click="$emit('edit', row)" />
+                            <div class="sticky-action p-0">
+                                <UButton icon="i-heroicons-pencil" size="xs" color="blue" variant="outline"
+                                    :ui="{ rounded: 'rounded-full' }" square @click="$emit('edit', row)" />
+                            </div>
                         </template>
+
                     </UTable>
                 </div>
             </div>
@@ -124,43 +121,28 @@ const emit = defineEmits<{
     (e: 'add'): void
 }>()
 
-
 const columns = [
     { key: 'team_name', label: 'Team', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
     { key: 'first_name', label: 'First Name', class: 'w-[100px] min-w-[100px] max-w-[200px]', sortable: false },
-    // { key: 'last_name', label: 'Last Name', class: 'w-[100px] min-w-[100px] max-w-[200px]', sortable: false },
     { key: 'warehouse', label: 'Warehouse', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-
     { key: 'driver_id', label: 'Driver ID', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
     { key: 'enroll_time', label: 'Enroll Time', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
     { key: 'driver_license_no', label: 'DL No.', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    { key: 'dl_expired_time', label: 'DL Expired Time', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'dl_expired_time', label: 'DL Expired Time', class: 'w-[100px] min-w-[160px] max-w-[150px]', sortable: false },
     { key: 'social_security_no', label: 'SSN', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-
-
     { key: 'date_of_birth', label: 'DOB', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
     { key: 'phone', label: 'Phone', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
     { key: 'email', label: 'Email', class: 'w-[150px] min-w-[150px] max-w-[250px]', sortable: false },
-
-
     { key: 'account_number', label: 'Account No.', class: 'w-[120px] min-w-[180px] max-w-[200px]', sortable: false },
     { key: 'routing_number', label: 'Routing No.', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
     { key: 'zelle', label: 'Zelle', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-
-
     { key: 'commisson_rate', label: 'Rate', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
     { key: 'driver_type', label: 'Driver Type', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
     { key: 'has_notification', label: 'Notifications', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
-    // { key: 'haulblaze_id', label: 'Haulblaze ID', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    // { key: 'id', label: 'ID', class: 'w-[80px] min-w-[80px] max-w-[120px]', sortable: false },
     { key: 'last_update', label: 'Last Update', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    // { key: 'mail_city', label: 'Mail City', class: 'w-[100px] min-w-[100px] max-w-[200px]', sortable: false },
-    // { key: 'mail_state', label: 'Mail State', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
     { key: 'mail_street', label: 'Mail', class: 'w-[150px] min-w-[150px] max-w-[250px]', sortable: false },
-    // { key: 'mail_zip', label: 'Mail ZIP', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
     { key: 'status', label: 'Status', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
-    // { key: 'uid', label: 'UID', class: 'w-[200px] min-w-[200px] max-w-[300px]', sortable: false },
-    { key: 'actions', label: 'Actions', class: 'w-[80px] min-w-[80px] max-w-[120px] sticky right-0', sortable: false },
+    { key: 'actions', label: 'Actions', class: 'w-[80px] min-w-[60px] max-w-[120px] sticky right-0 top-0 backdrop-filter bg-background', sortable: false },
 ]
 
 const sort = ref({ column: 'first_name', direction: 'asc' })
@@ -213,22 +195,21 @@ const formatDate = (dateString: string) => {
 const isExpired = (dateString: string) => {
     return new Date(dateString) < new Date()
 }
+
 const tableStyle = {
-    wrapper: 'flex-1 flex-shrink-0',
-    base: '',
-    divide: 'divide-border',
+    wrapper: 'relative',
+    base: 'min-w-full table-fixed',
+    divide: 'divide-y divide-gray-300',
     thead: '',
-    tbody: ' rounded-lg',
-    caption: 'text-sm text-muted-foreground',
+    tbody: 'divide-y divide-gray-200',
     tr: {
-        base: 'border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted py-3 border-border/50',
-        selected: 'bg-muted',
-        active: 'hover:bg-muted/50 cursor-pointer',
+        base: 'transition-colors hover:bg-gray-50 z-20 px-3 py-3.5',
+        selected: 'bg-gray-50',
     },
     th: {
-        base: ' bg-accent rounded-lg shadow-lg dark:bg-background px-4 w-[120px] text-center align-middle font-medium text-muted-foreground border-b backdrop-blur-[4px] [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis',
-        padding: 'px-4',
-        color: 'text-primary',
+        base: 'z-20 px-3 py-3.5 text-center text-sm font-semibold text-gray-900',
+        padding: 'px-3 py-3.5',
+        color: 'text-gray-900',
         font: 'font-semibold',
         size: 'text-sm',
     },
@@ -251,6 +232,7 @@ const tableStyle = {
         wrapper: 'flex flex-col items-center justify-center h-24 p-4',
         label: 'text-sm text-center text-muted-foreground',
         icon: 'w-6 h-6 mx-auto text-muted-foreground mb-2',
+
     },
     expand: {
         icon: 'transition-transform duration-200',
@@ -295,26 +277,56 @@ const tableStyle = {
 }
 
 const cardStyle = {
-    base: 'w-full flex flex-col overflow-hidden border ',
+    base: 'w-full flex flex-col max-h-[calc(100dvh)] min-h-[400px] border p-o m-o',
     background: 'bg-background',
     divide: 'divide-y divide-border',
     ring: 'ring-0',
     rounded: 'rounded-md',
     shadow: 'shadow-sm',
     body: {
-        base: 'flex-1 flex flex-row h-full w-full overflow-hidden',
-        background: '',
-        padding: '',
+        base: 'flex-1 h-full w-full max-w-full block',
+        padding: 'sm:p-0 sm:m-0',
     },
     header: {
-        base: 'w-full flex-shrink-0',
-        background: '',
-        padding: 'px-6 py-3',
+        base: 'flex flex-wrap items-center justify-between',
+        padding: 'px-4 py-5 sm:px-6',
+        background: 'bg-muted/40',
     },
     footer: {
-        base: 'flex-shrink-0 mb-10 md:mb-0',
-        background: '',
-        padding: 'px-6 py-2',
+        base: 'flex items-center',
+        padding: 'px-4 py-4 sm:px-6',
+        background: 'bg-muted/40',
     },
 }
+
+const handleDriverChange = (value: string) => {
+    // Implement the logic for handling driver change
+    console.log('Driver changed:', value)
+}
 </script>
+
+<style>
+.sticky-header th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    /* background-color: white; */
+    /* 或者与你的主题匹配的颜色 */
+}
+
+.sticky-header td:has(.sticky-action) {
+    position: sticky;
+    right: 0;
+    background: --bg-background;
+    backdrop-filter: blur(4px);
+}
+
+
+
+
+/* 优化滚动性能 */
+.overflow-auto {
+    will-change: scroll-position;
+    -webkit-overflow-scrolling: touch;
+}
+</style>
