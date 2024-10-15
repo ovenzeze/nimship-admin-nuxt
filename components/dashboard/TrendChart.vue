@@ -1,5 +1,5 @@
 <template>
-  <Card>
+  <Card :ui="{ body: { base: 'w-full', padding: 'p-0 sm:p-2 py-6' } }">
     <CardHeader>
       <CardTitle class="flex flex-row items-center justify-between">
         <div class="">
@@ -20,11 +20,11 @@
       </CardTitle>
     </CardHeader>
     <CardContent>
-      <div class="h-auto w-full">
+      <div class="w-full h-full">
         <AreaChart v-if="chartType === 'area'" :data="chartData" :index="indexKey" :categories="categories"
-          :value-formatter="yFormatter" :y-axis-width="40" class=" md:max-h-full" />
+          :value-formatter="yFormatter" :y-axis-width="40" class="max-h-[280px] md:max-h-full py-4 px-0" />
         <LineChart v-else :data="chartData" :index="indexKey" :categories="categories" :colors="colors"
-          :value-formatter="yFormatter" :y-axis-width="40" class="max-h-[200px] md:max-h-full" />
+          :value-formatter="yFormatter" :y-axis-width="40" class="max-h-[280px] md:max-h-full" />
       </div>
     </CardContent>
   </Card>
