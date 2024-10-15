@@ -44,8 +44,8 @@
                             class="uppercase" />
                     </template>
                     <template #actions-data="{ row }">
-                        <div class="sticky-action p-0">
-                            <UButton icon="i-heroicons-pencil" size="xs" color="blue" variant="outline"
+                        <div class="sticky-action mx-auto">
+                            <UButton icon="i-ph-caret-down-thin" size="xs" color="primary" variant="soft"
                                 :ui="{ rounded: 'rounded-full' }" square @click="$emit('edit', row)" />
                         </div>
                     </template>
@@ -177,7 +177,7 @@ const columns = [
     { key: 'last_update', label: 'Last Update', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
     { key: 'mail_street', label: 'Mail', class: 'w-[150px] min-w-[150px] max-w-[250px]', sortable: false },
     { key: 'status', label: 'Status', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
-    { key: 'actions', label: 'Actions', class: 'w-[80px] min-w-[60px] max-w-[120px] sticky right-0 top-0 backdrop-filter bg-background', sortable: false },
+    { key: 'actions', label: 'Actions', class: 'w-[80px] min-w-[60px] max-w-[120px] sticky right-0 top-0 backdrop-filter bg-background border-l border-border', sortable: false },
 ]
 
 // Computed properties and reactive references
@@ -345,8 +345,10 @@ const cardStyle = {
     position: sticky;
     z-index: 20;
     right: 0;
-    background: --bg-background;
     padding-right: 0;
+    padding-left: 0;
+    background: --bg-background;
+    border-left: .5px solid gray;
 }
 
 .sticky-action {
