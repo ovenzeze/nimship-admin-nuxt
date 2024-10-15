@@ -6,28 +6,25 @@
                 <template v-for="filter in filters" :key="filter.key">
                     <DriverSelector v-if="filter.type === 'driver-selector'" @select="updateFilter(filter.key, $event)"
                         :class="isMobile ? 'w-full' : ''" />
-                    <template v-else="filter.type === 'select'">
-                        <ButtonSwitcher v-if="shouldUseButtonSwitcher(filter)" :modelValue="filterValues[filter.key]"
+                    <template v-else-if="filter.type === 'select'">
+                        <UButtonGroup v-if="shouldUseButtonSwitcher(filter)" v-model="filterValues[filter.key]"
                             :options="getButtonSwitcherOptions(filter)"
-                            @update:value="updateFilter(filter.key, $event)" />
-                        <Select v-else v-model="filterValues[filter.key]" :options="filter.options || []"
-                            @update:modelValue="updateFilter(filter.key, $event)">
-                            <SelectTrigger :class="isMobile ? 'w-[90vw]' : 'w-[180px] h-9'">
-                                <SelectValue :placeholder="filter.placeholder" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem v-for="option in filter.options" :key="getOptionValue(filter, option)"
-                                    :value="getOptionValue(filter, option)">
-                                    {{ getOptionLabel(filter, option) }}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
+                            @update:model-value="updateFilter(filter.key, $event)" />
+                        <USelectMenu v-if="filter.options && filter.options.length" v-model="filterValues[filter.key]"
+                            :options="filter.options" :placeholder="filter.placeholder"
+                            :class="isMobile ? 'w-[90vw]' : 'w-[180px]'" valueAttribute="value">
+
+                            <template #option="{ option }">
+                                {{ getOptionLabel(filter, option) }} "dddd"
+                            </template>
+                        </USelectMenu>
                     </template>
                 </template>
             </div>
-            <Button variant="ghost" @click="resetFilters" :class="isMobile ? 'w-[90vw]' : 'ml-4 h-9'">
-                <Icon name="ph:funnel" class="mr-2" />Reset
-            </Button>
+            <UButton variant="ghost" @click="resetFilters" :class="isMobile ? 'w-[90vw]' : 'ml-4'">
+                <UIcon name="i-ph-funnel" class="mr-2" />
+                Reset
+            </UButton>
         </div>
     </div>
 </template>
@@ -36,27 +33,9 @@
 import { useDevice } from '~/composables/useDevice'
 import { useEnums } from '~/composables/useEnums'
 import DriverSelector from '~/components/base/DriverSelector.vue'
-import ButtonSwitcher from '~/components/base/ButtonSwitcher.vue'
-import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { getEmploymentStatusIcon } from '~/utils/icons'
-
-interface FilterOption {
-    value?: string | number
-    label?: string
-    cycle?: string
-    start?: string
-    end?: string
-}
-
-interface FilterConfig {
-    type: 'select' | 'driver-selector'
-    key: string
-    placeholder: string
-    options?: FilterOption[]
-    enumType?: string
-    as?: 'Button' | 'Select' | 'auto'
-}
+import { getEmploymentStatusIcon, getWarehouseIcon } from '~/utils/icons'
+import type { FilterConfig, FilterOption } from '~/types'
+import { onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{
     filters: FilterConfig[]
@@ -64,11 +43,11 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['update:modelValue'])
-
+// const filters = ref<FilterConfig[]>(props.filters)
 const { isMobile } = useDevice()
 const { getEnumsByType, waitForEnums } = useEnums()
 
-const filterValues = ref({ ...props.modelValue })
+const filterValues = ref<Record<string, any>>({})
 
 const updateFilter = (key: string, value: any) => {
     console.log(`Updating filter: ${key} with value:`, value)
@@ -90,7 +69,10 @@ const getOptionValue = (filter: FilterConfig, option: FilterOption): string | nu
     }
     return option.value || ''
 }
-
+const getSelectedLabel = (filter: FilterConfig) => {
+    const selectedOption = filter.options?.find(option => getOptionValue(filter, option) === filterValues.value[filter.key])
+    return selectedOption ? getOptionLabel(filter, selectedOption) : ''
+}
 const getOptionLabel = (filter: FilterConfig, option: FilterOption): string => {
     if (filter.key === 'cycle_start') {
         return option.label || `${option.start} - ${option.end}` || ''
@@ -116,33 +98,40 @@ watch(() => props.modelValue, (newValue) => {
     filterValues.value = { ...newValue }
 }, { deep: true })
 
-const loadFilterOptions = async () => {
-    await waitForEnums()
-    for (const filter of props.filters) {
-        if (filter.type === 'select' && filter.enumType && !filter.options) {
-            const enumData = await getEnumsByType(filter.enumType)
-            console.log(`Enum data for ${filter.key}:`, enumData)
-            if (filter.key === 'cycle_start') {
-                filter.options = enumData
-            } else {
-                filter.options = enumData.map(item => ({ value: item.value, label: item.label }))
-            }
-            console.log(`Processed options for ${filter.key}:`, filter.options)
-        }
-    }
-}
+// const loadFilterOptions = async () => {
+//     await waitForEnums()
 
-onMounted(async () => {
-    console.log('NimshipFilter: onMounted')
-    await loadFilterOptions()
-    console.log('NimshipFilter: Filter options loaded', props.filters)
-})
+//     filters.value = await Promise.all(props.filters.map(async (filter) => {
+//         if (filter.type === 'select' && filter.enumType && !filter.options) {
+//             const { data: enumData } = await getEnumsByType(filter.enumType)
+//             console.log(`[Enum][${filter.key}]:`, enumData.value)
+
+//             if (filter.key === 'cycle_start') {
+//                 return { ...filter, options: enumData.value }
+//             } else {
+//                 return {
+//                     ...filter,
+//                     options: enumData.value.map(item => ({
+//                         value: item.value,
+//                         label: item.label
+//                     }))
+//                 }
+//             }
+//         }
+//         return filter
+//     }))
+// }
+
+// onMounted(async () => {
+//     console.log('NimshipFilter: onMounted')
+//     await loadFilterOptions()
+//     console.log('NimshipFilter: Filter options loaded', props.filters)
+// })
 </script>
 
 <style scoped>
 .nimship-filter.mobile {
     width: 100%;
     padding-left: 20px;
-
 }
 </style>

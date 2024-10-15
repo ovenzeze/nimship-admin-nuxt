@@ -145,3 +145,28 @@ export type PickByValueType<T, ValueType> = Pick<T, {
 }[keyof T]>
 
 // Add any other types you need for your application
+
+interface FilterConfig {
+    key: string
+    type: string
+    placeholder: string
+    options: { value: string | number; label: string }[]
+    enumType: string
+    multiple?: boolean
+    dynamicOptions?: boolean
+    as?: 'Button' | 'Select' | 'auto'
+}
+interface FilterOption {
+    value?: string | number
+    label: string
+    cycle?: string
+    start?: string
+    end?: string
+}
+
+interface FilterParam {
+    
+}
+import { type driverTypes } from './driver'
+export { type FilterConfig, type FilterOption }
+export { type driverTypes }

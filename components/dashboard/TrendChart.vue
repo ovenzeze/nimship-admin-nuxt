@@ -6,7 +6,7 @@
           <Icon :name="icon" class="w-5 h-5 mr-2" />
           {{ title }}
         </div>
-        <div class="flex justify-end hidden md:block">
+        <div class="justify-end hidden md:block">
           <Select v-model="chartType">
             <SelectTrigger class="w-[180px]">
               <SelectValue placeholder="Select chart type" />

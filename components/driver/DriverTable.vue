@@ -1,157 +1,75 @@
-<!-- DriverTable.vue -->
 <template>
-    <UCard class="w-full flex flex-col" :ui="cardStyle">
-        <template #header>
-            <DriverFilterOld @update:filter="handleFilterChange" />
-        </template>
-
+    <div class="w-full flex flex-col max-h-[calc(100svh)] min-h-[400px]">
         <div class="flex-1 overflow-auto relative">
-            <div class="min-w-full align-middle">
-                <UTable :rows="drivers" :columns="visibleColumns" v-model:sort="localSort" :loading="loading"
-                    @select="selectRow" :ui="tableStyle" class="flex-1 w-full m-0 sticky-header">
-                    <!-- Table cell templates -->
-                    <template #team_name-data="{ row }">
-                        <UBadge :label="row.team_name" color="gray" variant="subtle" size="xs"
-                            :ui="{ rounded: 'rounded-full' }" />
-                    </template>
-                    <template #first_name-data="{ row }">
-                        <p>{{ row.first_name + " " + row.last_name }}</p>
-                    </template>
-                    <template #warehouse-data="{ row }">
-                        <UBadge :label="row.warehouse" color="indigo" variant="subtle"
-                            :ui="{ rounded: 'rounded-full' }" />
-                    </template>
-                    <template #driver_id-data="{ row }">
-                        <UBadge v-for="item in row.driver_id" :key="item" :label="item" color="emerald" variant="subtle"
-                            :ui="{ rounded: 'rounded-full' }" class="px-2" />
-                    </template>
-                    <template #driver_type-data="{ row }">
-                        <UBadge :label="row.driver_type" color="amber" variant="subtle"
-                            :ui="{ rounded: 'rounded-full' }" />
-                    </template>
-                    <template #enroll_time-data="{ row }">
-                        {{ formatDate(row.enroll_time) }}
-                    </template>
-                    <template #dl_expired_time-data="{ row }">
-                        {{ formatDate(row.dl_expired_time) }}
-                    </template>
-                    <template #has_notification-data="{ row }">
-                        <UIcon :name="row.has_notification ? 'i-heroicons-bell' : 'i-heroicons-bell-slash'"
-                            :class="row.has_notification ? 'text-green-500' : 'text-gray-400'" />
-                    </template>
-                    <template #status-data="{ row }">
-                        <UBadge size="sm" :label="row.status" :color="getStatusColor(row.status)" variant="subtle"
-                            class="uppercase" />
-                    </template>
-                    <template #actions-data="{ row }">
-                        <div class="sticky-action mx-auto">
-                            <UButton icon="i-ph-caret-down-thin" size="xs" color="primary" variant="soft"
-                                :ui="{ rounded: 'rounded-full' }" square @click="$emit('edit', row)" />
-                        </div>
-                    </template>
-                </UTable>
-            </div>
+            <UTable :rows="drivers" :columns="visibleColumns" v-model:sort="localSort" :loading="loading"
+                @select="selectRow" :ui="tableStyle" class="flex-1 w-full m-0 sticky-header">
+                <!-- Table cell templates -->
+                <template #team_name-data="{ row }">
+                    <UBadge :label="row.team_name" color="gray" variant="subtle" size="xs"
+                        :ui="{ rounded: 'rounded-full' }" />
+                </template>
+                <template #first_name-data="{ row }">
+                    <p class="uppercase font-semibold">{{ row.first_name + " " + row.last_name }}</p>
+                </template>
+                <template #warehouse-data="{ row }">
+                    <UBadge :label="row.warehouse" color="indigo" variant="subtle" :ui="{ rounded: 'rounded-full' }" />
+                </template>
+                <template #driver_id-data="{ row }">
+                    <UBadge v-for="item in row.driver_id" :key="item" :label="item" color="emerald" variant="subtle"
+                        :ui="{ rounded: 'rounded-full' }" class="px-2" />
+                </template>
+                <template #driver_type-data="{ row }">
+                    <UBadge :label="row.driver_type" color="amber" variant="subtle" :ui="{ rounded: 'rounded-full' }" />
+                </template>
+                <template #enroll_time-data="{ row }">
+                    {{ formatDate(row.enroll_time) }}
+                </template>
+                <template #dl_expired_time-data="{ row }">
+                    {{ formatDate(row.dl_expired_time) }}
+                </template>
+                <template #has_notification-data="{ row }">
+                    <UIcon :name="row.has_notification ? 'i-heroicons-bell' : 'i-heroicons-bell-slash'"
+                        :class="row.has_notification ? 'text-green-500' : 'text-gray-400'" />
+                </template>
+                <template #status-data="{ row }">
+                    <UBadge size="sm" :label="row.status" :color="getStatusColor(row.status)" variant="subtle"
+                        class="uppercase" />
+                </template>
+                <template #last_update-data="{ row }">
+                    {{ formatDate(row.last_update) }}
+                </template>
+                <template #mail_street-data="{ row }">
+
+                    <p v-if="row.mail_street" class="uppercase">{{ row.mail_street }}</p>
+                    <p v-if="row.mail_city" class="uppercase">{{ row.mail_city }} {{ row.mail_state }} {{ row.mail_zip
+                        }}</p>
+                    <p v-if="!row.mail_street" class="uppercase text-red-300">N/A</p>
+
+
+                </template>
+                <template #actions-data="{ row }">
+                    <div class="sticky-action mx-auto">
+                        <UButton icon="i-ph-caret-down-thin" size="xs" color="primary" variant="soft"
+                            :ui="{ rounded: 'rounded-full' }" square @click="$emit('edit', row)" />
+                    </div>
+                </template>
+            </UTable>
         </div>
-
-        <template #footer>
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <p class="text-sm text-gray-700 hidden md:block">
-                    Showing <span class="font-medium">{{ pageFrom }}</span> to <span class="font-medium">{{ pageTo
-                        }}</span> of
-                    <span class="font-medium">{{ totalDrivers }}</span> results
-                </p>
-                <UPagination v-model="currentPage" :page-count="totalPages" :total="totalDrivers" :ui="{
-                    wrapper: 'flex items-center gap-1.5',
-                    rounded: '!rounded-full w-[26px] h-[26px] justify-center',
-                    default: {
-                        activeButton: {
-                            variant: 'outline'
-                        }
-                    }
-                }" />
-            </div>
-        </template>
-    </UCard>
-
-    <UModal v-model="isColumnSelectorOpen">
-        <UCard>
-            <template #header>
-                <h3 class="text-base font-semibold leading-6 text-gray-900">Select Columns</h3>
-            </template>
-            <div class="space-y-2">
-                <UCheckbox v-for="column in columns" :key="column.key" v-model="selectedColumns" :label="column.label"
-                    :value="column.key" />
-            </div>
-        </UCard>
-    </UModal>
+    </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { HaulblazeContact } from '~/types'
-import NimshipFilter from '../base/NimshipFilter.vue';
-import { useEnums } from '~/composables/useEnums'
-import DriverFilterOld from './DriverFilterOld.vue';
 
-// const emit = defineEmits(['update:filter'])
-const { getEnumsByType, waitForEnums } = useEnums()
-
-const filters = ref({
-    warehouse_id: null,
-    cycle_start: null,
-    team: null,
-    driver_id: null
-})
-
-const filterConfigs = ref([
-    {
-        type: 'driver-selector' as const,
-        key: 'driver_id',
-        placeholder: 'Driver'
-    },
-    {
-        type: 'select' as const,
-        key: 'warehouse_id',
-        placeholder: 'Warehouse',
-        enumType: 'WAREHOUSE_CODE',
-        as: 'Select'
-    },
-    // {
-    //     type: 'select' as const,
-    //     key: 'cycle_start',
-    //     placeholder: 'Pay Cycle',
-    //     enumType: 'CYCLE'
-    // },
-    {
-        type: 'select' as const,
-        key: 'team',
-        placeholder: 'Team',
-        enumType: 'TEAM_NAME',
-        as: 'Select'
-
-    },
-])
-
-const handleFilterChange = (newFilters: typeof filters.value) => {
-    filters.value = newFilters
-    emit('update:filter', newFilters)
-}
-// Props definition
 const props = defineProps<{
     drivers: HaulblazeContact[]
     loading: boolean
-    totalDrivers: number
-    currentPage: number
-    pageSize: number
     sort: { column: string; direction: 'asc' | 'desc' }
 }>()
 
-// Emits definition
 const emit = defineEmits<{
     (e: 'update:sort', sort: { column: string; direction: 'asc' | 'desc' }): void
-    (e: 'update:page', page: number): void
-    (e: 'update:pageSize', pageSize: number): void
-    (e: 'update:filter', filter: any): void
     (e: 'edit', driver: HaulblazeContact): void
 }>()
 
@@ -174,34 +92,22 @@ const columns = [
     { key: 'commisson_rate', label: 'Rate', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
     { key: 'driver_type', label: 'Driver Type', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
     { key: 'has_notification', label: 'Notifications', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
-    { key: 'last_update', label: 'Last Update', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    { key: 'mail_street', label: 'Mail', class: 'w-[150px] min-w-[150px] max-w-[250px]', sortable: false },
+    { key: 'last_update', label: 'Last Update', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: true },
+    { key: 'mail_street', label: 'Address', class: 'w-[150px] min-w-[150px] max-w-[250px]', sortable: false },
     { key: 'status', label: 'Status', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
     { key: 'actions', label: 'Actions', class: 'w-[80px] min-w-[60px] max-w-[120px] sticky right-0 top-0 backdrop-filter bg-background border-l border-border', sortable: false },
 ]
 
-// Computed properties and reactive references
 const localSort = computed({
     get: () => props.sort,
     set: (value) => emit('update:sort', value)
 })
 
 const selectedRows = ref<HaulblazeContact[]>([])
-const isColumnSelectorOpen = ref(false)
 const selectedColumns = ref(columns.map(col => col.key))
 
 const visibleColumns = computed(() => columns.filter(col => selectedColumns.value.includes(col.key)))
 
-const currentPage = computed({
-    get: () => props.currentPage,
-    set: (value) => emit('update:page', value)
-})
-
-const pageFrom = computed(() => (props.currentPage - 1) * props.pageSize + 1)
-const pageTo = computed(() => Math.min(props.currentPage * props.pageSize, props.totalDrivers))
-const totalPages = computed(() => Math.ceil(props.totalDrivers / props.pageSize))
-
-// Helper functions
 function selectRow(row: HaulblazeContact) {
     const index = selectedRows.value.findIndex(item => item.uid === row.uid)
     if (index === -1) {
@@ -226,26 +132,21 @@ const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString()
 }
 
-const handleDriverChange = (value: string) => {
-    // Implement the logic for handling driver change
-    console.log('Driver changed:', value)
-}
-
 // UI styles
 const tableStyle = {
     wrapper: 'relative',
     base: 'min-w-full table-fixed',
-    divide: 'divide-y divide-gray-300',
+    divide: 'divide-border',
     thead: '',
-    tbody: 'divide-y divide-gray-200 border-box',
+    tbody: 'divide-y divide-gray-100 border-box',
     tr: {
-        base: 'transition-colors hover:bg-gray-50 z-20 px-3 py-3.5',
+        base: 'transition-colors z-20 px-3 py-3.5',
         selected: 'bg-gray-50',
     },
     th: {
-        base: 'z-20 px-3 py-3.5 text-center text-sm font-semibold',
+        base: 'z-20 px-3 py-3.5 text-center text-sm font-semibold bg-background',
         padding: 'px-3 py-3.5',
-        color: 'text-gray-900',
+        color: '',
         font: 'font-semibold',
         size: 'text-sm',
     },
@@ -310,27 +211,6 @@ const tableStyle = {
         },
     },
 }
-
-const cardStyle = {
-    base: 'w-full flex flex-col max-h-[calc(100svh)] min-h-[400px] border p-0 m-0',
-    background: 'bg-background',
-    divide: 'divide-y divide-gray-200',
-    header: {
-        base: 'py-2 sm:px-6 md:px-2 hidden md:block',
-        background: '',
-        padding: 'p-0 py-2',
-    },
-    body: {
-        base: 'flex-1 overflow-auto',
-        background: '',
-        padding: 'p-0 sm:p-0',
-    },
-    footer: {
-        base: 'px-4 py-4 sm:px-6',
-        background: '',
-        padding: 'p-4',
-    },
-}
 </script>
 
 <style>
@@ -338,7 +218,6 @@ const cardStyle = {
     position: sticky;
     top: 0;
     z-index: 10;
-    background-color: white;
 }
 
 .sticky-header td:has(.sticky-action) {
@@ -347,14 +226,12 @@ const cardStyle = {
     right: 0;
     padding-right: 0;
     padding-left: 0;
-    background: --bg-background;
-    border-left: .5px solid gray;
+
 }
 
 .sticky-action {
     position: sticky;
     right: 0;
-    background-color: white;
     z-index: 1;
 }
 </style>

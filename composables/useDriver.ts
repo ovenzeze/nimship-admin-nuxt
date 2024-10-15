@@ -1,6 +1,6 @@
 // useDriver.ts
 import { ref, computed } from 'vue'
-import { type HaulblazeContact, type DriverFilters, HaulblazeContactFields } from '~/types'
+import { type HaulblazeContact, type DriverFilters, HaulblazeContactFields, type driverTypes } from '~/types'
 
 export const useDriver = () => {
   const supabase = useSupabaseClient()
@@ -12,16 +12,14 @@ export const useDriver = () => {
   const isLoading = ref(false)
 
   const fetchDrivers = async (
-    page: number,
-    pageSize: number,
-    sort: { column: string; direction: 'asc' | 'desc' },
-    search?: string,
-    statusFilter?: string[],
-    filters?: DriverFilters
+    pagination?: driverTypes['pagination'],
+    sort?: driverTypes['TableSort'],
+    filters?: driverTypes['DriverFilters'],
   ) => {
     loading.value = true
     error.value = null
 
+    console.log('[fetchDrivers]', pagination, filters, sort)
     try {
       let query = supabase
         .from('haulblaze_contact')
@@ -29,30 +27,31 @@ export const useDriver = () => {
 
       // Apply filters
       if (filters) {
-        if (filters.warehouse) query = query.eq('warehouse', filters.warehouse)
-        if (filters.team_name) query = query.eq('team_name', filters.team_name)
+        if (filters?.warehouse) query = query.eq('warehouse', filters.warehouse)
+        if (filters.team) query = query.eq('team_name', filters.team)
         if (filters.driver_type) query = query.eq('driver_type', filters.driver_type)
         if (filters.status) query = query.eq('status', filters.status)
         if (filters.uid) query = query.eq('uid', filters.uid)
-        if (filters.employment_status) query = query.eq('employment_status', filters.employment_status)
+        if (filters.employment_status) query = query.eq('status', filters.employment_status)
       }
 
-      // Apply search
-      if (search) {
-        query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,driver_id.eq.${search}`)
-      }
+      // // Apply search
+      // if (search) {
+      //   query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,driver_id.eq.${search}`)
+      // }
 
       // Apply status filter
-      if (statusFilter && statusFilter.length > 0) {
-        query = query.in('status', statusFilter)
-      }
+      // if (statusFilter && statusFilter.length > 0) {
+      //   query = query.in('status', statusFilter)
+      // }
 
       // Apply sorting
-      query = query.order(sort.column, { ascending: sort.direction === 'asc' })
+      if (sort) query = query.order(sort.column, { ascending: sort.direction === 'asc' })
 
       // Apply pagination
-      const from = (page - 1) * pageSize
-      const to = from + pageSize - 1
+      const { page = 1, size = 20 } = pagination || {}
+      const from = (page - 1) * size
+      const to = from + size - 1
       query = query.range(from, to)
 
       const { data, error: fetchError, count } = await query
