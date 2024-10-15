@@ -1,10 +1,12 @@
 <template>
     <div class="nimship-filter" :class="{ 'mobile': isMobile }">
-        <div class="flex items-start justify-between md:justify-center" :class="{ 'flex-col space-y-4': isMobile }">
+        <div class="flex items-start justify-between" :class="{ 'flex-col space-y-4': isMobile }">
             <div class="flex flex-row items-start md:space-x-4 flex-shrink-0 overflow-auto"
                 :class="{ 'flex-col space-y-4 w-full': isMobile }">
                 <template v-for="filter in filters" :key="filter.key">
-                    <template v-if="filter.type === 'select'">
+                    <DriverSelector v-if="filter.type === 'driver-selector'" @select="updateFilter(filter.key, $event)"
+                        :class="isMobile ? 'w-full' : ''" />
+                    <template v-else="filter.type === 'select'">
                         <ButtonSwitcher v-if="shouldUseButtonSwitcher(filter)" :modelValue="filterValues[filter.key]"
                             :options="getButtonSwitcherOptions(filter)"
                             @update:value="updateFilter(filter.key, $event)" />
@@ -21,11 +23,9 @@
                             </SelectContent>
                         </Select>
                     </template>
-                    <DriverSelector v-else-if="filter.type === 'driver-selector'"
-                        @select="updateFilter(filter.key, $event)" :class="isMobile ? 'w-full' : ''" />
                 </template>
             </div>
-            <Button variant="outline" @click="resetFilters" :class="isMobile ? 'w-[90vw]' : 'ml-4 h-9'">
+            <Button variant="ghost" @click="resetFilters" :class="isMobile ? 'w-[90vw]' : 'ml-4 h-9'">
                 <Icon name="ph:funnel" class="mr-2" />Reset
             </Button>
         </div>
@@ -101,7 +101,7 @@ const getOptionLabel = (filter: FilterConfig, option: FilterOption): string => {
 const shouldUseButtonSwitcher = (filter: FilterConfig) => {
     if (filter.as === 'Button') return true
     if (filter.as === 'Select') return false
-    return filter.options && filter.options.length <= 3
+    return filter.options
 }
 
 const getButtonSwitcherOptions = (filter: FilterConfig) => {

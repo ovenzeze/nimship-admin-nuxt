@@ -1,15 +1,15 @@
+<!-- DriverPage.vue -->
 <template>
-    <div class="h-full flex border-box">
+    <div class="max-h-full h-full pb-10 md:pb-0 flex border-box">
         <DriverTable :drivers="drivers" :loading="loading" :total-drivers="totalCount" :current-page="currentPage"
             :page-size="pageSize" :sort="sort" @update:sort="handleSortChange" @update:page="handlePageChange"
-            @update:page-size="handlePageSizeChange" @update:search="handleSearchChange"
-            @update:status-filter="handleStatusFilterChange" @edit="handleEdit" />
+            @update:page-size="handlePageSizeChange" @edit="handleEdit" @update:filter="handleFilterChange" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { useDriver } from '~/composables/useDriver';
+import { useDriver } from '~/composables/useDriver'
 import type { DriverFilters, HaulblazeContact } from '~/types'
 
 const { drivers, totalCount, loading, fetchDrivers } = useDriver()
@@ -27,6 +27,7 @@ const filter = ref<DriverFilters>({
     uid: null,
     employment_status: null,
 })
+
 const fetchDriversData = async () => {
     try {
         await fetchDrivers(
@@ -43,6 +44,7 @@ const fetchDriversData = async () => {
     }
 }
 
+const handleFilterChange = () => { }
 const handleSortChange = (newSort: { column: string; direction: 'asc' | 'desc' }) => {
     Object.assign(sort, newSort)
     fetchDriversData()

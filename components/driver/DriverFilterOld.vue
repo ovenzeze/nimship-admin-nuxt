@@ -2,7 +2,7 @@
     <div class="driver-filter">
         <!-- Common structure for both mobile and desktop -->
         <div :class="{
-            'bg-background/95 px-0 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/60': !isMobile,
+            'bg-background/95 px-0 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/60': !isMobile,
             'fixed inset-x-0 bottom-0 bg-background rounded-t-xl z-40 max-h-[80vh] h-[50vh] overflow-y-auto transition-all duration-300 ease-in-out': isMobile,
             'translate-y-full': isMobile && !isFilterPanelOpen,
             'translate-y-0': isMobile && isFilterPanelOpen,
@@ -17,23 +17,23 @@
                 <div :class="{ 'flex-grow': !isMobile, 'mb-4': isMobile }">
                     <NimshipFilter :filters="filterConfigs" v-model="filters" @update:modelValue="handleFilterChange" />
                 </div>
-                <div :class="{ 'flex-shrink-0': !isMobile, 'mt-4 px-auto': isMobile }">
+                <!-- <div :class="{ 'flex-shrink-0': !isMobile, 'mt-4 px-auto': isMobile }">
                     <Button @click="addNewDriver" variant="secondary"
                         :class="{ 'w-[90vw] ': isMobile, 'h-9': !isMobile }">
                         <PlusCircle class="mr-2 h-4 w-4" />
                         Add New Driver
                     </Button>
-                </div>
+                </div> -->
             </div>
         </div>
 
         <!-- Mobile floating button -->
-        <Button v-if="isMobile" @click="toggleFilterPanel"
-            class="fixed bottom-4 right-4 z-50 rounded-full w-12 h-12 flex items-center justify-center" size="icon"
-            variant="default">
+        <UButton v-if="isMobile" @click="toggleFilterPanel"
+            class="fixed bottom-4 right-4 z-50 rounded-full w-9 h-9 flex items-center justify-center" size="icon"
+            variant="solid" color="red">
             <Icon v-if="!isFilterPanelOpen" name="ph:funnel" class="w-6 h-6" />
-            <Icon v-else name="ph:x" class="w-6 h-6" />
-        </Button>
+            <Icon v-else name="ph:x" class="w-4 h-4" />
+        </UButton>
     </div>
 </template>
 
@@ -77,17 +77,17 @@ type FilterConfig = {
 const filterConfigs = ref<FilterConfig[]>([
     {
         type: 'select',
-        key: 'warehouse',
-        as: 'Button',
-        placeholder: 'Warehouse',
-        enumType: EnumType.WAREHOUSE_CODE,
-    },
-    {
-        type: 'select',
         key: 'employment_status',
         as: 'Button',
         placeholder: 'Status',
         options: ['Employed', 'Onboarding', 'Quit'].map((value) => ({ value, label: String(value).toUpperCase() })),
+    },
+    {
+        type: 'select',
+        key: 'warehouse',
+        as: 'Select',
+        placeholder: 'Warehouse',
+        enumType: EnumType.WAREHOUSE_CODE,
     },
     {
         type: 'select',
