@@ -9,7 +9,7 @@
         <span class="md:hidden text-base">{{ label }}</span>
       </div>
     </div>
-    <div :class="['flex-1 grid grid-cols-2 lg:grid-cols-4 py-4 md:px-8', colorMap[themeColor]]">
+    <div :class="['flex-1 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 py-2 md:px-4 lg:px-8', colorMap[themeColor]]">
       <slot></slot>
     </div>
   </div>

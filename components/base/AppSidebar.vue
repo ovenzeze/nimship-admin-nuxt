@@ -102,7 +102,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
 
 <template>
   <ClientOnly>
-    <div class="flex min-h-screen w-full flex-col">
+    <div class="flex min-h-svh w-full flex-col">
       <!-- Mobile top bar -->
       <header class="fixed top-0 left-0 right-0 z-20 bg-background shadow-sm sm:hidden">
         <div class="flex items-center justify-between px-4 py-0">
@@ -132,8 +132,8 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
       </header>
 
       <!-- Desktop sidebar -->
-      <aside class="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
-        <nav class="flex flex-col items-center gap-4 py-5">
+      <aside class="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex py-4">
+        <nav class="flex flex-col items-center gap-4">
           <a href="/"
             class="group flex h-9 w-9 shrink-0 items-center justify-center rounded-full filter drop-shadow-lg dark:brightness-200 dark:invert">
             <img src="/images/deth_logo_transparent.png" alt="DETH" class="w-full " />
@@ -194,8 +194,8 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
           </DropdownMenu>
           <div v-if="isAuthenticated">
             <DropdownMenu>
-              <DropdownMenuTrigger class="flex h-9 w-9 items-center justify-center rounded-lg overflow-hidden">
-                <Icon name="ph:user-circle-fill" class="h-9 w-9 text-foreground" />
+              <DropdownMenuTrigger class="flex h-6 w-6 items-center justify-center rounded-lg overflow-hidden">
+                <Icon name="ph:user-circle-fill" class="h-6 w-6 text-foreground" />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuLabel>{{ userDisplayInfo.name }}</DropdownMenuLabel>
@@ -206,7 +206,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
             </DropdownMenu>
           </div>
           <Button v-else @click="handleLogin" variant="ghost" size="sm" class="h-9 w-9 p-0">
-            <Icon name="ph:user-circle" class="h-9 w-9 text-muted-foreground" />
+            <Icon name="ph:user-circle" class="h-6 w-6 text-muted-foreground" />
           </Button>
         </div>
       </aside>

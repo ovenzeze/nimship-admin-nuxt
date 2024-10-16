@@ -2,13 +2,13 @@
   <Card :ui="{ body: { base: 'w-full', padding: 'p-0 sm:p-2 py-6' } }">
     <CardHeader>
       <CardTitle class="flex flex-row items-center justify-between">
-        <div class="">
+        <div class="text-lg flex flex-row items-center">
           <Icon :name="icon" class="w-5 h-5 mr-2" />
           {{ title }}
         </div>
         <div class="justify-end hidden md:block">
           <Select v-model="chartType">
-            <SelectTrigger class="w-[180px]">
+            <SelectTrigger class="w-[120px]">
               <SelectValue placeholder="Select chart type" />
             </SelectTrigger>
             <SelectContent>

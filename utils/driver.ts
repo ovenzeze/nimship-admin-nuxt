@@ -53,5 +53,5 @@ const getContact = (driver: HaulblazeContact): Contact => {
   }
 }
 
-export type { PaymentStatus, PaymentStatusInfo, PaymentRecord, HaulblazeContact, PaymentStatusItem }
-export { getPayRcord, getContact, paymentStatusMap }
+export type { PaymentRecord, HaulblazeContact }
+export { getPayRcord, getContact }

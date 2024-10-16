@@ -35,17 +35,6 @@ export enum EnumType {
     'STATUS' = 'STATUS'
 }
 
-export enum PaymentStatus {
-    PENDING = 0,
-    PAID_ACH = 91,
-    PAID_CHECK = 92,
-    PAID_ZELLE = 93,
-    PAID_CASH = 99,
-    UNPAID_HOLD = 101,
-    PAID_VOID = 102,
-    OTHERS = 100,
-}
-
 // Interface types
 export interface EnumItem {
     id?: number
@@ -165,7 +154,7 @@ interface FilterOption {
 }
 
 interface FilterParam {
-    
+
 }
 import { type driverTypes } from './driver'
 export { type FilterConfig, type FilterOption }

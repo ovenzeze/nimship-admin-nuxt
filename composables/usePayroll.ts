@@ -1,7 +1,8 @@
 import { ref, computed } from 'vue'
 import { useSupabaseClient } from '#imports'
 import type { Database } from '~/types/database'
-import type { FetchPaymentRecordsOptions, FetchPayRecord, PaymentStatusItem, Warehouse } from '~/types/payment'
+import { type FetchPaymentRecordsOptions, type FetchPayRecord, type OriginPaymentStatus, type PaymentStatusItem, type Warehouse } from '~/types/payment'
+import { paymentStatusMap } from '~/types/payment'
 import { formatCurrency, formatDate } from '~/utils/formatter'
 
 export const usePayment = () => {
@@ -35,7 +36,8 @@ export const usePayment = () => {
         query = query.eq('warehouse', warehouse)
       }
       if (status && Array.isArray(status) && status.length > 0) {
-        query = query.in('payment_method', status)
+        const originStatus = Object.entries(paymentStatusMap).filter(([_, value]) => status.includes(value.status)).map(([key]) => key)
+        query = query.in('payment_method', originStatus)
       }
       if (cycle_start) {
         query = query.eq('cycle_start', cycle_start)

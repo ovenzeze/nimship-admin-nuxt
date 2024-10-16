@@ -1,60 +1,61 @@
 <template>
-    <div class="w-full flex flex-col max-h-[calc(100svh)] min-h-[400px]">
-        <div class="flex-1 overflow-auto relative">
-            <UTable :rows="drivers" :columns="visibleColumns" v-model:sort="localSort" :loading="loading"
-                @select="selectRow" :ui="tableStyle" class="flex-1 w-full m-0 sticky-header">
-                <!-- Table cell templates -->
-                <template #team_name-data="{ row }">
-                    <UBadge :label="row.team_name" color="gray" variant="subtle" size="xs"
-                        :ui="{ rounded: 'rounded-full' }" />
-                </template>
-                <template #first_name-data="{ row }">
-                    <p class="uppercase font-semibold">{{ row.first_name + " " + row.last_name }}</p>
-                </template>
-                <template #warehouse-data="{ row }">
-                    <UBadge :label="row.warehouse" color="indigo" variant="subtle" :ui="{ rounded: 'rounded-full' }" />
-                </template>
-                <template #driver_id-data="{ row }">
-                    <UBadge v-for="item in row.driver_id" :key="item" :label="item" color="emerald" variant="subtle"
-                        :ui="{ rounded: 'rounded-full' }" class="px-2" />
-                </template>
-                <template #driver_type-data="{ row }">
-                    <UBadge :label="row.driver_type" color="amber" variant="subtle" :ui="{ rounded: 'rounded-full' }" />
-                </template>
-                <template #enroll_time-data="{ row }">
-                    {{ formatDate(row.enroll_time) }}
-                </template>
-                <template #dl_expired_time-data="{ row }">
-                    {{ formatDate(row.dl_expired_time) }}
-                </template>
-                <template #has_notification-data="{ row }">
-                    <UIcon :name="row.has_notification ? 'i-heroicons-bell' : 'i-heroicons-bell-slash'"
-                        :class="row.has_notification ? 'text-green-500' : 'text-gray-400'" />
-                </template>
-                <template #status-data="{ row }">
-                    <UBadge size="sm" :label="row.status" :color="getStatusColor(row.status)" variant="subtle"
-                        class="uppercase" />
-                </template>
-                <template #last_update-data="{ row }">
-                    {{ formatDate(row.last_update) }}
-                </template>
-                <template #mail_street-data="{ row }">
+    <div class="flex-1 w-full flex flex-col">
+        <UTable :rows="drivers" :columns="visibleColumns" v-model:sort="localSort" :loading="loading"
+            @select="selectRow" :ui="tableStyle" class="flex-1 w-full m-0 sticky-header">
+            <!-- Table cell templates -->
+            <template #team_name-data="{ row }">
+                <UBadge :label="row.team_name" color="gray" variant="subtle" size="xs"
+                    :ui="{ rounded: 'rounded-full' }" />
+            </template>
+            <template #first_name-data="{ row }">
+                <p class="uppercase">{{ row.first_name + " " + row.last_name }}</p>
+            </template>
+            <template #warehouse-data="{ row }">
+                <UBadge :label="row.warehouse" color="indigo" variant="subtle" :ui="{ rounded: 'rounded-full' }" />
+            </template>
+            <template #driver_id-data="{ row }">
+                <UBadge v-for="item in row.driver_id" :key="item" :label="item" color="emerald" variant="subtle"
+                    :ui="{ rounded: 'rounded-full' }" class="px-2" />
+            </template>
+            <template #driver_type-data="{ row }">
+                <UBadge :label="row.driver_type" color="amber" variant="subtle" :ui="{ rounded: 'rounded-full' }" />
+            </template>
+            <template #enroll_time-data="{ row }">
+                {{ formatDate(row.enroll_time) }}
+            </template>
+            <template #zelle-data="{ row }">
+                {{ row.zelle || 'N/A' }}
+            </template>
+            <template #dl_expired_time-data="{ row }">
+                {{ row.dl_expired_time ? formatDate(row.dl_expired_time) : 'N/A' }}
+            </template>
+            <template #has_notification-data="{ row }">
+                <UIcon :name="row.has_notification ? 'i-heroicons-bell' : 'i-heroicons-bell-slash'"
+                    :class="row.has_notification ? 'text-green-500' : 'text-gray-400'" />
+            </template>
+            <template #status-data="{ row }">
+                <UBadge size="sm" :label="row.status" :color="getStatusColor(row.status)" variant="subtle"
+                    class="uppercase rounded-full" />
+            </template>
+            <template #last_update-data="{ row }">
+                {{ formatDate(row.last_update) }}
+            </template>
+            <template #mail_street-data="{ row }">
 
-                    <p v-if="row.mail_street" class="uppercase">{{ row.mail_street }}</p>
-                    <p v-if="row.mail_city" class="uppercase">{{ row.mail_city }} {{ row.mail_state }} {{ row.mail_zip
-                        }}</p>
-                    <p v-if="!row.mail_street" class="uppercase text-red-300">N/A</p>
+                <p v-if="row.mail_street" class="uppercase">{{ row.mail_street }}</p>
+                <p v-if="row.mail_city" class="uppercase">{{ row.mail_city }} {{ row.mail_state }} {{ row.mail_zip
+                    }}</p>
+                <p v-if="!row.mail_street" class="uppercase text-red-300">N/A</p>
 
 
-                </template>
-                <template #actions-data="{ row }">
-                    <div class="sticky-action mx-auto">
-                        <UButton icon="i-ph-caret-down-thin" size="xs" color="primary" variant="soft"
-                            :ui="{ rounded: 'rounded-full' }" square @click="$emit('edit', row)" />
-                    </div>
-                </template>
-            </UTable>
-        </div>
+            </template>
+            <template #actions-data="{ row }">
+                <div class="sticky-action mx-auto backdrop-blur-sm rounded-full px-1 py-2">
+                    <UButton icon="i-ph-caret-down-thin" size="xs" color="primary" variant="soft"
+                        :ui="{ rounded: 'rounded-full' }" square @click="$emit('edit', row)" />
+                </div>
+            </template>
+        </UTable>
     </div>
 </template>
 
@@ -76,7 +77,7 @@ const emit = defineEmits<{
 // Table columns definition
 const columns = [
     { key: 'team_name', label: 'Team', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    { key: 'first_name', label: 'First Name', class: 'w-[100px] min-w-[100px] max-w-[200px]', sortable: false },
+    { key: 'first_name', label: 'Name', class: 'w-[100px] min-w-[100px] max-w-[200px]', sortable: false },
     { key: 'warehouse', label: 'Warehouse', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
     { key: 'driver_id', label: 'Driver ID', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
     { key: 'enroll_time', label: 'Enroll Time', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
@@ -134,28 +135,28 @@ const formatDate = (dateString: string) => {
 
 // UI styles
 const tableStyle = {
-    wrapper: 'relative',
-    base: 'min-w-full table-fixed',
-    divide: 'divide-border',
-    thead: '',
-    tbody: 'divide-y divide-gray-100 border-box',
+    wrapper: '',
+    base: 'min-w-full table-fixed flex-1',
+    divide: '',
+    thead: 'stick top-0 left-0 z-30',
+    tbody: 'divide-gray-100 border-box',
     tr: {
         base: 'transition-colors z-20 px-3 py-3.5',
         selected: 'bg-gray-50',
     },
     th: {
-        base: 'z-20 px-3 py-3.5 text-center text-sm font-semibold bg-background',
+        base: 'z-20 px-3 py-3.5 text-center text-sm font-semibold backdrop-blur-lg  bg-gray-50 dark:bg-background border-b',
         padding: 'px-3 py-3.5',
         color: '',
         font: 'font-semibold',
         size: 'text-sm',
     },
     td: {
-        base: 'h-12 px-4 w-[120px] text-center align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis bg-muted-background/80',
+        base: 'h-12 px-4 w-[120px] text-center align-middle text-muted-foreground [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis',
         padding: 'px-4 py-3',
-        color: 'text-muted-foreground',
+        color: '',
         font: '',
-        size: 'text-xs',
+        size: 'text-sm',
     },
     checkbox: {
         padding: 'ps-4',
@@ -214,10 +215,15 @@ const tableStyle = {
 </script>
 
 <style>
+/* .sticky-header {
+    position: relative;
+    overflow: hidden;
+} */
+
 .sticky-header th {
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 20;
 }
 
 .sticky-header td:has(.sticky-action) {
@@ -226,8 +232,9 @@ const tableStyle = {
     right: 0;
     padding-right: 0;
     padding-left: 0;
-
+    /* background-color: hsl(var(--background)); */
 }
+
 
 .sticky-action {
     position: sticky;

@@ -36,7 +36,7 @@
 
     --radius: 0.5rem;
 
-        --vis-tooltip-background-color: none !important;
+    --vis-tooltip-background-color: none !important;
     --vis-tooltip-border-color: none !important;
     --vis-tooltip-text-color: none !important;
     --vis-tooltip-shadow-color: none !important;
@@ -87,6 +87,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }

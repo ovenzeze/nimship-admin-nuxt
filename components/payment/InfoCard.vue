@@ -1,6 +1,6 @@
 <template>
   <div :class="[
-    'px-3 md:py-10 flex flex-col justify-center transition-all duration-300',
+    'px-3  flex flex-col justify-center transition-all duration-300',
     'group-hover:z-10 animate-in fade-in duration-300',
     highlight ? 'font-semibold' : '',
   ]">

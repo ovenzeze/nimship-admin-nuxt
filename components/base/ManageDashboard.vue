@@ -1,7 +1,7 @@
 <template>
   <div class="flex-col md:flex">
-    <div class="flex-1 space-y-4 pt-6">
-      <div class="grid md:grid-cols-6 gap-4">
+    <div class="flex-1 space-y-4 pt-2 pb-10">
+      <div class="grid sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
 
         <TeamInfo :team-info="dashboardData.teamInfo" class="col-span-2" />
 

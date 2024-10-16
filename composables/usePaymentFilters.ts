@@ -5,9 +5,10 @@ import { type FilterOptions, type EnumItem, type TeamName, EnumType } from '~/ty
 import { type Warehouse, type PaymentStatusItem } from '~/types/payment';
 import { useCookie } from '#app';
 
-export function usePaymentFilters(initialWarehouses: Warehouse[]) {
+export function usePaymentFilters() {
     const { getEnumsByType } = useEnums();
 
+    const defaultWarehouse = ['SAN', 'LAX', 'SEA', 'LAS']
     // State
     const selectedWarehouse = ref<Warehouse>('ALL');
     const selectedStatus = ref<PaymentStatusItem>('ALL');
@@ -20,7 +21,7 @@ export function usePaymentFilters(initialWarehouses: Warehouse[]) {
     // Computed properties
     const warehouseOptions = computed(() => [
         { value: 'ALL' as const, label: 'ALL', icon: getWarehouseIcon('ALL') },
-        ...initialWarehouses.filter(wh => wh !== 'ALL').map((wh) => ({ value: wh, label: wh, icon: getWarehouseIcon(wh) }))
+        ...defaultWarehouse.filter(wh => wh !== 'ALL').map((wh) => ({ value: wh, label: wh, icon: getWarehouseIcon(wh) }))
     ]);
 
     const statusOptions = computed(() => (['ALL', 'PENDING', 'HOLD', 'PAID'] as const).map(status => ({
@@ -81,16 +82,11 @@ export function usePaymentFilters(initialWarehouses: Warehouse[]) {
         teamCookie.value = newVal;
     });
 
-    watch(initialWarehouses, (newWarehouses) => {
-        console.log('Warehouses updated in usePaymentFilters:', newWarehouses);
-        if (!newWarehouses.includes(selectedWarehouse.value) && selectedWarehouse.value !== 'ALL') {
-            selectedWarehouse.value = 'ALL';
-        }
-    });
 
     // Initialize data
     const initializeFilters = async () => {
         await Promise.all([loadTeams(), loadCycle()]);
+        if (!selectedCycle.value) selectedCycle.value = cyclesOptions.value[0].value
     };
 
     // Computed property for current filter state

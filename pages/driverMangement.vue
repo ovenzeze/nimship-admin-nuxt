@@ -55,7 +55,7 @@ onMounted(() => {
 })
 </script> -->
 <template>
-    <UCard class="w-full h-full flex flex-col" :ui="cardStyle">
+    <UCard class="w-full h-full flex flex-col bg-background" :ui="cardStyle">
         <template #header>
             <DriverFilter :filters="filters" @update:filter="handleFilterChange" />
         </template>
@@ -169,21 +169,21 @@ const getDriverList = async () => {
 onMounted(() => { getDriverList() })
 // Styles
 const cardStyle = {
-    base: 'w-full flex flex-col max-h-[calc(100svh)] min-h-[400px] border p-0 m-0',
+    base: 'w-full flex flex-col sm:max-h-[calc(100svh-60px)] md:max-h-[calc(100svh)] min-h-[400px] border p-0 m-0',
     background: 'bg-background',
     divide: ' divide-gray-200',
     header: {
         base: 'py-2 sm:px-6 md:px-2 hidden md:block',
-        background: '',
+        background: 'bg-background',
         padding: 'p-0 py-2',
     },
     body: {
-        base: 'flex-1 overflow-auto',
-        background: '',
+        base: 'flex-1 overflow-auto flex',
+        background: 'bg-background',
         padding: 'p-0 sm:p-0',
     },
     footer: {
-        base: 'px-2 py-1',
+        base: 'px-2 my-0',
         background: '',
         padding: 'sm:p-0 md:py-2',
     },

@@ -3,7 +3,7 @@
     <CardHeader>
       <CardTitle class="flex items-center space-x-2">
         <!-- <Icon name="ph:users" class="h-6 w-6 text-primary" /> -->
-        <span class="uppercase">{{ teamInfo.name }}</span>
+        <span class="uppercase text-md">{{ teamInfo.name }}</span>
       </CardTitle>
       <CardDescription class="pt-2">
         <Badge :variant="teamInfo.status === 'Active' ? 'success' : 'warning'">

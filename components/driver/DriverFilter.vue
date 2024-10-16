@@ -3,7 +3,7 @@
         aria-label="Filter options">
         <!-- Common structure for both mobile and desktop -->
         <div :class="{
-            'bg-background/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 w-full flex flex-row': !isMobile,
+            ' px-4 py-2 z-50 w-full flex flex-row': !isMobile,
             'fixed inset-x-0 bottom-0 bg-background rounded-t-xl z-40 max-h-[80vh] h-[50vh] overflow-y-auto transition-all duration-300 ease-in-out': isMobile,
             'translate-y-full': isMobile && !isFilterPanelOpen,
             'translate-y-0': isMobile && isFilterPanelOpen,
@@ -19,8 +19,8 @@
                 <USelectMenu v-for="filter in filterConfigs" :key="filter.key" v-model="filterParams[filter.key]"
                     :options="filter.options" :placeholder="filter.placeholder" :multiple="filter.multiple"
                     option-attribute="label" value-attribute="value" :aria-label="`Select ${filter.placeholder}`"
-                    :ui="{ container: 'z-20 group', ring: 'sm:ring-0 md:ring-0 ring-gray-50' }" class="ring-0"
-                    variant="none" size="md">
+                    :ui="{ container: 'z-20 group', ring: 'sm:ring-0 md:ring-0' }" class="ring-0" variant="none"
+                    size="md">
                     <template #label>
                         <span class="inline-block min-w-[60px] uppercase ring-0 text-xs py-0.5"> {{
                             filterParams[filter.key] ?

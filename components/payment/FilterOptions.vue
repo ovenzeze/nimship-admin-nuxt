@@ -86,8 +86,6 @@ const {
 // Initialize filters when component is mounted
 onMounted(async () => {
   await initializeFilters();
-  // Set initial selectedCycle from props
-  selectedCycle.value = props.selectedCycle;
 });
 
 // Watch for changes in filters and emit updates

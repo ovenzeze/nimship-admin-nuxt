@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex-1 flex-col h-full w-full">
     <!-- Main content -->
-    <div class="flex-1 flex flex-col h-full pb-10 md:pb-4 overflow-hidden">
+    <div class="flex-1 flex flex-col pb-10 md:pb-4 overflow-hidden">
       <!-- Filter -->
       <div class="w-full max-w-full">
         <DriverFilter @update:filter="handleFilterChange" @add-new-driver="openDriverDialog()" :filters="filters" />

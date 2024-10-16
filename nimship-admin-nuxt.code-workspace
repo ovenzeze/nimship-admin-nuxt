@@ -20,7 +20,8 @@
 		"tailwind-fold.foldLengthThreshold": 200,
 		"cursor.aipreview.enabled": true,
 		"cursor.chat.showSuggestedFiles": true,
-		"cursor.chat.smoothStreaming": true
+		"cursor.chat.smoothStreaming": true,
+		"CodeGPT.apiKey": "Bedrock"
 	},
 	"launch": {
 		"configurations": [
