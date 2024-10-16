@@ -61,7 +61,7 @@
             <span class="w-full border-t"></span>
         </div>
         <div class="relative flex justify-center text-xs uppercase">
-            <span class="bg-white px-2 text-gray-500">Or</span>
+            <span class=" px-2 text-gray-500">Or</span>
         </div>
     </div>
 
@@ -89,6 +89,5 @@ const {
     loginMethods,
     validateField,
     isFieldTouched,
-    isFieldDirty,
 } = useLogin()
 </script>

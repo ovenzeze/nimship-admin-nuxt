@@ -1,273 +1,191 @@
+<!-- DriverPage.vue
 <template>
-  <div class="flex-1 flex-col h-full w-full">
-    <!-- Main content -->
-    <div class="flex-1 flex flex-col pb-10 md:pb-4 overflow-hidden">
-      <!-- Filter -->
-      <div class="w-full max-w-full">
-        <DriverFilter @update:filter="handleFilterChange" @add-new-driver="openDriverDialog()" :filters="filters" />
-      </div>
-
-      <!-- Table -->
-      <div class="flex-1 overflow-hidden border border-border rounded-lg border-b-0 rounded-b-none">
-        <DriverTable :data="filteredDrivers" :columns="columns" :loading="loading" @update:sorting="handleSortingChange"
-          @update:columnFilters="handleColumnFiltersChange" @update:driver="handleDriverUpdate"
-          @edit-driver="openDriverDialog" @select-driver="selectDriver" />
-      </div>
-
-      <!-- Pagination -->
-      <div class="px-4 py-2 border border-border flex justify-between items-center rounded-lg rounded-t-none">
-        <div class="hidden md:block">
-          <span class="text-sm text-primary">
-            Showing {{ paginationStart }} to {{ paginationEnd }} of {{ totalCount }} entries
-          </span>
-        </div>
-        <Pagination v-if="!loading" v-slot="{ page }" :total="totalCount" :sibling-count="1" :show-edges="true"
-          :default-page="pagination.pageIndex + 1" @update:page="handlePageChange">
-          <PaginationList v-slot="{ items }" class="flex items-center gap-1">
-            <PaginationFirst class="w-7 h-7 p-0 rounded-full" />
-            <PaginationPrev class="w-7 h-7 p-0 rounded-full" />
-
-            <template v-for="(item, index) in items">
-              <PaginationListItem v-if="item.type === 'page'" :key="index" :value="item.value" as-child>
-                <Button class="w-7 h-7 p-0 rounded-full" :variant="item.value === page ? 'secondary' : 'outline'">
-                  {{ item.value }}
-                </Button>
-              </PaginationListItem>
-              <PaginationEllipsis v-else :key="item.type" :index="index" />
-            </template>
-
-            <PaginationNext class="w-7 h-7 p-0 rounded-full" />
-            <PaginationLast class="w-7 h-7 p-0 rounded-full" />
-          </PaginationList>
-        </Pagination>
-      </div>
+    <div class="max-h-full h-full pb-10 md:pb-0 flex border-box">
+        <DriverTable :drivers="drivers" :loading="loading" :total-drivers="totalCount" :current-page="currentPage"
+            :page-size="pageSize" :sort="sort" @update:sort="handleSortChange" @update:page="handlePageChange"
+            @update:page-size="handlePageSizeChange" @edit="handleEdit" @update:filter="handleFilterChange" />
     </div>
-
-    <!-- Driver Dialog -->
-    <DriverDialog v-if="showDriverDialog" :driver="selectedDriver" @close="closeDriverDialog" @save="saveDriver" />
-
-    <!-- Mobile Driver Details Modal -->
-    <Dialog v-model:open="showMobileDetailsModal">
-      <DialogContent class="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Driver Details</DialogTitle>
-          <DialogDescription>
-            {{ selectedDriver ? `${selectedDriver.first_name} ${selectedDriver.last_name}` : '' }}
-          </DialogDescription>
-        </DialogHeader>
-        <div v-if="selectedDriver" class="grid gap-4 py-4">
-          <div v-for="column in columns" :key="column.id" class="grid grid-cols-4 items-center gap-4">
-            <Label :for="column.id" class="text-right">{{ column.header }}</Label>
-            <div :id="column.id" class="col-span-3">
-              {{ formatCellValue(selectedDriver, column.id) }}
-            </div>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button @click="closeMobileDetailsModal">Close</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, h } from 'vue'
-import { useToast } from '@/components/ui/toast'
-import type { DriverFilters, HaulblazeContact, DriverColumn, Contact, QualificationIcon, Qualification } from '~/types'
-import { getContact } from '~/utils/driver'
-import { getRandomColor } from '~/utils/colorUtils'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
+import { ref, reactive, onMounted } from 'vue'
 import { useDriver } from '~/composables/useDriver'
-import QualificationCell from '~/components/driver/QualificationCell.vue'
+import type { DriverFilters, HaulblazeContact } from '~/types'
 
-const { drivers, fetchDrivers, updateDriver, createDriver, totalCount } = useDriver()
-const { toast } = useToast()
+const { drivers, totalCount, loading, fetchDrivers } = useDriver()
+
+const currentPage = ref(1)
+const pageSize = ref(20)
+const sort = reactive({ column: 'first_name', direction: 'asc' as const })
+const pagenation = 
+const search = ref('')
+const statusFilter = ref<string[]>([])
+
+const filter = ref<DriverFilters>({
+    warehouse: null,
+    team_name: '',
+    driver_type: null,
+    status: null,
+    uid: null,
+    employment_status: null,
+})
+
+const fetchDriversData = async () => {
+    try {
+        await fetchDrivers(
+            currentPage.value,
+            pageSize.value,
+            sort,
+            search.value,
+            statusFilter.value,
+            filter.value
+        )
+    } catch (error) {
+        console.error('Error fetching drivers:', error)
+        // Handle error (e.g., show error message to user)
+    }
+}
+
+const handleFilterChange = () => { }
+
+
+
+onMounted(() => {
+    fetchDriversData()
+})
+</script> -->
+<template>
+    <UCard class="w-full h-full flex flex-col bg-background" :ui="cardStyle">
+        <template #header>
+            <DriverFilter :filters="filters" @update:filter="handleFilterChange" />
+        </template>
+
+        <DriverTable :drivers="drivers" :loading="loading" :sort="localSort" @update:sort="updateSort"
+            @edit="handleEdit" />
+
+        <template #footer>
+            <DriverPagination :page="pagination.page" :total="pagination.total" :page-size="pagination.size"
+                @update:page="handlePageChange" />
+        </template>
+    </UCard>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from 'vue'
+import type { HaulblazeContact, driverTypes } from '~/types'
+import { useDriver } from '~/composables/useDriver'
+const { fetchDrivers, drivers = [], totalCount } = useDriver()
+
 const loading = ref(false)
 
-const qualificationIcons: QualificationIcon[] = [
-  { name: 'insurance', icon: 'i-mdi-car-insurance', tooltip: 'Insurance' },
-  { name: 'license', icon: 'i-mdi-card-account-details-outline', tooltip: 'License' },
-  { name: 'vehicle', icon: 'i-mdi-car', tooltip: 'Vehicle' },
-]
+// Emits
+const emit = defineEmits<{
+    (e: 'update:sort', sort: driverTypes['TableSort']): void
+    (e: 'update:page', page: number): void
+    (e: 'update:pageSize', pageSize: number): void
+    (e: 'update:filter', filter: driverTypes['DriverFilters']): void
+    (e: 'edit', driver: HaulblazeContact): void
+}>()
 
-const columns: DriverColumn[] = [
-  { id: 'name', header: 'Name', cell: (props) => h('span', props.row.name) },
-  { id: 'driver_id', header: 'Driver ID', cell: (props) => h('span', props.row.driver_id) },
-  { id: 'warehouse', header: 'Warehouse', cell: (props) => h('span', props.row.warehouse) },
-  { id: 'phone', header: 'Phone', cell: (props) => h('span', props.row.phone) },
-  { id: 'enroll_time', header: 'Enroll Time', cell: (props) => h('span', formatDate(props.row.enroll_time)) },
-  {
-    id: 'qualification',
-    header: 'Qualification',
-    cell: (props) => h(QualificationCell, { qualification: props.row.qualification, icons: qualificationIcons })
-  },
-  { id: 'dl_expired_time', header: 'DL Expiry', cell: (props) => h('span', formatDate(props.row.dl_expired_time)) },
-  { id: 'status', header: 'Status', cell: (props) => h('span', props.row.status) },
-  { id: 'team_name', header: 'Team', cell: (props) => h('span', props.row.team_name) },
-  { id: 'driver_type', header: 'Type', cell: (props) => h('span', props.row.driver_type) },
-  { id: 'email', header: 'Email', cell: (props) => h('span', { class: 'uppercase' }, props.row.email) },
-  // { id: 'employment_status', header: 'Employment Status', cell: (props) => h('span', props.row.employment_status) },
-]
-
-const filters = ref<DriverFilters>({
-  warehouse: null,
-  team_name: '',
-  driver_type: null,
-  status: null,
-  employment_status: null,
+// Local state
+const filters = ref<driverTypes['DriverFilters']>({
+    warehouse: null,
+    cycle_start: null,
+    team: null,
+    uid: null,
+    driver_id: null
 })
 
-const pagination = ref({ pageIndex: 0, pageSize: 20 })
-const sorting = ref([])
-const columnFilters = ref([])
+const pagination = ref({ page: 1, size: 20, total: totalCount.value })
 
-const showDriverDialog = ref(false)
-const selectedDriver = ref<Contact | null>(null)
-const showMobileDetailsModal = ref(false)
+const localSort = ref({ column: 'last_update', direction: 'desc' })
+// Table columns definition
+const columns: driverTypes['TableColumn'][] = [
+    { key: 'team_name', label: 'Team', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'first_name', label: 'First Name', class: 'w-[100px] min-w-[100px] max-w-[200px]', sortable: false },
+    { key: 'warehouse', label: 'Warehouse', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'driver_id', label: 'Driver ID', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'enroll_time', label: 'Enroll Time', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'driver_license_no', label: 'DL No.', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'dl_expired_time', label: 'DL Expired Time', class: 'w-[100px] min-w-[160px] max-w-[150px]', sortable: false },
+    { key: 'social_security_no', label: 'SSN', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'date_of_birth', label: 'DOB', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'phone', label: 'Phone', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'email', label: 'Email', class: 'w-[150px] min-w-[150px] max-w-[250px]', sortable: false },
+    { key: 'account_number', label: 'Account No.', class: 'w-[120px] min-w-[180px] max-w-[200px]', sortable: false },
+    { key: 'routing_number', label: 'Routing No.', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'zelle', label: 'Zelle', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'commisson_rate', label: 'Rate', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'driver_type', label: 'Driver Type', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'has_notification', label: 'Notifications', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'last_update', label: 'Last Update', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
+    { key: 'mail_street', label: 'Mail', class: 'w-[150px] min-w-[150px] max-w-[250px]', sortable: false },
+    { key: 'status', label: 'Status', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
+    { key: 'actions', label: 'Actions', class: 'w-[80px] min-w-[60px] max-w-[120px] sticky right-0 top-0 backdrop-filter bg-background border-l border-border', sortable: false },
+]
 
-const filteredDrivers = computed<Contact[]>(() => {
-  return drivers.value.map((driver: HaulblazeContact) => ({
-    ...getContact(driver),
-    color: getRandomColor(String(driver.uid)),
-  }))
-})
+// Computed properties
 
-const paginationStart = computed(() => pagination.value.pageIndex * pagination.value.pageSize + 1)
-const paginationEnd = computed(() => Math.min((pagination.value.pageIndex + 1) * pagination.value.pageSize, totalCount.value))
 
-const handleFilterChange = (newFilters: Partial<DriverFilters>) => {
-  filters.value = { ...filters.value, ...newFilters }
-  pagination.value.pageIndex = 0 // Reset to first page when filters change
-  fetchRecords()
+
+// Methods
+const handleFilterChange = (newFilters: driverTypes['DriverFilters']) => {
+    console.log('[handleFilterChange]:', newFilters)
+    filters.value = { ...filters.value, ...newFilters }
+    pagination.value = { page: 1, size: 20, total: 0 }
+    getDriverList()
+}
+const handlePageChange = (newPagination: driverTypes['pagination']) => {
+    console.log('[handlePageChange]:', newPagination)
+    pagination.value = { ...pagination.value, ...newPagination }
+    getDriverList()
+}
+const updateSort = (sort: driverTypes['TableSort']) => {
+    emit('update:sort', sort)
 }
 
-const handleSortingChange = (newSorting: any) => {
-  sorting.value = newSorting
-  fetchRecords()
+
+const updatePage = (page: number) => {
+    pagination.value.page = page
 }
 
-const handleColumnFiltersChange = (newColumnFilters: any) => {
-  columnFilters.value = newColumnFilters
-  fetchRecords()
+const handleEdit = (driver: HaulblazeContact) => {
+    emit('edit', driver)
 }
 
-const handleDriverUpdate = async (updatedDriver: HaulblazeContact) => {
-  try {
-    const result = await updateDriver(updatedDriver)
-    toast({
-      title: "Success",
-      description: `Driver ${result.first_name} ${result.last_name} updated successfully`,
-    })
-    fetchRecords() // Refresh the data after update
-  } catch (e) {
-    console.error('Error updating driver:', e)
-    toast({
-      title: "Error",
-      description: "Failed to update driver. Please try again.",
-      variant: 'destructive',
-    })
-  }
-}
-
-const fetchRecords = async () => {
-  loading.value = true
-  try {
-    await fetchDrivers(filters.value, sorting.value, columnFilters.value, pagination.value)
-  } catch (e) {
-    console.error('Error fetching drivers:', e)
-    toast({
-      title: "Error",
-      description: "Failed to fetch driver records. Please try again.",
-      variant: 'destructive',
-    })
-  } finally {
-    loading.value = false
-  }
-}
-
-const openDriverDialog = (driver?: HaulblazeContact) => {
-  selectedDriver.value = driver ? getContact(driver) : null
-  showDriverDialog.value = true
-}
-
-const closeDriverDialog = () => {
-  showDriverDialog.value = false
-  selectedDriver.value = null
-}
-
-const saveDriver = async (driver: HaulblazeContact) => {
-  try {
-    if (driver.uid) {
-      await updateDriver(driver)
-      toast({
-        title: "Success",
-        description: `Driver ${driver.first_name} ${driver.last_name} updated successfully`,
-      })
-    } else {
-      await createDriver(driver)
-      toast({
-        title: "Success",
-        description: `Driver ${driver.first_name} ${driver.last_name} created successfully`,
-      })
+const getDriverList = async () => {
+    try {
+        await fetchDrivers(
+            pagination.value,
+            localSort.value,
+            filters.value
+        )
+        pagination.value.total = totalCount.value
+    } catch (error) {
+        console.error('Error fetching drivers:', error)
+        // Handle error (e.g., show error message to user)
     }
-    closeDriverDialog()
-    fetchRecords() // Refresh the data after save
-  } catch (e) {
-    console.error('Error saving driver:', e)
-    toast({
-      title: "Error",
-      description: "Failed to save driver. Please try again.",
-      variant: 'destructive',
-    })
-  }
 }
-
-const handlePageChange = (newPage: number) => {
-  pagination.value.pageIndex = newPage - 1
-  fetchRecords()
+onMounted(() => { getDriverList() })
+// Styles
+const cardStyle = {
+    base: 'w-full flex flex-col sm:max-h-[calc(100svh-60px)] md:max-h-[calc(100svh)] min-h-[400px] border p-0 m-0',
+    background: 'bg-background',
+    divide: ' divide-gray-200',
+    header: {
+        base: 'py-2 sm:px-6 md:px-2 hidden md:block',
+        background: 'bg-background',
+        padding: 'p-0 py-2',
+    },
+    body: {
+        base: 'flex-1 overflow-auto flex',
+        background: 'bg-background',
+        padding: 'p-0 sm:p-0',
+    },
+    footer: {
+        base: 'px-2 my-0',
+        background: '',
+        padding: 'sm:p-0 md:py-2',
+    },
 }
-
-const selectDriver = (driver: Contact) => {
-  selectedDriver.value = driver
-  if (window.innerWidth < 768) { // Assuming 768px as the breakpoint for mobile devices
-    showMobileDetailsModal.value = true
-  }
-}
-
-const closeMobileDetailsModal = () => {
-  showMobileDetailsModal.value = false
-  selectedDriver.value = null
-}
-
-const formatDate = (date: string | null | undefined) => {
-  return date ? new Date(date).toLocaleDateString() : 'N/A'
-}
-
-const formatCellValue = (row: Contact, columnId: keyof Contact) => {
-  switch (columnId) {
-    case 'enroll_time':
-    case 'dl_expired_time':
-      return formatDate(row[columnId] as string | null | undefined)
-    case 'qualification':
-      return row.qualification ? Object.keys(row.qualification).filter(key => row.qualification[key as keyof Qualification]).join(', ') : 'N/A'
-    default:
-      return row[columnId] || 'N/A'
-  }
-}
-
-watch([filters, sorting, columnFilters], fetchRecords, { deep: true })
-
-onMounted(async () => {
-  await fetchRecords()
-})
 </script>

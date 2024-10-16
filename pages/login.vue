@@ -14,8 +14,8 @@ const { user, isSent, currentState } = useLogin()
 </script>
 
 <template>
-  <div class="flex min-h-screen w-full items-center justify-center bg-gradient-to-r from-indigo-200 to-yellow-100 p-4">
-    <Card v-if="!user" class="w-full max-w-md bg-white rounded-lg shadow-md">
+  <div class="flex min-h-screen w-full items-center justify-center bg-gradient-to-r bg-background p-4">
+    <Card v-if="!user" class="w-full max-w-md rounded-lg shadow-md">
       <CardHeader class="space-y-1">
         <CardTitle class="text-2xl font-bold text-center">NIMSHIP</CardTitle>
         <CardDescription class="text-center">
