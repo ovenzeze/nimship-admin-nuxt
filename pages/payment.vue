@@ -95,7 +95,7 @@ const selectedDriver = computed(() => {
   return null;
 });
 
-const selectedCycle = computed(() => filterOptions.value.cycle || paymentRecords.value[0].cycle_start);
+const selectedCycle = computed(() => filterOptions.value.cycle);
 const selectedIdx = ref<number>(0);
 const warehousesRef = ref<Warehouse[]>(['ALL']);
 

@@ -2,6 +2,7 @@ import type { Database } from "~/types/database";
 import type { EnumItem, EnumType, PayCycle } from "~/types";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { onMounted, ref } from "vue";
 dayjs.extend(utc);
 
 export function useEnums() {
@@ -83,7 +84,10 @@ export function useEnums() {
     return [];
   };
 
-  const getUniqueEnumTypes = (): EnumType[] => [...new Set(enumItems.value.map((item) => item.type as EnumType))];
+  const getUniqueEnumTypes = (): EnumType[] => {
+    return Array.from(new Set(enumItems.value.map((item: { type: EnumType }) => item.type))) as EnumType[];
+  };
+  // const getUniqueEnumTypes = (): EnumType[] => [...new Set(enumItems.value.map((item: { type: EnumType; }) => item.type as EnumType))];
 
   const waitForEnums = async () => {
     if (!isLoaded.value && !isLoading.value) {
@@ -113,3 +117,4 @@ export function useEnums() {
     waitForEnums,
   };
 }
+

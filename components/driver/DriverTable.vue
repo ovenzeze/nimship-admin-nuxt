@@ -139,7 +139,7 @@ const tableStyle = {
     base: 'min-w-full table-fixed flex-1',
     divide: '',
     thead: 'stick top-0 left-0 z-30',
-    tbody: 'divide-gray-100 border-box',
+    tbody: 'border-box',
     tr: {
         base: 'transition-colors z-20 px-3 py-3.5',
         selected: 'bg-gray-50',
@@ -152,7 +152,7 @@ const tableStyle = {
         size: 'text-sm',
     },
     td: {
-        base: 'h-12 px-4 w-[120px] text-center align-middle text-muted-foreground [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis',
+        base: 'h-12 px-4 w-[120px] text-center align-middle [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis',
         padding: 'px-4 py-3',
         color: '',
         font: '',

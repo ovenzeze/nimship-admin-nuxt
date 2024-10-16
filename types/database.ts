@@ -1004,9 +1004,8 @@ export type Database = {
           uid: string | null
           update_time: string | null
           warehouse:
-          | Database["public"]["Enums"]["area_code_enum_bd3e18a1"]
+          | Database["public"]["Enums"]["area_code_enum"]
           | null
-          warehouse_temp: Database["public"]["Enums"]["warehouse_enum"] | null
         }
         Relationships: [
           {

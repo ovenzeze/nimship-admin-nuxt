@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { DeliveryRecordView } from '~/types';
+import { paymentStatusMap, type OriginPaymentStatus } from '~/types/payment';
 import { formatCurrency, formatDate, formatDateRange, formatNumber } from '~/utils/formatter'
 
 const props = defineProps({
@@ -72,7 +73,7 @@ const formatCellValue = (row: DeliveryRecordView, column: { id: string; header: 
         case 'date':
             return formatDate(value as string)
         case 'driver_name':
-            return `<span class="text-xs trucate line-clamp-1">${value || 'N/A'}</span>`
+            return `<span class="text-xs trucate line-clamp-1 uppercase w-[180px]">${value || 'N/A'}</span>`
         case 'cycle_start':
             return formatDateRange(value as string, row.cycle_end as string)
         case 'warehouse':
@@ -102,7 +103,7 @@ const formatCellValue = (row: DeliveryRecordView, column: { id: string; header: 
                  `
         case 'payment_method':
             return `<span class="px-3 py-1.5 text-xs font-semibold rounded-full ${value === 'PAID' ? 'bg-green-100 text-green-800' : 'bg-yellow-500/20 text-zinc-900/70'
-                }">${paymentStatusMap[Number(value) as PaymentStatus].status}</span>`
+                }">${paymentStatusMap[Number(value) as OriginPaymentStatus].status}</span>`
         default:
             return value || 'N/A'
     }
