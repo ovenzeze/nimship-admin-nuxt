@@ -1,7 +1,7 @@
 <template>
   <div class="background-container">
-    <div class="flex items-center justify-center min-h-screen bg-background">
-      <Card class="w-full max-w-[370px] bg-white bg-opacity-90 dark:bg-gray-800 dark:bg-opacity-90">
+    <div class="flex items-center justify-center min-h-screen">
+      <Card class="w-full max-w-[370px]">
         <CardHeader class="text-center">
           <CardTitle>Login Confirmation</CardTitle>
           <CardDescription>
@@ -15,37 +15,36 @@
               Verifying
             </template>
           </CardDescription>
-          
         </CardHeader>
 
         <CardContent class="text-center">
           <div v-if="status === 'success'">
             <div class="flex justify-center mb-4">
-              <LucideCheckCircle class="h-12 w-12 text-success animate-pulse" />
+              <UIcon name="i-ph-check-circle" class="h-12 w-12 text-success animate-pulse" />
             </div>
             <p class="text-gray-500 mb-6">
               Redirecting to home in {{ redirectCountdown }} seconds
             </p>
             <Button class="w-full" @click="redirectToHome">
               Go to Home
-              <LucideHome class="h-4 w-4 ml-2" />
+              <Icon name="ph:house" class="h-4 w-4 ml-2" />
             </Button>
           </div>
           <div v-else-if="status === 'error'">
             <div class="flex justify-center items-center mb-4">
-              <LucideAlertTriangle class="h-12 w-12 text-destructive animate-pulse" />
+              <UIcon name="i-ph-warning" class="h-12 w-12 text-destructive animate-pulse" />
             </div>
             <h5 class="text-gray-500">
               Verification failed. Please check your email link.
             </h5>
-            <Button class="w-full mt-6" @click="redirectToHome">
-              <LucideArrowLeft class="h-4 w-4 mr-2" />
+            <UButton class="w-full mt-6 bg-background" @click="redirectToHome" variant="ghost">
+              <Icon name="ph:arrow" class="h-4 w-4 mr-2" />
               Return to Home
-            </Button>
+            </UButton>
           </div>
           <div v-else>
             <div class="flex justify-center items-center mb-4">
-              <LucideLoader class="h-8 w-8 text-primary animate-spin" />
+              <UIcon name="i-ph-spinner" class="h-8 w-8 text-primary animate-spin" />
             </div>
             <p class="text-gray-500 animate-pulse mt-4">Verifying login information</p>
           </div>
@@ -73,9 +72,15 @@ const supabase = useSupabaseClient()
 const cookieName = useRuntimeConfig().public.supabase.cookieName
 const redirectPath = useCookie(`${cookieName}-redirect-path`).value
 
+// Debug logging function
+const log = (message: string, data?: any) => {
+  console.log(`[Login Confirmation] ${message}`, data)
+}
+
 // Verify user login status
 const verifyLoginStatus = () => {
   if (user.value) {
+    log('User logged in successfully', user.value)
     status.value = 'success'
     email.value = user.value.email || ''
     startRedirectCountdown()
@@ -84,6 +89,7 @@ const verifyLoginStatus = () => {
     // Show success toast
     toast({ title: 'Login Successful', description: 'Welcome back!' })
   } else {
+    log('User verification failed')
     status.value = 'error'
   }
 }
@@ -92,8 +98,10 @@ let initialVerificationTimer: NodeJS.Timeout
 let redirectTimer: NodeJS.Timeout
 
 onMounted(async () => {
+  log('Component mounted')
   // Listen for auth state changes
   const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    log('Auth state changed', { event, session })
     if (event === 'SIGNED_IN') {
       verifyLoginStatus()
     }
@@ -102,17 +110,36 @@ onMounted(async () => {
   // Initial verification timer
   initialVerificationTimer = setTimeout(() => {
     if (status.value === 'pending') {
+      log('Verification timeout')
       status.value = 'error'
     }
   }, 3000)
 
   // Clean up the listener when the component is unmounted
   onUnmounted(() => {
+    log('Unsubscribing from auth listener')
     authListener.subscription.unsubscribe()
   })
+
+  // Check if there's a token in the URL
+  const token = route.query.token
+  if (token) {
+    log('Token found in URL', token)
+    try {
+      const { error } = await supabase.auth.verifyOtp({ token: token as string, type: 'magiclink' })
+      if (error) throw error
+      log('OTP verification successful')
+    } catch (error) {
+      log('OTP verification failed', error)
+      status.value = 'error'
+    }
+  } else {
+    log('No token found in URL')
+  }
 })
 
 const startRedirectCountdown = () => {
+  log('Starting redirect countdown')
   redirectTimer = setInterval(() => {
     if (redirectCountdown.value > 0) {
       redirectCountdown.value--
@@ -124,11 +151,13 @@ const startRedirectCountdown = () => {
 }
 
 const redirectToHome = () => {
+  log('Redirecting to home', { path: redirectPath || '/' })
   clearInterval(redirectTimer)
   router.push(redirectPath || '/')
 }
 
 onUnmounted(() => {
+  log('Component unmounted')
   clearInterval(redirectTimer)
   clearTimeout(initialVerificationTimer)
 })

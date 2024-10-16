@@ -67,7 +67,7 @@ export default {
     redirectOptions: {
       login: "/login",
       callback: "/confirm",
-      exclude: ["/terms", "/privacy", "/invoice", "/agent"],
+      exclude: ["/terms", "/privacy", "/invoice", "/agent", "*"],
       cookieRedirect: true,
     },
   },

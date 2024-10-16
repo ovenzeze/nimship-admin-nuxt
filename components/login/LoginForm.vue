@@ -1,6 +1,6 @@
 <template>
     <form @submit.prevent="onSubmit" class="space-y-4" novalidate>
-        <FormField v-slot="{ errorMessage, componentField, meta }" name="email" :validateOnBlur="!isFieldDirty">
+        <FormField v-slot="{ errorMessage, componentField, meta }" name="email">
             <FormItem>
                 <FormControl>
                     <div class="relative">
