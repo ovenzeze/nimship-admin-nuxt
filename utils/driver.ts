@@ -1,7 +1,6 @@
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import type { PayRecord, PaymentRecord, PaymentStatusInfo, Contact, HaulblazeContact, Warehouse, TeamName } from "~/types"
-import { PaymentStatus } from '~/types/index'
 import type { FetchPayRecord } from "~/types/payment"
 
 dayjs.extend(utc)
