@@ -180,9 +180,11 @@ onUnmounted(() => {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -191,6 +193,5 @@ onUnmounted(() => {
 /* Ensure content is above the background */
 .flex {
   position: relative;
-  z-index: 1;
-}
+  z-index: 1;}
 </style>

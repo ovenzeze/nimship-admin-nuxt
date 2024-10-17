@@ -34,11 +34,11 @@
             </div>
         </div>
 
-        <ClientOnly>
+        <DevOnly>
             <div class="mt-4">
                 <UButton @click="toggleAs">Toggle As: {{ as }}</UButton>
             </div>
-        </ClientOnly>
+        </DevOnly>
     </div>
 </template>
 
