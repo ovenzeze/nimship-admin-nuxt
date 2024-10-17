@@ -1,8 +1,8 @@
 <template>
-  <div class="app-container">
+  <div class="app-container fixed inset-0 overflow-hidden sm:mb-6 md:mb-4">
     <AppSidebar :nav-items="menuItems" :user="user" :is-authenticated="isAuthenticated" @logout="handleLogout"
       @login="handleLogin">
-      <div class="content-container">
+      <div class="content-container h-full max-h-full overflow-y-auto overscroll-y-contain md:overflow-y-scroll">
         <slot></slot>
       </div>
     </AppSidebar>
@@ -40,13 +40,13 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style>
 .app-container {
   @apply fixed inset-0 overflow-hidden;
 }
 
 .content-container {
-  @apply h-full overflow-y-auto overscroll-y-contain;
+  @apply overflow-y-auto overscroll-y-contain;
   -webkit-overflow-scrolling: touch;
 }
 

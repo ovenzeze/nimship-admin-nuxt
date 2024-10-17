@@ -21,7 +21,8 @@
 		"cursor.aipreview.enabled": true,
 		"cursor.chat.showSuggestedFiles": true,
 		"cursor.chat.smoothStreaming": true,
-		"CodeGPT.apiKey": "Bedrock"
+		"CodeGPT.apiKey": "Bedrock",
+		"editor.fontFamily": "Menlo, Monaco, 'Courier New', monospace"
 	},
 	"launch": {
 		"configurations": [

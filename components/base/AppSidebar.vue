@@ -102,9 +102,9 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
 
 <template>
   <ClientOnly>
-    <div class="flex min-h-svh w-full flex-col">
+    <div class="flex min-h-svh h-svh max-h-svh w-full flex-col">
       <!-- Mobile top bar -->
-      <header class="fixed top-0 left-0 right-0 z-20 bg-background shadow-sm sm:hidden">
+      <header class="bg-background shadow-sm block md:hidden h-10">
         <div class="flex items-center justify-between px-4 py-0">
           <Button @click="toggleSidebar" class="text-muted-foreground" variant="ghost">
             <Icon name="ph:list" class="h-5 w-6" />
@@ -213,11 +213,12 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
 
       <!-- Mobile sidebar -->
       <Transition name="slide-fade">
-        <aside v-if="isSidebarOpen" class="fixed inset-0 z-30 flex flex-col bg-background p-4 sm:hidden">
-          <button @click="toggleSidebar" class="self-end mb-4">
+        <aside v-if="isSidebarOpen"
+          class="fixed inset-0 z-30 min-h-svh h-svh max-h-svh  flex flex-col overflow-hidden bg-background/60 p-4 sm:hidden mb-10 backdrop-blur-sm">
+          <button @click="toggleSidebar" class="self-end mb-4 h-10">
             <Icon name="ph:x" class="h-6 w-6" />
           </button>
-          <nav class="flex flex-col gap-4">
+          <nav class="flex-1 flex flex-col gap-4 overflow-y-auto">
             <a v-for="item in filteredNavItems" :key="item.name" :href="item.href" :class="[
               'flex items-center gap-2 p-2 rounded-lg transition-colors',
               item.active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground'
@@ -226,7 +227,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
               <span>{{ item.name }}</span>
             </a>
           </nav>
-          <div class="mt-auto flex flex-col gap-4">
+          <div class="h-20 flex flex-col gap-4">
             <Button @click="toggleTheme" variant="outline" class="w-full">
               <Icon v-if="colorMode.value === 'dark'" name="ph:sun" class="h-5 w-5 mr-2" />
               <Icon v-else name="ph:moon" class="h-5 w-5 mr-2" />
@@ -260,8 +261,8 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
       </Transition>
 
       <!-- Main content area -->
-      <main class="flex-1 sm:pl-14 mt-10 md:mt-0 ">
-        <div class="mx-auto p-2 h-svh max-h-svh ">
+      <main class="flex-1 sm:pl-14 overscroll-none overflow-hidden">
+        <div class="h-full w-full px-2 py-3 md:px-4 md:py-4 overscroll-none">
           <slot></slot>
         </div>
       </main>

@@ -1,6 +1,6 @@
 <template>
     <div class="flex items-center justify-between px-4 py-1 sm:px-6">
-        <div class="flex flex-1 justify-between sm:hidden">
+        <div class=" flex-1 justify-between hidden">
             <UButton :disabled="page === 1" @click="updatePage(page - 1)" variant="outline">
                 Previous
             </UButton>
@@ -8,8 +8,8 @@
                 Next
             </UButton>
         </div>
-        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-            <div>
+        <div class="flex flex-1 items-center md:justify-between">
+            <div class="hidden md:block">
                 <p class="text-sm text-gray-700">
                     Showing
                     <span class="font-medium">{{ startIndex }}</span>
@@ -20,9 +20,9 @@
                     results
                 </p>
             </div>
-            <div>
+            <div class="w-full md:w-auto flex flex-row items-center justify-center">
                 <UPagination v-model="localPage" :page-count="pageCount" :total="total" :ui="{
-                    wrapper: ' shadow-sm gap-1',
+                    wrapper: 'shadow-sm gap-1 py-0',
                     base: ' text-center text-xs w-[28px] h-[28px] flex items-center justify-center rounded-full',
                     rounded: '',
                 }" />

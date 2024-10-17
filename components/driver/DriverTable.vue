@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-1 w-full flex flex-col">
+    <div class="flex-1 w-full flex flex-col overflow-hidden">
         <UTable :rows="drivers" :columns="visibleColumns" v-model:sort="localSort" :loading="loading"
             @select="selectRow" :ui="tableStyle" class="flex-1 w-full m-0 sticky-header">
             <!-- Table cell templates -->
@@ -135,17 +135,17 @@ const formatDate = (dateString: string) => {
 
 // UI styles
 const tableStyle = {
-    wrapper: '',
-    base: 'min-w-full table-fixed flex-1',
+    wrapper: 'overscroll-none',
+    base: 'min-w-full  table-fixed flex-1 overscroll-none',
     divide: '',
-    thead: 'stick top-0 left-0 z-30',
-    tbody: 'border-box',
+    thead: '',
+    tbody: 'w-full h-full overscroll-none',
     tr: {
         base: 'transition-colors z-20 px-3 py-3.5',
         selected: 'bg-gray-50',
     },
     th: {
-        base: 'z-20 px-3 py-3.5 text-center text-sm font-semibold backdrop-blur-lg  bg-gray-50 dark:bg-background border-b',
+        base: 'z-30 px-3 py-3.5 text-center text-sm font-semibold backdrop-blur-lg  bg-gray-50 dark:bg-background border-b',
         padding: 'px-3 py-3.5',
         color: '',
         font: 'font-semibold',
@@ -233,12 +233,5 @@ const tableStyle = {
     padding-right: 0;
     padding-left: 0;
     /* background-color: hsl(var(--background)); */
-}
-
-
-.sticky-action {
-    position: sticky;
-    right: 0;
-    z-index: 1;
 }
 </style>

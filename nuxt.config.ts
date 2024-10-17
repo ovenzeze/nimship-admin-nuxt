@@ -37,7 +37,6 @@ export default {
     preload: true,
     useStylesheet: true,
     families: {
-      Roboto: true,
       Inter: [400, 700],
       "Crimson Text": [400, 600, 700],
       "Noto Sans SC": [400, 600],

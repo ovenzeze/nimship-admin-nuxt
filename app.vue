@@ -1,5 +1,5 @@
 <template>
-  <div class="color-mode">
+  <div class="color-mode h-[100svh] max-h-[100svh]">
     <NuxtLayout>
       <NuxtPage />
       <Toaster />
@@ -8,7 +8,6 @@
 </template>
 
 <script setup lang="ts">
-import { useHead, useRoute } from '#imports'
 import { Toaster } from '@/components/ui/toast'
 import { computed } from 'vue'
 
