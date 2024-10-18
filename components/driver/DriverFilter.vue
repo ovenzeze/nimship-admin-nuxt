@@ -3,46 +3,50 @@
         aria-label="Filter options">
         <!-- Common structure for both mobile and desktop -->
         <div :class="{
-            ' px-4 py-2 z-50 w-full flex flex-row': !isMobile,
-            'fixed inset-x-0 bottom-0 bg-background rounded-t-xl z-40 max-h-[80vh] h-[50vh] overflow-y-auto transition-all duration-300 ease-in-out': isMobile,
-            'translate-y-full': isMobile && !isFilterPanelOpen,
-            'translate-y-0': isMobile && isFilterPanelOpen,
+            'py-2 w-full flex flex-row': !isMobile,
+            'fixed inset-x-0 bottom-0 bg-background/20 backdrop-blur-sm rounded-t-xl z-40 max-h-[100svh] h-[100svh] pt-[50svh] overflow-y-auto transition-all duration-300 ease-in-out': isMobile,
+            'translate-y-0': isMobile && !isFilterPanelOpen,
+            'translate-y-full': isMobile && isFilterPanelOpen,
         }">
+            <div class="h-full w-full  px-4 py-2 flex flex-col md:flex-row justify-stretch md:justify-between"
+                :class="{ 'rounded-t-2xl border-t-2 border-emerald-600': isMobile }">
+                <div :class="{ 'flex items-start justify-between mb-4 p-4': isMobile }">
+                    <h2 v-if="isMobile" class="text-lg font-semibold">Filter Options</h2>
+                    <UButton v-if="isMobile" variant="ghost" icon="i-heroicons-x-mark" @click="toggleFilterPanel" />
+                </div>
 
-            <div :class="{ 'flex items-start justify-between mb-4 p-4': isMobile }">
-                <h2 v-if="isMobile" class="text-lg font-semibold">Filter Options</h2>
-                <UButton v-if="isMobile" variant="ghost" icon="i-heroicons-x-mark" @click="toggleFilterPanel" />
-            </div>
-            <DriverSelector :class="isMobile ? 'w-full' : 'w-[100px]'" />
+                <DriverSelector />
 
-            <div :class="{ 'w-full flex flex-wrap gap-2 flex-row justify-end': !isMobile, 'p-4': isMobile }">
-                <USelectMenu v-for="filter in filterConfigs" :key="filter.key" v-model="filterParams[filter.key]"
-                    :options="filter.options" :placeholder="filter.placeholder" :multiple="filter.multiple"
-                    option-attribute="label" value-attribute="value" :aria-label="`Select ${filter.placeholder}`"
-                    :ui="{ container: 'z-20 group', ring: 'sm:ring-0 md:ring-0' }" class="ring-0" variant="none"
-                    size="md">
-                    <template #label>
-                        <span class="inline-block min-w-[60px] uppercase ring-0 text-xs py-0.5"> {{
-                            filterParams[filter.key] ?
-                                filterParams[filter.key] :
-                                filter.placeholder }}
-                        </span>
-                    </template>
-                    <template #option-empty="{ query }">
-                        <q>{{ query }}</q> not found
-                    </template>
-                </USelectMenu>
+                <div :class="{ 'w-full flex flex-wrap gap-2 flex-row justify-end z-30': !isMobile, 'py-4': isMobile }">
+                    <USelectMenu v-for="filter in filterConfigs" :key="filter.key" v-model="filterParams[filter.key]"
+                        :options="filter.options" :placeholder="filter.placeholder" :multiple="filter.multiple"
+                        option-attribute="label" value-attribute="value" :aria-label="`Select ${filter.placeholder}`"
+                        :ui="{ container: 'z-20 group', ring: 'sm:ring-0 md:ring-0' }" class="ring-0" variant="none"
+                        size="md">
+                        <template #label>
+                            <span class="inline-block min-w-[60px] uppercase ring-0 text-xs py-0.5"> {{
+                                filterParams[filter.key] ?
+                                    filterParams[filter.key] :
+                                    filter.placeholder }}
+                            </span>
+                        </template>
+                        <template #option-empty="{ query }">
+                            <q>{{ query }}</q> not found
+                        </template>
+                    </USelectMenu>
 
-                <UButton variant="ghost" @click="clearAllFilters" icon="i-ph-funnel">
-                    Reset
-                </UButton>
+                    <UButton variant="ghost" @click="clearAllFilters" icon="i-ph-funnel">
+                        Reset
+                    </UButton>
+                </div>
             </div>
         </div>
-
         <!-- Mobile floating button -->
-        <UButton v-if="isMobile" @click="toggleFilterPanel"
-            class="fixed bottom-4 right-4 z-50 rounded-full w-12 h-12 flex items-center justify-center"
-            icon="i-heroicons-funnel" size="lg" variant="solid" color="primary" />
+        <Button v-if="isMobile" @click="toggleFilterPanel"
+            class="md:hidden fixed bottom-16 -right-2 z-40 bg-foreground box-content rounded-tl-full rounded-bl-full pr-1 pl-2 py-0 scale-90"
+            size="icon">
+            <Icon name="ph:funnel" class="w-5 h-5 text-background" />
+        </Button>
     </div>
 </template>
 

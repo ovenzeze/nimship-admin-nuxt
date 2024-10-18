@@ -1,7 +1,8 @@
-import { ref } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useSupabaseClient } from '#imports'
 import type { Database } from '~/types/database'
 import type { DeliveryRecordView, DeliveryFilters, SortingState, ColumnFiltersState, PaginationState } from '~/types'
+import { useDebounceFn } from '@vueuse/core'
 
 export function useDelivery() {
     const supabase = useSupabaseClient<Database>()
@@ -10,82 +11,100 @@ export function useDelivery() {
     const error = ref<Error | null>(null)
     const totalCount = ref(0)
 
-    const fetchDeliveryRecords = async (
-        filters: DeliveryFilters = {},
-        sorting: SortingState = [],
-        columnFilters: ColumnFiltersState = [],
-        pagination: PaginationState = { pageIndex: 0, pageSize: 10 }
-    ) => {
-        console.log('Fetching delivery records with:', { filters, sorting, columnFilters, pagination })
+    const state = reactive({
+        filters: {} as DeliveryFilters,
+        sorting: [] as SortingState,
+        columnFilters: [] as ColumnFiltersState,
+        pagination: { pageIndex: 0, pageSize: 10 } as PaginationState
+    })
+
+    const buildQuery = () => {
+        let query = supabase
+            .from('delivery_records_view')
+            .select('*', { count: 'exact' })
+            .order('cycle_start', { ascending: false })
+
+        console.log('[useDelivery]buildQuery => Filters:', state.filters)
+        // Apply filters
+        if (state.filters.uid) {
+            query = query.eq('uid', state.filters.uid)
+            state.pagination.pageIndex = 0
+            state.filters.warehouse_id = undefined
+        }
+        if (state.filters.cycle_start) query = query.eq('cycle_start', state.filters.cycle_start)
+        if (state.filters.warehouse_id) query = query.eq('warehouse', state.filters.warehouse_id)
+        if (state.filters.status) query = query.eq('payment_status', state.filters.status)
+        if (state.filters.team) query = query.eq('team_name', state.filters.team)
+        if (state.filters.driver_id) query = query.eq('custom_uid', state.filters.driver_id)
+
+        // Apply sorting
+        state.sorting.forEach(sort => {
+            query = query.order(sort.id, { ascending: !sort.desc })
+        })
+
+        // Apply column filters
+        state.columnFilters.forEach(filter => {
+            query = query.eq(filter.id, filter.value)
+        })
+
+        // Apply pagination
+        const from = state.pagination.pageIndex * state.pagination.pageSize
+        const to = from + state.pagination.pageSize - 1
+        query = query.range(from, to)
+
+        return query
+    }
+
+    const fetchDeliveryRecords = async () => {
         loading.value = true
         error.value = null
 
         try {
-            let query = supabase
-                .from('delivery_records_view')
-                .select('*', { count: 'exact' })
-                .order('cycle_start', { ascending: false })
+            const query = buildQuery()
 
-            console.log('Initial query:', query)
-
-            // Apply filters
-            if (filters.cycle_start) {
-                query = query.eq('cycle_start', filters.cycle_start)
-                console.log('Applied cycle filter:', filters.cycle_start)
-            }
-            if (filters.warehouse_id) {
-                query = query.eq('warehouse', filters.warehouse_id)
-                console.log('Applied warehouse filter:', filters.warehouse_id)
-            }
-            if (filters.status) {
-                query = query.eq('payment_status', filters.status)
-                console.log('Applied status filter:', filters.status)
-            }
-            if (filters.team) {
-                query = query.eq('team_name', filters.team)
-                console.log('Applied status filter:', filters.team)
-            }
-            if (filters.driver_id) {
-                query = query.eq('custom_uid', filters.driver_id)
-                console.log('Applied driver filter:', filters.driver_id)
-            }
-
-            // Apply sorting
-            sorting.forEach(sort => {
-                query = query.order(sort.id, { ascending: !sort.desc })
-                console.log('Applied sorting:', sort)
-            })
-
-            // Apply column filters
-            columnFilters.forEach(filter => {
-                query = query.eq(filter.id, filter.value)
-                console.log('Applied column filter:', filter)
-            })
-
-            // Apply pagination
-            const from = pagination.pageIndex * pagination.pageSize
-            const to = from + pagination.pageSize - 1
-            query = query.range(from, to)
-            console.log('Applied pagination:', { from, to })
-
-            console.log('Final query:', query)
-
-            const { data, error: fetchError, count } = await query
+            const { data = [], error: fetchError, count } = await query
 
             if (fetchError) throw fetchError
 
-            console.log('Fetched data:', data)
-            console.log('Total count:', count)
-
             deliveryRecords.value = data as DeliveryRecordView[]
             totalCount.value = count || 0
+            console.log('[useDelivery]fetchDeliveryRecords => Rsp:', 'totalCount:', totalCount.value, 'deliveryRecords:', deliveryRecords.value && deliveryRecords.value[0])
         } catch (e) {
             error.value = e instanceof Error ? e : new Error('An unknown error occurred')
             console.error('Error fetching delivery records:', e)
         } finally {
             loading.value = false
-            console.log('Fetch operation completed. Loading:', loading.value)
         }
+    }
+
+    const debouncedFetch = useDebounceFn(fetchDeliveryRecords, 300)
+
+    const setFilters = (filters: DeliveryFilters) => {
+        state.filters = filters
+        debouncedFetch()
+    }
+
+    const resetFilter = () => {
+        state.filters = {
+            ...state.filters, uid: undefined, cycle_start: undefined,
+            warehouse_id: undefined, status: undefined, driver_id: undefined
+        }
+        debouncedFetch()
+    }
+
+    const setSorting = (sorting: SortingState) => {
+        state.sorting = sorting
+        debouncedFetch()
+    }
+
+    const setColumnFilters = (columnFilters: ColumnFiltersState) => {
+        state.columnFilters = columnFilters
+        debouncedFetch()
+    }
+
+    const setPagination = (pagination: PaginationState) => {
+        state.pagination = pagination
+        debouncedFetch()
     }
 
     const createDeliveryRecord = async (record: Omit<DeliveryRecordView, 'id'>) => {
@@ -149,14 +168,24 @@ export function useDelivery() {
         }
     }
 
+    const onError = computed(() => (handler: (error: Error) => void) => {
+        if (error.value) handler(error.value)
+    })
+
     return {
         deliveryRecords,
+        deliveryFilters: state.filters,
         loading,
         error,
         totalCount,
-        fetchDeliveryRecords,
+        setFilters,
+        resetFilter,
+        setSorting,
+        setColumnFilters,
+        setPagination,
         createDeliveryRecord,
         updateDeliveryRecord,
-        deleteDeliveryRecord
+        deleteDeliveryRecord,
+        onError
     }
 }

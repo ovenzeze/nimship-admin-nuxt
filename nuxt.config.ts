@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
-export default {
+export default defineNuxtConfig({
   devtools: { enabled: false },
   pages: true,
 
@@ -87,4 +87,4 @@ export default {
   ],
 
   compatibilityDate: "2024-09-26",
-};
+});

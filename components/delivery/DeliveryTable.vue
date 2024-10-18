@@ -41,11 +41,13 @@ import type { DeliveryRecordView } from '~/types';
 import { paymentStatusMap, type OriginPaymentStatus } from '~/types/payment';
 import { formatCurrency, formatDate, formatDateRange, formatNumber } from '~/utils/formatter'
 
+
 const props = defineProps({
     data: { type: Array as () => DeliveryRecordView[] },
     columns: { type: Array as () => { id: string; header: string }[] }
 })
 
+const record = ref()
 const visibleColumnIds = ref(props.columns.map(column => column.id))
 
 const visibleColumns = computed(() =>

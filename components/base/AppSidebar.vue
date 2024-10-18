@@ -214,7 +214,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
       <!-- Mobile sidebar -->
       <Transition name="slide-fade">
         <aside v-if="isSidebarOpen"
-          class="fixed inset-0 z-30 min-h-svh h-svh max-h-svh  flex flex-col overflow-hidden bg-background/60 p-4 sm:hidden mb-10 backdrop-blur-sm">
+          class="fixed inset-0 z-50 min-h-svh h-svh max-h-svh  flex flex-col overflow-hidden bg-background/60 p-4 sm:hidden mb-10 backdrop-blur-sm">
           <button @click="toggleSidebar" class="self-end mb-4 h-10">
             <Icon name="ph:x" class="h-6 w-6" />
           </button>

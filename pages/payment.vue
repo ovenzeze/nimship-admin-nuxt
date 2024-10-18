@@ -20,7 +20,7 @@
         </div>
       </template>
       <template #body>
-        <div v-if="loading" class="flex-1 h-full flex items-center justify-center">
+        <div v-if="loading" class="flex-1 h-full w-full flex items-center justify-center">
           <Icon name="ph:spinner" class="w-8 h-8 animate-spin" />
         </div>
         <div v-else class="flex-1 flex flex-col h-full overflow-hidden">
@@ -29,9 +29,9 @@
               @select-driver="(idx: number) => (selectedIdx = idx)" />
           </div>
           <div class="flex-1 w-full overflow-hidden">
-            <div v-if="selectedDriver" class="flex flex-col md:flex-row h-full">
+            <div v-if="selectedDriver" class="flex flex-col md:flex-row h-full justify-center items-stretch gap-x-4">
               <div
-                class="flex-1 overflow-y-auto overscroll-none scroll-smooth md:grid md:grid-rows-4 box-border mt-4 mr-4 border border-border rounded-lg divide-y">
+                class="flex-1 overflow-y-auto overscroll-none scroll-smooth md:grid md:grid-rows-4 mt-4   border border-border rounded-lg divide-y">
                 <DriverInfo :record="selectedDriver" />
                 <PayrollDetails :record="selectedDriver" />
                 <BankInfo :record="selectedDriver" />

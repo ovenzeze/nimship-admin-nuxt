@@ -1,12 +1,16 @@
 <template>
   <Popover>
     <PopoverTrigger as-child>
-      <div class="relative" ref="inputWrapper">
+      <div class="relative  min-w-[300px] rounded-full" :class="props.class" ref="inputWrapper">
         <Input v-model="searchQuery" placeholder="Search driver by name or id" @focus="handleFocus" @input="handleInput"
-          class="min-w-[300px] h-9" />
+          class="h-9 w-full" />
         <Button v-if="selectedDriver" variant="ghost" size="icon"
           class="absolute right-2 top-1/2 transform -translate-y-1/2" @click="clearSelection">
           <Icon name="ph:x" class="w-4 h-4" />
+        </Button>
+        <Button v-else variant="ghost" size="icon"
+          class="absolute right-2 top-1/2 transform -translate-y-1/2 hover:bg-transparent" @click="clearSelection">
+          <Icon name="ph:seal-percent" class="w-4 h-4 bg-opacity-75" />
         </Button>
       </div>
     </PopoverTrigger>
@@ -38,7 +42,7 @@
               </CommandItem>
             </CommandGroup>
             <CommandEmpty v-if="recentSearches.length === 0 && drivers.length === 0"
-              class="p-2 text-center text-sm text-muted-foreground">
+              class="pt-4 px-4 text-center text-sm text-muted-foreground min-h-full ">
               No recent or frequently used drivers. Start searching to find drivers.
             </CommandEmpty>
           </template>
@@ -55,7 +59,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed, nextTick } from 'vue'
 import { useDebounce } from '@vueuse/core'
 import { useDriver } from '~/composables/useDriver'
 import type { Database } from '~/types/database'
@@ -63,7 +66,8 @@ import type { Database } from '~/types/database'
 type Driver = Database['public']['Tables']['haulblaze_contact']['Row']
 
 const props = defineProps<{
-  modelValue: string | null
+  modelValue?: string | null
+  class?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -71,7 +75,7 @@ const emit = defineEmits<{
 }>()
 
 const searchQuery = ref('')
-const drivers = ref([])
+const drivers = ref<Driver[]>([])
 const debouncedSearchQuery = useDebounce(searchQuery, 300)
 const selectedDriver = ref<Driver | null>(null)
 const searchPerformed = ref(false)
@@ -86,11 +90,12 @@ const noDriversLoaded = computed(() => {
 })
 
 watch(debouncedSearchQuery, async (newQuery) => {
-  if (newQuery) {
+  const selectedDriverName = `${selectedDriver.first_name} ${selectedDriver.last_name}`.toUpperCase()
+  const isSelectedDriver = newQuery === selectedDriverName
+  if (newQuery && !isSelectedDriver) {
     searchPerformed.value = true
     const result = await searchDrivers(newQuery)
-    drivers.value = result
-
+    drivers.value = result as Driver[]
   } else {
     searchPerformed.value = false
     await getFrequentlyUsedDrivers()

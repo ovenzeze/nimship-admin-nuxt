@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <DevOnly>
+        <DevOnly v-if="isComtesterRoute">
             <div class="mt-4">
                 <UButton @click="toggleAs">Toggle As: {{ as }}</UButton>
             </div>
@@ -44,6 +44,7 @@
 
 <script lang="ts" setup>
 import { ref, watch, computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 interface Option {
     value: string;
@@ -62,6 +63,9 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
 }>();
+
+const route = useRoute();
+const isComtesterRoute = computed(() => route.path.startsWith('/comtester'));
 
 const currValue = ref(props.modelValue);
 const as = ref(props.as);

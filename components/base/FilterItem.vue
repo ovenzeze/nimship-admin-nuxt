@@ -1,19 +1,23 @@
 <template>
-    <div class="filter-item">
-        <USelectMenu v-model="selected" :options="options" :placeholder="config.placeholder" :multiple="config.multiple"
-            option-attribute="label" :aria-label="`Select ${config.placeholder}`" class="w-full">
+    <div class="filter-item z-30">
+        <USelectMenu v-model="internalValue" :options="options" :placeholder="config.placeholder"
+            :multiple="config.multiple" :aria-label="`Select ${config.placeholder}`" class="w-full" variant="none"
+            :uiMenu="selectStyle">
             <template #label>
-                <span class="min-w-[60px] uppercase text-xs flex flex-row items-center">
-                    <Icon v-if="selected && selected.icon" :name="selected.icon" class="w-4 h-4 mr-2" />
-                    {{ (selected && selected.label) || config.placeholder }}
+                <span class="min-w-[60px] uppercase flex flex-row items-center">
+                    <Icon v-if="internalValue && internalValue.icon" :name="internalValue.icon" class="w-4 h-4 mr-2" />
+                    {{ (internalValue && internalValue.label) || config.placeholder }}
                 </span>
             </template>
             <template #option-empty="{ query }">
                 <q>{{ query }}</q> not found
             </template>
             <template #option="{ option }">
-                <Icon v-if="option && option.icon" :name="option.icon" class="w-4 h-4" />
-                <span class="truncate">{{ option.label }}</span>
+                <div class="group min-w-full flex-1 flex flex-row items-center content-center gap-x-2 hover:opacity-100 transition-all duration-300"
+                    :class='{ "opacity-100": option.value == (internalValue && internalValue.value), "opacity-50": option.value !== (internalValue && internalValue.value) }'>
+                    <Icon v-if="option && option.icon" :name="option.icon" class="w-4 h-4" />
+                    <span class="truncate">{{ option.label }}</span>
+                </div>
             </template>
         </USelectMenu>
     </div>
@@ -25,35 +29,56 @@ import { useEnums } from '~/composables/useEnums'
 import { EnumType } from '~/types'
 import { getEnumsIcon } from '~/utils/icons';
 
-interface FilterConfig {
+export interface FilterConfig {
     key: string
     placeholder: string
     enumType?: EnumType
     multiple?: boolean
-    options?: { value: string; label: string }[]
-    selectFirstOption?: boolean // New configuration option
+    options?: filterOptionItem[]
+    selectFirstOption?: boolean
+}
+
+export interface filterOptionItem {
+    value: string | number,
+    label: string | number | boolean,
+    icon?: string
 }
 
 const props = defineProps<{
     config: FilterConfig
-    modelValue: any
+    modelValue: { [key: string]: string | number | boolean } | filterOptionItem
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:value', value: any): void
+    (e: 'update:value', value: filterOptionItem): void
 }>()
 
 const { getEnumsByType } = useEnums()
-const selected = ref(props.modelValue)
 const options = ref(props.config.options || [])
+const internalValue = ref(props.modelValue)
 
-watch(() => selected.value, (newValue) => {
-    emit('update:value', newValue)
-})
-
+// Watch for changes from props
 watch(() => props.modelValue, (newValue) => {
-    selected.value = newValue
+    if (newValue !== internalValue.value) {
+        internalValue.value = newValue
+    }
 })
+
+// Watch for internal changes
+watch(internalValue, (newValue) => {
+    console.log('internalValue.value', newValue)
+    console.log('props.modelValue', props.modelValue)
+    if (JSON.stringify(newValue) !== JSON.stringify(props.modelValue)) {
+        emit('update:value', newValue)
+    }
+}, { immediate: true })
+
+const selectStyle = {
+    transition: {
+        enterActiveClass: 'transition-all duration-300 animate-in slide-in-from-top fade-in',
+        leaveActiveClass: 'transition-all duration-300 animate-out slide-out-to-top',
+    },
+}
 
 onMounted(async () => {
     if (props.config.enumType) {
@@ -66,9 +91,9 @@ onMounted(async () => {
     }
 
     // Auto-select the first option if configured and no value is already selected
-    if (props.config.selectFirstOption && !selected.value && options.value.length > 0) {
-        selected.value = options.value[0]
-        emit('update:value', selected.value)
+    if (props.config.selectFirstOption && !internalValue.value && options.value.length > 0) {
+        internalValue.value = options.value[0]
+        emit('update:value', internalValue.value)
     }
 })
 </script>

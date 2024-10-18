@@ -50,7 +50,7 @@
 
             </template>
             <template #actions-data="{ row }">
-                <div class="sticky-action mx-auto backdrop-blur-sm rounded-full px-1 py-2">
+                <div class="mx-auto px-1 h-full sticky-action">
                     <UButton icon="i-ph-caret-down-thin" size="xs" color="primary" variant="soft"
                         :ui="{ rounded: 'rounded-full' }" square @click="$emit('edit', row)" />
                 </div>
@@ -62,6 +62,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { HaulblazeContact } from '~/types'
+
+const { isMobile } = useDevice()
 
 const props = defineProps<{
     drivers: HaulblazeContact[]
@@ -145,15 +147,15 @@ const tableStyle = {
         selected: 'bg-gray-50',
     },
     th: {
-        base: 'z-30 px-3 py-3.5 text-center text-sm font-semibold backdrop-blur-lg  bg-gray-50 dark:bg-background border-b',
+        base: 'z-20 px-3 py-3.5 text-center text-sm font-semibold backdrop-blur-lg  bg-gray-50 dark:bg-background border-b',
         padding: 'px-3 py-3.5',
         color: '',
         font: 'font-semibold',
         size: 'text-sm',
     },
     td: {
-        base: 'h-12 px-4 w-[120px] text-center align-middle [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis',
-        padding: 'px-4 py-3',
+        base: 'h-10 md:h-12 px-4 w-[120px] text-center align-middle [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis',
+        padding: 'px-2 md:px-4 py-3 md:py-3',
         color: '',
         font: '',
         size: 'text-sm',
@@ -230,8 +232,12 @@ const tableStyle = {
     position: sticky;
     z-index: 20;
     right: 0;
+    top: 45px;
     padding-right: 0;
     padding-left: 0;
-    /* background-color: hsl(var(--background)); */
+    height: 100%;
+    background-color: hsl(var(--muted) / 0.3);
+    --tw-backdrop-blur: blur(14px);
+    backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
 }
 </style>

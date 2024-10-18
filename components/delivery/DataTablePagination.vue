@@ -1,5 +1,5 @@
 <template>
-    <div class="flex items-center justify-between px-1">
+    <div class="flex items-center justify-center md:justify-between px-1 py-2">
         <div class="flex items-center space-x-6 lg:space-x-8">
 
             <div class="flex items-center space-x-2">
@@ -22,13 +22,13 @@
                     <Icon name="ph:caret-right-bold" class="h-3 w-3" />
                 </Button>
             </div>
-            <div class="flex items-center justify-center text-sm text-secondary-foreground/50">
+            <div class="items-center justify-center text-sm text-secondary-foreground/50 hidden md:flex">
                 {{ `Showing ${currentPage * Number(pageSize) + 1} - ${Math.min(currentPage * Number(pageSize) +
                     Number(pageSize), props.totalCount)} Records of ${props.totalCount}` }}
                 <!-- Showing {{ currentPage x pageSize.value }} - {{ (currentPage + 1) x pageSize.value }} of {{ totalCount -->
             </div>
         </div>
-        <div class="flex items-center space-x-2">
+        <div class="md:flex items-center space-x-2 hidden">
             <!-- <p class="text-sm font-medium">Rows per page</p> -->
             <Select v-model="pageSize" @update:modelValue="table.setPageSize($event)">
                 <SelectTrigger class="h-8 w-[70px]">
