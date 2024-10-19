@@ -2,7 +2,7 @@
     <div class="filter-item cursor-pointer">
         <LazyUSelectMenu v-model="selectedValue" :options="computedOptions" :placeholder="config.placeholder"
             :multiple="config.multiple" :aria-label="`Select ${config.placeholder}`" class="w-full" variant="none"
-            value-attribute="value" :uiMenu="selectStyle" @focus="loadFullComponent">
+            value-attribute="value" :uiMenu="selectStyle" @focus="loadFullComponent" @click="loadFullComponent">
             <template #label>
                 <span v-if="!isFullComponentLoaded && modelValue" :class="{ 'opacity-90': !isFullComponentLoaded }"
                     class="min-w-[60px] uppercase flex flex-row items-center justify-center cursor-pointer
@@ -107,9 +107,10 @@ const selectStyle = {
 
 const loadFullComponent = async () => {
     if (!isFullComponentLoaded.value && props.config.enumType) {
+        isFullComponentLoaded.value = true
+
         const fetchedEnumOptions = await getEnumsByType(props.config.enumType)
         enumOptions.value = fetchedEnumOptions
-        isFullComponentLoaded.value = true
 
         if (props.config.selectFirstOption && !selectedValue.value && computedOptions.value.length > 0) {
             selectedValue.value = computedOptions.value[0].value
