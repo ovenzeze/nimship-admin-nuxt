@@ -1,77 +1,92 @@
 // useDriver.ts
-import { ref, computed } from 'vue'
+import { ref, reactive, computed } from 'vue'
+import { useSupabaseClient } from '#imports'
+import { useDebounceFn } from '@vueuse/core'
 import { type HaulblazeContact, type DriverFilters, HaulblazeContactFields, type driverTypes } from '~/types'
 
 export const useDriver = () => {
   const supabase = useSupabaseClient()
+  const toast = useToast()
+
   const drivers = ref<HaulblazeContact[]>([])
-  const totalCount = ref(0)
   const loading = ref(false)
   const error = ref<Error | null>(null)
+  const totalCount = ref(0)
+  const pageIndex = ref(1)
+  const pageSize = ref(20)
+  const isSearchLoading = ref(false)
   const recentSearches = ref<HaulblazeContact[]>([])
-  const isLoading = ref(false)
 
-  const fetchDrivers = async (
-    pagination?: driverTypes['pagination'],
-    sort?: driverTypes['TableSort'],
-    filters?: driverTypes['DriverFilters'],
-  ) => {
+  const state = reactive({
+    filters: {} as DriverFilters,
+    sorting: [] as driverTypes['TableSort'][],
+    columnFilters: [] as { id: string; value: any }[]
+  })
+
+  const pagination = computed(() => ({
+    index: pageIndex.value,
+    size: pageSize.value,
+    total: totalCount.value,
+    from: (pageIndex.value - 1) * pageSize.value + 1,
+    to: Math.min(pageIndex.value * pageSize.value, totalCount.value),
+  }))
+
+  const buildQuery = () => {
+    let query = supabase
+      .from('haulblaze_contact')
+      .select('*', { count: 'exact' })
+
+    // Apply filters
+    if (state.filters.warehouse) query = query.eq('warehouse', state.filters.warehouse)
+    if (state.filters.team_name) query = query.eq('team_name', state.filters.team_name)
+    if (state.filters.driver_type) query = query.eq('driver_type', state.filters.driver_type)
+    if (state.filters.status) query = query.eq('status', state.filters.status)
+    if (state.filters.uid) query = query.eq('uid', state.filters.uid)
+    if (state.filters.employment_status) query = query.eq('status', state.filters.employment_status)
+
+    // Apply sorting
+    state.sorting.forEach(sort => {
+      query = query.order(sort.column, { ascending: sort.direction === 'asc' })
+    })
+
+    // Apply column filters
+    state.columnFilters.forEach(filter => {
+      query = query.eq(filter.id, filter.value)
+    })
+
+    // Apply pagination
+    const from = (pageIndex.value - 1) * pageSize.value
+    const to = from + pageSize.value - 1
+    query = query.range(from, to)
+
+    return query
+  }
+
+  const fetchDrivers = async () => {
     loading.value = true
     error.value = null
 
-    console.log('[fetchDrivers]', pagination, filters, sort)
     try {
-      let query = supabase
-        .from('haulblaze_contact')
-        .select('*', { count: 'exact' })
-
-      // Apply filters
-      if (filters) {
-        if (filters?.warehouse) query = query.eq('warehouse', filters.warehouse)
-        if (filters.team) query = query.eq('team_name', filters.team)
-        if (filters.driver_type) query = query.eq('driver_type', filters.driver_type)
-        if (filters.status) query = query.eq('status', filters.status)
-        if (filters.uid) query = query.eq('uid', filters.uid)
-        if (filters.employment_status) query = query.eq('status', filters.employment_status)
-      }
-
-      // // Apply search
-      // if (search) {
-      //   query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,driver_id.eq.${search}`)
-      // }
-
-      // Apply status filter
-      // if (statusFilter && statusFilter.length > 0) {
-      //   query = query.in('status', statusFilter)
-      // }
-
-      // Apply sorting
-      if (sort) query = query.order(sort.column, { ascending: sort.direction === 'asc' })
-
-      // Apply pagination
-      const { page = 1, size = 20 } = pagination || {}
-      const from = (page - 1) * size
-      const to = from + size - 1
-      query = query.range(from, to)
-
+      const query = buildQuery()
       const { data, error: fetchError, count } = await query
 
-      if (fetchError) {
-        throw fetchError
-      }
+      if (fetchError) throw fetchError
 
       drivers.value = data as HaulblazeContact[]
       totalCount.value = count || 0
 
-      return { drivers: data as HaulblazeContact[], total: count || 0 }
+      return { drivers: drivers.value, total: totalCount.value }
     } catch (err) {
-      error.value = err as Error
+      drivers.value = []
+      error.value = err instanceof Error ? err : new Error('An unknown error occurred')
       console.error('Error fetching drivers:', err)
       throw err
     } finally {
       loading.value = false
     }
   }
+
+  const debouncedFetch = useDebounceFn(fetchDrivers, 300)
 
   const stripExtraProperties = (driver: HaulblazeContact): HaulblazeContact => {
     return {
@@ -103,51 +118,40 @@ export const useDriver = () => {
       warehouse: driver.warehouse,
       zelle: driver.zelle
     };
-
-    return {
-      uid,
-      haulblaze_id,
-      first_name,
-      last_name,
-      driver_type,
-      email,
-      phone,
-      team_name,
-      warehouse,
-      status,
-      enroll_time,
-      dl_expired_time,
-      available,
-      rating,
-      completed_trips
-    };
   }
 
-  const updateDriver = async (driver: HaulblazeContact) => {
+  const updateDriver = async (driverUpdate: Partial<HaulblazeContact>) => {
     loading.value = true
     error.value = null
 
     try {
-      const strippedDriver = stripExtraProperties(driver);
+      if (!driverUpdate.uid) {
+        throw new Error('Driver UID is required for update')
+      }
+
       const { data, error: updateError } = await supabase
         .from('haulblaze_contact')
-        .update(strippedDriver)
-        .eq('uid', driver.uid)
+        .update(driverUpdate)
+        .eq('uid', driverUpdate.uid)
         .select()
 
-      if (updateError) {
-        throw updateError
-      }
+      if (updateError) throw updateError
+
+      toast.add({
+        title: 'Success update driver information.',
+        icon: "i-heroicons-check-badge",
+        id: driverUpdate.uid,
+      })
 
       // Update the local state
-      const index = drivers.value.findIndex(d => d.uid === driver.uid)
+      const index = drivers.value.findIndex(d => d.uid === driverUpdate.uid)
       if (index !== -1) {
-        drivers.value[index] = data[0] as HaulblazeContact
+        drivers.value[index] = { ...drivers.value[index], ...data[0] }
       }
 
-      return data[0] as HaulblazeContact
+      return drivers.value[index] as HaulblazeContact
     } catch (err) {
-      error.value = err as Error
+      error.value = err instanceof Error ? err : new Error('An unknown error occurred')
       console.error('Error updating driver:', err)
       throw err
     } finally {
@@ -166,16 +170,14 @@ export const useDriver = () => {
         .insert(strippedDriver)
         .select()
 
-      if (createError) {
-        throw createError
-      }
+      if (createError) throw createError
 
       // Add the new driver to the local state
       drivers.value.push(data[0] as HaulblazeContact)
 
       return data[0] as HaulblazeContact
     } catch (err) {
-      error.value = err as Error
+      error.value = err instanceof Error ? err : new Error('An unknown error occurred')
       console.error('Error creating driver:', err)
       throw err
     } finally {
@@ -185,9 +187,7 @@ export const useDriver = () => {
 
   const searchDrivers = async (query: string) => {
     error.value = null
-    const loadingTimeout = setTimeout(() => {
-      isLoading.value = true
-    }, 200)
+    isSearchLoading.value = true
 
     try {
       let searchCondition: string
@@ -208,20 +208,17 @@ export const useDriver = () => {
         .or(searchCondition)
         .limit(10)
 
-      if (searchError) {
-        throw searchError
-      }
+      if (searchError) throw searchError
 
       console.log('[searchDrivers]Rsp:', data)
 
       return data as HaulblazeContact[]
     } catch (err) {
-      error.value = err as Error
+      error.value = err instanceof Error ? err : new Error('An unknown error occurred')
       console.error('Error searching drivers:', err)
       throw err
     } finally {
-      clearTimeout(loadingTimeout)
-      isLoading.value = false
+      setTimeout(() => isSearchLoading.value = false, 400)
     }
   }
 
@@ -234,7 +231,7 @@ export const useDriver = () => {
 
   const getFrequentlyUsedDrivers = async () => {
     error.value = null
-    const loadingTimeout = setTimeout(() => { isLoading.value = true }, 200)
+    isSearchLoading.value = true
 
     try {
       const { data, error: fetchError } = await supabase
@@ -243,19 +240,37 @@ export const useDriver = () => {
         .order(HaulblazeContactFields.last_update, { ascending: false })
         .limit(10)
 
-      if (fetchError) {
-        throw fetchError
-      }
+      if (fetchError) throw fetchError
 
       return data as HaulblazeContact[]
     } catch (err) {
-      error.value = err as Error
+      error.value = err instanceof Error ? err : new Error('An unknown error occurred')
       console.error('Error fetching frequently used drivers:', err)
       throw err
     } finally {
-      clearTimeout(loadingTimeout)
-      isLoading.value = false
+      isSearchLoading.value = false
     }
+  }
+
+  const setFilters = (filters: DriverFilters) => {
+    state.filters = filters
+    debouncedFetch()
+  }
+
+  const setSorting = (sorting: driverTypes['TableSort'][]) => {
+    state.sorting = sorting
+    debouncedFetch()
+  }
+
+  const setColumnFilters = (columnFilters: { id: string; value: any }[]) => {
+    state.columnFilters = columnFilters
+    debouncedFetch()
+  }
+
+  const setPagination = ({ page, size }: { page?: number; size?: number }) => {
+    if (page !== undefined) pageIndex.value = page
+    if (size !== undefined) pageSize.value = size
+    debouncedFetch()
   }
 
   return {
@@ -263,15 +278,18 @@ export const useDriver = () => {
     totalCount,
     loading,
     error,
+    pagination,
     recentSearches,
-    isLoading,
+    isSearchLoading,
     fetchDrivers,
     updateDriver,
     createDriver,
     searchDrivers,
     addToRecentSearches,
-    getFrequentlyUsedDrivers
+    getFrequentlyUsedDrivers,
+    setFilters,
+    setSorting,
+    setColumnFilters,
+    setPagination
   }
 }
-
-

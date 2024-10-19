@@ -1,7 +1,8 @@
 <template>
-  <div class="color-mode h-[100svh] max-h-[100svh]">
+  <div class="color-mode">
     <NuxtLayout>
       <NuxtPage />
+      <UNotifications />
       <Toaster />
     </NuxtLayout>
   </div>
@@ -64,12 +65,9 @@ useHead({
   background-color: #f3f4f6;
 }
 
-body {
-  padding-bottom: env(safe-area-inset-bottom);
-}
 
 /* for global page transition */
-.page-enter-active,
+/* .page-enter-active,
 .page-leave-active {
   transition: all 0.4s;
 }
@@ -78,7 +76,7 @@ body {
 .page-leave-to {
   opacity: 0;
   filter: blur(1rem);
-}
+} */
 
 .noscrollbar::-webkit-scrollbar {
   width: 0.125rem;

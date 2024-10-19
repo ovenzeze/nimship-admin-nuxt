@@ -1,8 +1,8 @@
 <template>
-  <div class="app-container fixed inset-0 overflow-hidden sm:mb-6 md:mb-4">
+  <div class="app-container">
     <AppSidebar :nav-items="menuItems" :user="user" :is-authenticated="isAuthenticated" @logout="handleLogout"
       @login="handleLogin">
-      <div class="content-container h-full max-h-full overflow-y-auto overscroll-y-contain md:overflow-y-scroll">
+      <div class="content-container">
         <slot></slot>
       </div>
     </AppSidebar>
@@ -29,34 +29,22 @@ const isMobile = ref(false)
 
 onMounted(() => {
   isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-
-  if (!isMobile.value) {
-    document.body.style.overflow = 'hidden'
-  }
-})
-
-onUnmounted(() => {
-  document.body.style.overflow = ''
 })
 </script>
 
 <style>
 .app-container {
-  @apply fixed inset-0 overflow-hidden;
+  @apply min-h-screen;
 }
 
 .content-container {
-  @apply overflow-y-auto overscroll-y-contain;
+  @apply h-full overflow-y-auto;
   -webkit-overflow-scrolling: touch;
 }
 
 @media (min-width: 768px) {
   .content-container {
-    @apply overflow-y-scroll;
+    @apply overflow-y-auto;
   }
-}
-
-:global(body) {
-  @apply overscroll-y-none;
 }
 </style>

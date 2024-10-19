@@ -1,54 +1,100 @@
 <template>
-    <div class="flex-1 w-full flex flex-col overflow-hidden">
+    <div class="flex-1  h-full  flex flex-col overflow-hidden relative">
+        <div v-if="loading"
+            class="absolute top-0 right-0 h-full w-full flex items-center content-center z-30 bg-background/25 animate-in fade-in-20 backdrop-blur-sm">
+            <Icon name="ph:spinner" class="w-8 h-8 animate-spin flex-1" />
+        </div>
         <UTable :rows="drivers" :columns="visibleColumns" v-model:sort="localSort" :loading="loading"
-            @select="selectRow" :ui="tableStyle" class="flex-1 w-full m-0 sticky-header">
+            @select="selectRow" :ui="tableStyle" class="flex-1 w-full m-0 sticky-header relative">
+
+            <template #empty-state>
+                <div class=" w-[90vw] text-center py-6 gap-3 pt-28">
+                    <span class="italic text-primary-foreground">No Records</span>
+                </div>
+            </template>
             <!-- Table cell templates -->
             <template #team_name-data="{ row }">
-                <UBadge :label="row.team_name" color="gray" variant="subtle" size="xs"
-                    :ui="{ rounded: 'rounded-full' }" />
+                <!-- <UPopover>
+                    <div class="w-full flex flex-row items-center justify-center">
+                        <UBadge :label="row.team_name" color="zinc" variant="outline" class="rounded-full px-3" />
+                    </div>
+                    <template #panel> -->
+                <div class="min-w-full flex flex-row items-center justify-center">
+                    <FilterItem key="team" :config="teamConfig" :modelValue="row.team_name" :lazy=true
+                        @update:modelValue="($event) => updateField('team_name', $event, row)" />
+                </div>
+                <!-- </template>
+</UPopover> -->
             </template>
+
             <template #first_name-data="{ row }">
                 <p class="uppercase">{{ row.first_name + " " + row.last_name }}</p>
             </template>
-            <template #warehouse-data="{ row }">
-                <UBadge :label="row.warehouse" color="indigo" variant="subtle" :ui="{ rounded: 'rounded-full' }" />
-            </template>
-            <template #driver_id-data="{ row }">
-                <UBadge v-for="item in row.driver_id" :key="item" :label="item" color="emerald" variant="subtle"
-                    :ui="{ rounded: 'rounded-full' }" class="px-2" />
-            </template>
-            <template #driver_type-data="{ row }">
-                <UBadge :label="row.driver_type" color="amber" variant="subtle" :ui="{ rounded: 'rounded-full' }" />
-            </template>
+
             <template #enroll_time-data="{ row }">
-                {{ formatDate(row.enroll_time) }}
+                <p class="uppercase">{{ formatDate(row.enroll_time) }}</p>
             </template>
-            <template #zelle-data="{ row }">
-                {{ row.zelle || 'N/A' }}
+
+            <template #warehouse-data="{ row }">
+                <div class="flex flex-row items-center justify-center cursor-pointer">
+                    <FilterItem key="warehouse_id" :config="warehouseConfig" :modelValue="row.warehouse" :lazy=true
+                        @update:modelValue="($event) => updateField('warehouse', $event, row)" />
+                </div>
             </template>
-            <template #dl_expired_time-data="{ row }">
-                {{ row.dl_expired_time ? formatDate(row.dl_expired_time) : 'N/A' }}
+
+            <template #driver_id-data="{ row }">
+                <div class="flex flex-row items-center justify-center gap-x-1"
+                    v-if="row.driver_id && row.driver_id.length">
+                    <UBadge :label="id" color="zinc" variant="outline" v-for="id in row.driver_id"
+                        class="rounded-full px-3" />
+                </div>
+                <div v-else>
+                    <UBadge label="N/A" color="red" variant="outline" class="rounded-full px-3 opacity-50" />
+
+                </div>
             </template>
-            <template #has_notification-data="{ row }">
-                <UIcon :name="row.has_notification ? 'i-heroicons-bell' : 'i-heroicons-bell-slash'"
-                    :class="row.has_notification ? 'text-green-500' : 'text-gray-400'" />
+
+            <template #driver_type-data="{ row }">
+                <div class="w-full flex flex-row items-center justify-center">
+                    <UPopover :popper="{ placement: 'bottom-start' }">
+                        <UBadge :label="row.driver_type" color="amber" variant="subtle"
+                            :ui="{ rounded: 'rounded-full' }" class="cursor-pointer" />
+                        <template #content>
+                            <div class="p-4 w-64">
+                                <USelect v-model="row.driver_type" :options="driverTypeOptions"
+                                    @update:model-value="updateField('driver_type', $event, row)" />
+                            </div>
+                        </template>
+                    </UPopover>
+                </div>
             </template>
+
             <template #status-data="{ row }">
-                <UBadge size="sm" :label="row.status" :color="getStatusColor(row.status)" variant="subtle"
-                    class="uppercase rounded-full" />
+                <div class="flex flex-row items-center justify-center">
+                    <UPopover :popper="{ placement: 'bottom-start' }">
+                        <UBadge size="sm" :label="row.status" :color="getStatusColor(row.status)" variant="subtle"
+                            class="uppercase rounded-full cursor-pointer" />
+                        <template #content>
+                            <div class="p-4 w-64">
+                                <USelect v-model="row.status" :options="statusOptions"
+                                    @update:model-value="updateField('status', $event, row)" />
+                            </div>
+                        </template>
+                    </UPopover>
+                </div>
             </template>
+
             <template #last_update-data="{ row }">
                 {{ formatDate(row.last_update) }}
             </template>
+
             <template #mail_street-data="{ row }">
-
                 <p v-if="row.mail_street" class="uppercase">{{ row.mail_street }}</p>
-                <p v-if="row.mail_city" class="uppercase">{{ row.mail_city }} {{ row.mail_state }} {{ row.mail_zip
-                    }}</p>
+                <p v-if="row.mail_city" class="uppercase">{{ row.mail_city }} {{ row.mail_state }} {{ row.mail_zip }}
+                </p>
                 <p v-if="!row.mail_street" class="uppercase text-red-300">N/A</p>
-
-
             </template>
+
             <template #actions-data="{ row }">
                 <div class="mx-auto px-1 h-full sticky-action">
                     <UButton icon="i-ph-caret-down-thin" size="xs" color="primary" variant="soft"
@@ -60,8 +106,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import type { HaulblazeContact } from '~/types'
+import { EnumType, type HaulblazeContact } from '~/types'
+import { columns, tableStyle, getStatusColor, formatDate } from './driver.table.config'
 
 const { isMobile } = useDevice()
 
@@ -71,45 +117,53 @@ const props = defineProps<{
     sort: { column: string; direction: 'asc' | 'desc' }
 }>()
 
+
 const emit = defineEmits<{
     (e: 'update:sort', sort: { column: string; direction: 'asc' | 'desc' }): void
     (e: 'edit', driver: HaulblazeContact): void
+    (e: 'update:field', update: Partial<HaulblazeContact>): void
 }>()
 
-// Table columns definition
-const columns = [
-    { key: 'team_name', label: 'Team', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    { key: 'first_name', label: 'Name', class: 'w-[100px] min-w-[100px] max-w-[200px]', sortable: false },
-    { key: 'warehouse', label: 'Warehouse', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    { key: 'driver_id', label: 'Driver ID', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
-    { key: 'enroll_time', label: 'Enroll Time', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    { key: 'driver_license_no', label: 'DL No.', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    { key: 'dl_expired_time', label: 'DL Expired Time', class: 'w-[100px] min-w-[160px] max-w-[150px]', sortable: false },
-    { key: 'social_security_no', label: 'SSN', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    { key: 'date_of_birth', label: 'DOB', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
-    { key: 'phone', label: 'Phone', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    { key: 'email', label: 'Email', class: 'w-[150px] min-w-[150px] max-w-[250px]', sortable: false },
-    { key: 'account_number', label: 'Account No.', class: 'w-[120px] min-w-[180px] max-w-[200px]', sortable: false },
-    { key: 'routing_number', label: 'Routing No.', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    { key: 'zelle', label: 'Zelle', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
-    { key: 'commisson_rate', label: 'Rate', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
-    { key: 'driver_type', label: 'Driver Type', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
-    { key: 'has_notification', label: 'Notifications', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
-    { key: 'last_update', label: 'Last Update', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: true },
-    { key: 'mail_street', label: 'Address', class: 'w-[150px] min-w-[150px] max-w-[250px]', sortable: false },
-    { key: 'status', label: 'Status', class: 'w-[100px] min-w-[100px] max-w-[150px]', sortable: false },
-    { key: 'actions', label: 'Actions', class: 'w-[80px] min-w-[60px] max-w-[120px] sticky right-0 top-0 backdrop-filter bg-background border-l border-border', sortable: false },
-]
+// const warehouse
 
-const localSort = computed({
-    get: () => props.sort,
-    set: (value) => emit('update:sort', value)
-})
+const warehouseConfig = {
+    type: 'select' as const,
+    key: 'warehouse_id',
+    placeholder: 'Warehouse',
+    enumType: EnumType.WAREHOUSE_CODE,
+    as: 'button'
+}
+
+const driverConfig = {
+    key: 'driver_id',
+    placeholder: 'Driver Id',
+    enumType: EnumType.DRIVER_ID,
+}
+
+const payCyleConfig = {
+    key: 'cycle_start',
+    placeholder: 'Pay Cycle',
+    enumType: EnumType.CYCLE,
+    selectFirstOption: true
+}
+
+const teamConfig = {
+    type: 'select' as const,
+    key: 'team',
+    placeholder: 'Team',
+    enumType: EnumType.TEAM_NAME,
+    selectFirstOption: true
+}
+
+function updateField(field: keyof HaulblazeContact, value: any, driver: HaulblazeContact) {
+    console.log('[Driver][updateField]', field, value, driver.uid)
+    emit('update:field', { uid: driver.uid, [field]: value })
+}
 
 const selectedRows = ref<HaulblazeContact[]>([])
 const selectedColumns = ref(columns.map(col => col.key))
-
 const visibleColumns = computed(() => columns.filter(col => selectedColumns.value.includes(col.key)))
+const localSort = computed({ get: () => props.sort, set: (value) => emit('update:sort', value) })
 
 function selectRow(row: HaulblazeContact) {
     const index = selectedRows.value.findIndex(item => item.uid === row.uid)
@@ -119,109 +173,9 @@ function selectRow(row: HaulblazeContact) {
         selectedRows.value.splice(index, 1)
     }
 }
-
-const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-        case 'active':
-            return 'emerald'
-        case 'inactive':
-            return 'orange'
-        default:
-            return 'gray'
-    }
-}
-
-const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString()
-}
-
-// UI styles
-const tableStyle = {
-    wrapper: 'overscroll-none',
-    base: 'min-w-full  table-fixed flex-1 overscroll-none',
-    divide: '',
-    thead: '',
-    tbody: 'w-full h-full overscroll-none',
-    tr: {
-        base: 'transition-colors z-20 px-3 py-3.5',
-        selected: 'bg-gray-50',
-    },
-    th: {
-        base: 'z-20 px-3 py-3.5 text-center text-sm font-semibold backdrop-blur-lg  bg-gray-50 dark:bg-background border-b',
-        padding: 'px-3 py-3.5',
-        color: '',
-        font: 'font-semibold',
-        size: 'text-sm',
-    },
-    td: {
-        base: 'h-10 md:h-12 px-4 w-[120px] text-center align-middle [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis',
-        padding: 'px-2 md:px-4 py-3 md:py-3',
-        color: '',
-        font: '',
-        size: 'text-sm',
-    },
-    checkbox: {
-        padding: 'ps-4',
-    },
-    loadingState: {
-        wrapper: 'flex flex-col items-center justify-center h-24 p-4',
-        label: 'text-sm text-center text-muted-foreground',
-        icon: 'w-6 h-6 mx-auto text-muted-foreground animate-spin',
-    },
-    emptyState: {
-        wrapper: 'flex flex-col items-center justify-center h-24 p-4',
-        label: 'text-sm text-center text-muted-foreground',
-        icon: 'w-6 h-6 mx-auto text-muted-foreground mb-2',
-    },
-    expand: {
-        icon: 'transition-transform duration-200',
-    },
-    progress: {
-        wrapper: 'absolute inset-x-0 bottom-0 h-1',
-    },
-    default: {
-        sortAscIcon: 'i-ph-arrow-up-thin text-xs w-4 h-4',
-        sortDescIcon: 'i-ph-arrow-down-thin text-xs',
-        sortButton: {
-            icon: 'i-heroicons-arrows-up-down-12-solid',
-            trailing: true,
-            square: true,
-            color: 'red',
-            variant: 'ghost',
-            class: '-m-1 h-4 w-4 p-0',
-        },
-        expandButton: {
-            icon: 'i-ph-caret-down-thin text-xs',
-            color: 'gray',
-            variant: 'ghost',
-            size: 'xs',
-            class: '-my-1 h-6 w-6 p-0',
-        },
-        checkbox: {
-            color: 'primary',
-        },
-        progress: {
-            color: 'primary',
-            animation: 'indeterminate',
-        },
-        loadingState: {
-            icon: 'i-ph-circle-notch',
-            label: 'Loading...',
-        },
-        emptyState: {
-            icon: 'i-ph-stack',
-            label: 'No items.',
-        },
-    },
-}
 </script>
 
 <style>
-/* .sticky-header {
-    position: relative;
-    overflow: hidden;
-} */
-
 .sticky-header th {
     position: sticky;
     top: 0;
@@ -236,8 +190,9 @@ const tableStyle = {
     padding-right: 0;
     padding-left: 0;
     height: 100%;
-    background-color: hsl(var(--muted) / 0.3);
-    --tw-backdrop-blur: blur(14px);
-    backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+    /* background-color: hsl(var(--muted)); */
+    /* --tw-backdrop-blur: blur(14px); */
+
+    /* backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia); */
 }
 </style>

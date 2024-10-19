@@ -1,99 +1,126 @@
 <template>
-    <div class="filter-item z-30">
-        <USelectMenu v-model="internalValue" :options="options" :placeholder="config.placeholder"
+    <div class="filter-item cursor-pointer">
+        <LazyUSelectMenu v-model="selectedValue" :options="computedOptions" :placeholder="config.placeholder"
             :multiple="config.multiple" :aria-label="`Select ${config.placeholder}`" class="w-full" variant="none"
-            :uiMenu="selectStyle">
+            value-attribute="value" :uiMenu="selectStyle" @focus="loadFullComponent">
             <template #label>
-                <span class="min-w-[60px] uppercase flex flex-row items-center">
-                    <Icon v-if="internalValue && internalValue.icon" :name="internalValue.icon" class="w-4 h-4 mr-2" />
-                    {{ (internalValue && internalValue.label) || config.placeholder }}
+                <span v-if="!isFullComponentLoaded && modelValue" :class="{ 'opacity-90': !isFullComponentLoaded }"
+                    class="min-w-[60px] uppercase flex flex-row items-center justify-center cursor-pointer
+                    transition-all duration-1000 animate-out fade-out-0">
+                    <Icon v-if="tryIcon" :name="tryIcon" class="w-4 h-4 mr-2" />
+                    {{ modelValue }}
+                </span>
+                <span v-else
+                    class="min-w-[60px] uppercase flex flex-row items-center cursor-pointer transition-all duration-1000 animate-in fade-in">
+                    <Icon v-if="selectedOption?.icon" :name="selectedOption.icon" class="w-4 h-4 mr-2" />
+                    {{ selectedOption?.label || config.placeholder }}
                 </span>
             </template>
             <template #option-empty="{ query }">
                 <q>{{ query }}</q> not found
             </template>
             <template #option="{ option }">
-                <div class="group min-w-full flex-1 flex flex-row items-center content-center gap-x-2 hover:opacity-100 transition-all duration-300"
-                    :class='{ "opacity-100": option.value == (internalValue && internalValue.value), "opacity-50": option.value !== (internalValue && internalValue.value) }'>
-                    <Icon v-if="option && option.icon" :name="option.icon" class="w-4 h-4" />
+                <div class="group min-w-full cursor-pointer flex-1 flex flex-row items-center content-center gap-x-2 hover:opacity-100 transition-all duration-300"
+                    :class="{
+                        'opacity-100': option.value === selectedValue,
+                    }">
+                    <Icon v-if="option.icon" :name="option.icon" class="w-4 h-4" />
                     <span class="truncate">{{ option.label }}</span>
                 </div>
             </template>
-        </USelectMenu>
+        </LazyUSelectMenu>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
 import { useEnums } from '~/composables/useEnums'
-import { EnumType } from '~/types'
-import { getEnumsIcon } from '~/utils/icons';
+import { EnumType, type EnumItem } from '~/types'
+import { getEnumsIcon } from '~/utils/icons'
 
 export interface FilterConfig {
     key: string
     placeholder: string
     enumType?: EnumType
     multiple?: boolean
-    options?: filterOptionItem[]
+    options?: FilterOptionItem[]
     selectFirstOption?: boolean
 }
 
-export interface filterOptionItem {
-    value: string | number,
-    label: string | number | boolean,
+export interface FilterOptionItem {
+    value: string | number
+    label?: string | number | boolean
     icon?: string
 }
 
 const props = defineProps<{
     config: FilterConfig
-    modelValue: { [key: string]: string | number | boolean } | filterOptionItem
+    modelValue: string | number | boolean | undefined,
+    lazy?: boolean
 }>()
 
 const emit = defineEmits<{
-    (e: 'update:value', value: filterOptionItem): void
+    (e: 'update:modelValue', value: string | number | boolean): void
 }>()
 
 const { getEnumsByType } = useEnums()
-const options = ref(props.config.options || [])
-const internalValue = ref(props.modelValue)
 
-// Watch for changes from props
-watch(() => props.modelValue, (newValue) => {
-    if (newValue !== internalValue.value) {
-        internalValue.value = newValue
+const enumOptions = ref<EnumItem[]>([])
+const isFullComponentLoaded = ref(false)
+
+const computedOptions = computed(() => {
+    if (!props.config.enumType || !isFullComponentLoaded.value) return []
+
+    return enumOptions.value.map(option => ({
+        value: option.value,
+        label: option.label,
+        icon: getEnumsIcon(props.config.enumType as EnumType, option.value)
+    }))
+})
+
+const optionsMap = computed(() => {
+    return computedOptions.value.reduce((map, option) => {
+        map[option.value] = option
+        return map
+    }, {} as Record<string | number, FilterOptionItem>)
+})
+
+const selectedValue = computed({
+    get: () => props.modelValue,
+    set: (newVal: string | number | boolean | FilterOptionItem | null) => {
+        if (newVal !== props.modelValue) {
+            emit('update:modelValue', newVal as string | number | boolean)
+        }
     }
 })
 
-// Watch for internal changes
-watch(internalValue, (newValue) => {
-    console.log('internalValue.value', newValue)
-    console.log('props.modelValue', props.modelValue)
-    if (JSON.stringify(newValue) !== JSON.stringify(props.modelValue)) {
-        emit('update:value', newValue)
-    }
-}, { immediate: true })
+const selectedOption = computed(() => optionsMap.value[selectedValue.value as string | number] || null)
 
+const tryIcon = computed(() => getEnumsIcon(props.config.enumType as EnumType, props.modelValue))
 const selectStyle = {
+    base: 'shadow-md rounded-full',
+    background: 'bg-background/90 dark:bg-background',
+    option: { base: 'divide-y bg-background' },
     transition: {
         enterActiveClass: 'transition-all duration-300 animate-in slide-in-from-top fade-in',
-        leaveActiveClass: 'transition-all duration-300 animate-out slide-out-to-top',
     },
 }
 
-onMounted(async () => {
-    if (props.config.enumType) {
-        const enumOptions = await getEnumsByType(props.config.enumType)
-        options.value = enumOptions.map(option => ({
-            value: option.value,
-            label: option.label,
-            icon: props.config.enumType && getEnumsIcon(props.config.enumType, option.value)
-        }))
-    }
+const loadFullComponent = async () => {
+    if (!isFullComponentLoaded.value && props.config.enumType) {
+        const fetchedEnumOptions = await getEnumsByType(props.config.enumType)
+        enumOptions.value = fetchedEnumOptions
+        isFullComponentLoaded.value = true
 
-    // Auto-select the first option if configured and no value is already selected
-    if (props.config.selectFirstOption && !internalValue.value && options.value.length > 0) {
-        internalValue.value = options.value[0]
-        emit('update:value', internalValue.value)
+        if (props.config.selectFirstOption && !selectedValue.value && computedOptions.value.length > 0) {
+            selectedValue.value = computedOptions.value[0].value
+        }
+    }
+}
+
+onMounted(() => {
+    if (!props.lazy) {
+        loadFullComponent();
     }
 })
+
 </script>

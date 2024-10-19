@@ -10,12 +10,22 @@ export function useDelivery() {
     const loading = ref(false)
     const error = ref<Error | null>(null)
     const totalCount = ref(0)
+    const pageIndex = ref(1)
+    const pageSize = ref(20)
+
+
+    const pagination = computed(() => ({
+        index: pageIndex.value,
+        size: pageSize.value,
+        total: totalCount.value,
+        from: (pageIndex.value - 1) * pageSize.value + 1,
+        to: (pageIndex.value * pageSize.value > totalCount.value) ? totalCount.value : pageIndex.value * pageSize.value,
+    }))
 
     const state = reactive({
-        filters: {} as DeliveryFilters,
+        filters: { cycle_start: '' } as DeliveryFilters,
         sorting: [] as SortingState,
-        columnFilters: [] as ColumnFiltersState,
-        pagination: { pageIndex: 0, pageSize: 10 } as PaginationState
+        columnFilters: [] as ColumnFiltersState
     })
 
     const buildQuery = () => {
@@ -28,7 +38,7 @@ export function useDelivery() {
         // Apply filters
         if (state.filters.uid) {
             query = query.eq('uid', state.filters.uid)
-            state.pagination.pageIndex = 0
+            pageIndex.value = 1
             state.filters.warehouse_id = undefined
         }
         if (state.filters.cycle_start) query = query.eq('cycle_start', state.filters.cycle_start)
@@ -48,8 +58,8 @@ export function useDelivery() {
         })
 
         // Apply pagination
-        const from = state.pagination.pageIndex * state.pagination.pageSize
-        const to = from + state.pagination.pageSize - 1
+        const from = (pageIndex.value - 1) * pageSize.value
+        const to = from + pageSize.value - 1
         query = query.range(from, to)
 
         return query
@@ -86,8 +96,12 @@ export function useDelivery() {
 
     const resetFilter = () => {
         state.filters = {
-            ...state.filters, uid: undefined, cycle_start: undefined,
-            warehouse_id: undefined, status: undefined, driver_id: undefined
+            ...state.filters,
+            uid: '',
+            cycle_start: '',
+            warehouse_id: '',
+            status: '',
+            driver_id: ''
         }
         debouncedFetch()
     }
@@ -102,8 +116,9 @@ export function useDelivery() {
         debouncedFetch()
     }
 
-    const setPagination = (pagination: PaginationState) => {
-        state.pagination = pagination
+    const setPagination = ({ page, size }: any): void => {
+        if (page !== undefined) pageIndex.value = page
+        if (size !== undefined) pageSize.value = size
         debouncedFetch()
     }
 
@@ -175,6 +190,7 @@ export function useDelivery() {
     return {
         deliveryRecords,
         deliveryFilters: state.filters,
+        pagination,
         loading,
         error,
         totalCount,

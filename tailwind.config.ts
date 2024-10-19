@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+import { _opacity } from '#tailwind-config/theme';
 import typography from '@tailwindcss/typography';
 
 module.exports = {
@@ -78,13 +79,22 @@ module.exports = {
           to: { height: 0 },
         },
         breathing: {
-          '0%, 100%': {
+          '0%': {
             boxShadow: 'inset 0 0 10px 0 rgba(59, 130, 246, 0.1)',
-            borderColor: 'rgba(59, 130, 246, 0.3)'
+            borderColor: 'rgba(59, 130, 246, 0.3)',
+            opacity: 0
+          },
+          '100%': {
+            boxShadow: 'inset 0 0 10px 0 rgba(59, 130, 246, 0.1)',
+            borderColor: 'rgba(59, 130, 246, 0.3)',
+            opacity: 0.75
+
           },
           '50%': {
             boxShadow: 'inset 0 0 20px 0 rgba(59, 130, 246, 0.4)',
-            borderColor: 'rgba(59, 130, 246, 0.8)'
+            borderColor: 'rgba(59, 130, 246, 0.8)',
+            opacity: 0.45
+
           },
         }
 
@@ -94,7 +104,7 @@ module.exports = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "collapsible-down": "collapsible-down 0.2s ease-in-out",
         "collapsible-up": "collapsible-up 0.2s ease-in-out",
-        'breath': 'breathing 2s ease-in-out infinite'
+        'breath': 'breathing 0.5s ease-in-out infinite'
       },
     },
   },

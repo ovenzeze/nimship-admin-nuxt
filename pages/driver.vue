@@ -1,15 +1,36 @@
 <template>
     <UCard :ui="cardStyle">
         <template #header>
-            <DriverFilter :filters="filters" @update:filter="handleFilterChange" />
+            <DriverFilter :filters="filters" :loading="isSearchLoading" @update:filter="handleFilterChange"
+                class="animate-in animate-fade-in" />
         </template>
 
         <DriverTable :drivers="drivers" :loading="loading" :sort="localSort" @update:sort="updateSort"
-            @edit="handleEdit" />
+            @edit="handleEdit" @update:field="handleFieldsChange" />
 
         <template #footer>
-            <DriverPagination :page="pagination.page" :total="pagination.total" :page-size="pagination.size"
-                @update:page="handlePageChange" />
+            <!-- <DriverPagination :page="pagination.index" :total="pagination.total" :page-size="pagination.size"
+                @update:page="handlePageChange" class="animate-in slide-in-from-bottom" /> -->
+            <!-- Fixed footer with Nuxt UI Pagination -->
+            <div class=" rounded-lg rounded-t-none py-2 px-4 flex justify-between items-center">
+                <div class="hidden md:block">
+                    <p class="text-sm text-gray-700">
+                        Showing
+                        <span class="font-medium">{{ pagination.from }}</span>
+                        to
+                        <span class="font-medium">{{ pagination.to }}</span>
+                        of
+                        <span class="font-medium">{{ totalCount }}</span>
+                        results
+                    </p>
+                </div>
+                <UPagination v-model="pagination.index" :total="totalCount" :pageCount="pagination.size"
+                    @update:model-value="handlePageChange" :ui="{
+                        wrapper: 'gap-1 py-0',
+                        base: 'text-xs w-[28px] h-[28px] flex flex-row items-center justify-center rounded-full',
+                        rounded: '',
+                    }" />
+            </div>
         </template>
     </UCard>
 </template>
@@ -18,9 +39,19 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import type { HaulblazeContact, driverTypes } from '~/types'
 import { useDriver } from '~/composables/useDriver'
-const { fetchDrivers, drivers = [], totalCount } = useDriver()
 
-const loading = ref(false)
+const {
+    drivers,
+    totalCount,
+    loading,
+    isSearchLoading,
+    pagination,
+    fetchDrivers,
+    updateDriver,
+    setFilters,
+    setSorting,
+    setPagination
+} = useDriver()
 
 // Emits
 const emit = defineEmits<{
@@ -35,14 +66,16 @@ const emit = defineEmits<{
 const filters = ref<driverTypes['DriverFilters']>({
     warehouse: null,
     cycle_start: null,
-    team: null,
+    team_name: null,
     uid: null,
-    driver_id: null
+    driver_id: null,
+    driver_type: null,
+    status: null,
+    employment_status: null
 })
 
-const pagination = ref({ page: 1, size: 20, total: totalCount.value })
+const localSort = ref<driverTypes['TableSort']>({ column: 'last_update', direction: 'desc' })
 
-const localSort = ref({ column: 'last_update', direction: 'desc' })
 // Table columns definition
 const columns: driverTypes['TableColumn'][] = [
     { key: 'team_name', label: 'Team', class: 'w-[120px] min-w-[120px] max-w-[200px]', sortable: false },
@@ -68,52 +101,39 @@ const columns: driverTypes['TableColumn'][] = [
     { key: 'actions', label: 'Actions', class: 'w-[80px] min-w-[60px] max-w-[120px] sticky right-0 top-0 backdrop-filter bg-background border-l border-border', sortable: false },
 ]
 
-// Computed properties
-
-
-
 // Methods
-const handleFilterChange = (newFilters: driverTypes['DriverFilters']) => {
+const handleFilterChange = (newFilters: { key: string; item: any }) => {
     console.log('[handleFilterChange]:', newFilters)
-    filters.value = { ...filters.value, ...newFilters }
-    pagination.value = { page: 1, size: 20, total: 0 }
-    getDriverList()
+    filters.value = { ...filters.value, [newFilters.key]: newFilters.item }
+    setFilters(filters.value)
 }
-const handlePageChange = (newPagination: driverTypes['pagination']) => {
+
+const handlePageChange = (newPagination: { page: number; size?: number; total?: number; count?: number }) => {
     console.log('[handlePageChange]:', newPagination)
-    pagination.value = { ...pagination.value, ...newPagination }
-    getDriverList()
+    setPagination(newPagination)
 }
+
+const handleFieldsChange = (fields: Partial<HaulblazeContact>) => {
+    console.log('[handleFieldsChange]:', fields)
+    updateDriver(fields)
+}
+
 const updateSort = (sort: driverTypes['TableSort']) => {
-    emit('update:sort', sort)
-}
-
-
-const updatePage = (page: number) => {
-    pagination.value.page = page
+    localSort.value = sort
+    setSorting([sort])
 }
 
 const handleEdit = (driver: HaulblazeContact) => {
     emit('edit', driver)
 }
 
-const getDriverList = async () => {
-    try {
-        await fetchDrivers(
-            pagination.value,
-            localSort.value,
-            filters.value
-        )
-        pagination.value.total = totalCount.value
-    } catch (error) {
-        console.error('Error fetching drivers:', error)
-        // Handle error (e.g., show error message to user)
-    }
-}
-onMounted(() => { getDriverList() })
+onMounted(() => {
+    fetchDrivers()
+})
+
 // Styles
 const cardStyle = {
-    base: 'w-full flex flex-col h-full rounded-lg overflow-hidden border border-border rounded-lg',
+    base: 'w-full flex flex-col h-full max-h-full rounded-lg overflow-hidden border border-border rounded-lg',
     background: 'bg-background',
     divide: ' divide divide-border-border',
     header: {
@@ -123,7 +143,7 @@ const cardStyle = {
     },
     body: {
         base: 'flex-1 overflow-hidden flex overscroll-none border-none',
-        background: 'bg-background',
+        background: '',
         padding: 'p-0 sm:p-0',
     },
     footer: {

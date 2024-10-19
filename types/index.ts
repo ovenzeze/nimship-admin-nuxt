@@ -1,4 +1,4 @@
-import type { Database, Enums } from './database'
+import type { Database } from './database'
 import { createEnumFromType } from '~/utils/index'
 import type { FetchPayRecord } from './payment'
 import type { VNode } from 'vue'
@@ -6,7 +6,19 @@ import type { VNode } from 'vue'
 // Database types
 export type DeliveryRecordView = Database['public']['Views']['delivery_records_view']['Row']
 export type PaymentRecord = Database['public']['Tables']['payment_record']['Row']
-export type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row']
+export type HaulblazeContact = Database['public']['Tables']['haulblaze_contact']['Row'] & {
+    employment_status?: string;
+    name: string;
+    qualification: Qualification;
+    account_number: string | null;
+    commisson_rate: number;
+    date_of_birth: string;
+    dl_expired_time: string | null;
+    driver_id: number[];
+    driver_license_no: string | null;
+    driver_type: "HAULER" | "TRUCK" | "FLEET" | "MANAGER" | "OTHERS";
+    zelle: string | null;
+}
 
 // Enum types
 export type DriverType = Database['public']['Enums']['driver_type_enum']
@@ -15,24 +27,21 @@ export type Warehouse = Database['public']['Enums']['warehouse_enum'] | 'ALL' | 
 export type TeamName = Database['public']['Enums']['team_name_enum']
 export type CustomId = Database['public']['Enums']['custom_id_enum']
 
-export type Contact = Database['public']['Tables']['haulblaze_contact']['Row'] & {
-    employment_status?: string;
-    name: string,
-    qualification: Qualification
-}
+export type Contact = HaulblazeContact
 
 export type PayRecord = FetchPayRecord
 
 // Enum generator from database types
-export const HaulblazeContactFields = createEnumFromType<Contact>();
-export const PayRecordFields = createEnumFromType<PayRecord>();
+export const HaulblazeContactFields = createEnumFromType<Contact>()
+export const PayRecordFields = createEnumFromType<PayRecord>()
 
 export enum EnumType {
-    'CYCLE' = 'CYCLE',
-    'WAREHOUSE_CODE' = 'WAREHOUSE_CODE',
-    'TEAM_NAME' = 'TEAM_NAME',
-    'DRIVER_TYPE' = 'DRIVER_TYPE',
-    'STATUS' = 'STATUS'
+    CYCLE = 'CYCLE',
+    WAREHOUSE_CODE = 'WAREHOUSE_CODE',
+    TEAM_NAME = 'TEAM_NAME',
+    DRIVER_TYPE = 'DRIVER_TYPE',
+    STATUS = 'STATUS',
+    DRIVER_ID = 'DRIVER_ID'
 }
 
 // Interface types
@@ -40,7 +49,7 @@ export interface EnumItem {
     id?: number
     label: string
     value: string
-    type: string
+    type: EnumType | string
 }
 
 export interface PayCycle {
@@ -115,8 +124,9 @@ export type VisibilityState = {
 }
 
 export type PaginationState = {
-    pageIndex: number
-    pageSize: number
+    index: number
+    size: number
+    total?: number
 }
 
 export type PaymentStatusInfo = {
@@ -133,9 +143,17 @@ export type PickByValueType<T, ValueType> = Pick<T, {
     [Key in keyof T]: T[Key] extends ValueType ? Key : never
 }[keyof T]>
 
-// Add any other types you need for your application
+export interface NavItem {
+    name: string;
+    icon: string;
+    href: string;
+    active?: boolean;
+    requiresAuth: boolean;
+    disabled?: boolean;
+    children?: NavItem[];
+}
 
-interface FilterConfig {
+export interface FilterConfig {
     key: string
     type: string
     placeholder: string
@@ -145,17 +163,41 @@ interface FilterConfig {
     dynamicOptions?: boolean
     as?: 'Button' | 'Select' | 'auto'
 }
-interface FilterOption {
-    value?: string | number
+
+export interface FilterOption {
+    value: string | number
     label: string
     cycle?: string
     start?: string
     end?: string
 }
 
-interface FilterParam {
-
+export interface FilterParam {
+    // Add properties if needed
 }
-import { type driverTypes } from './driver'
-export { type FilterConfig, type FilterOption }
-export { type driverTypes }
+
+export interface driverTypes {
+    TableSort: {
+        column: string;
+        direction: "desc" | "asc";
+    },
+    DriverFilters: {
+        warehouse: string | null;
+        cycle_start: string | null;
+        team: string | null;
+        driver_id: string | null;
+        [key: string]: any;
+    },
+    TableColumn: {
+        key: string;
+        label: string;
+        class?: string;
+        sortable?: boolean;
+    },
+    pagination: {
+        page: number;
+        size?: number;
+        total?: number;
+        count?: number;
+    }
+}

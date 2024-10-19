@@ -1,30 +1,29 @@
 <template>
-    <div class="w-full grid grid-cols-4">
-        <div class="left col-span-2">
+    <div class="w-full max-w-full grid grid-cols-4 overflow-auto  min-h-full items-center py-2 md:py-4 px-2">
+        <div class="left col-span-2 hidden md:block">
             <DriverSelector :class="'max-w-[300px]'" @update:modelValue="handleDriverChange" />
         </div>
-        <div class="col-span-2 w-full right flex flex-row justify-end items-center gap-x-4">
+        <div
+            class="col-span-4 md:col-span-2 w-full right flex flex-row justify-start md:justify-end items-center gap-x-4 px-2 md:px-4">
             <FilterItem v-for="cItem in filterConfigs" :key="cItem.key" :config="cItem"
                 :modelValue="filters[cItem.key as keyof typeof filters]"
-                @update:value="($event) => handleFilterItemChange(cItem.key, $event)" />
-            <span class="flex content-center cursor-pointer" @click="() => emit('reset:filter')">
-                <Icon name="i-ph-funnel" class="w-5 h-5 mr-1" /> Reset
+                @update:modelValue="($event) => handleFilterItemChange(cItem.key, $event)" />
+            <span class="flex content-center cursor-pointer flex-row items-center justify-center"
+                @click="() => emit('reset:filter')">
+                <Icon name="i-ph-funnel" class="w-4 h-4 mr-1" /> Reset
             </span>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import { useEnums } from '~/composables/useEnums'
-import { useDelivery } from '~/composables/useDelivery'
 import { EnumType, type DeliveryFilters } from '~/types'
-import { type filterOptionItem } from '../base/FilterItem.vue';
 
-const { getEnumsByType, waitForEnums } = useEnums()
+const { waitForEnums } = useEnums()
 
 const emit = defineEmits<{
-    (e: 'update:filter', filters: { key: string, item: filterOptionItem }): void
+    (e: 'update:filter', filters: { key: string, item: any }): void
     (e: 'reset:filter'): void
 
 }>()
@@ -32,14 +31,6 @@ const emit = defineEmits<{
 const props = defineProps<{
     filters: DeliveryFilters
 }>()
-
-// const filters = ref<DeliveryFilters>({
-//     warehouse_id: '',
-//     cycle_start: '',
-//     team: '',
-//     uid: '',
-//     driver_id: ''
-// })
 
 
 const filterConfigs = ref([
@@ -65,9 +56,9 @@ const filterConfigs = ref([
     }
 ])
 
-const handleFilterItemChange = (key: string, item: filterOptionItem) => {
+const handleFilterItemChange = (key: string, item: any) => {
     if (item) {
-        console.log('[handleFilterItemChange]item:', item, key)
+        console.log('[handleFilterItemChange]item:', item, 'key:', key)
         emit('update:filter', { key, item })
     }
 }
@@ -75,12 +66,9 @@ const handleFilterItemChange = (key: string, item: filterOptionItem) => {
 const handleDriverChange = (uid) => {
     console.log('[handleDriverChange]uid:', uid)
     if (!uid) return
-    emit('update:filter', { key: 'uid', item: { value: uid, label: ' ' } })
+    emit('update:filter', { key: 'uid', item: uid })
 }
 
 
 
-onMounted(async () => {
-    await waitForEnums()
-})
 </script>

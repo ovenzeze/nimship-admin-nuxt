@@ -30,9 +30,8 @@ const emit = defineEmits(['logout', 'login']);
 
 const isSidebarOpen = ref(false);
 
-const toggleSidebar = async () => {
+const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
-  await nextTick();
 };
 
 const toggleTheme = () => {
@@ -102,12 +101,12 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
 
 <template>
   <ClientOnly>
-    <div class="flex min-h-svh h-svh max-h-svh w-full flex-col">
+    <div class="flex min-h-svh h-svh max-h-svh w-full flex-col bg-background">
       <!-- Mobile top bar -->
-      <header class="bg-background shadow-sm block md:hidden h-10">
-        <div class="flex items-center justify-between px-4 py-0">
-          <Button @click="toggleSidebar" class="text-muted-foreground" variant="ghost">
-            <Icon name="ph:list" class="h-5 w-6" />
+      <header class=" top-0 left-0 bg-background shadow-sm w-full block md:hidden h-10">
+        <div class="flex flex-row items-center justify-between px-4 py-0 ">
+          <Button class="text-muted-foreground" variant="ghost">
+            <Icon name="ph:list" class="h-5 w-6" @click="toggleSidebar" />
           </Button>
           <a href="/" class="flex items-center justify-centergap-2">
             <img src="/images/deth_logo_transparent.png" alt="DETH" class="w-10 h-10" />
@@ -118,7 +117,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
                 <!-- <Icon name="ph:user-circle" class="h-8 w-8 text-foreground" /> -->
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>{{ userDisplayInfo.name }}</DropdownMenuLabel>
+                <!-- <DropdownMenuLabel>{{ userDisplayInfo.name }}</DropdownMenuLabel> -->
                 <DropdownMenuSeparator />
                 <DropdownMenuItem @click="handleLogout">Logout</DropdownMenuItem>
               </DropdownMenuContent>
@@ -126,30 +125,30 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
           </div>
           <NuxtLink to="/login" v-else @click="handleLogin" variant="ghost" size="sm"
             class="flex items-center content-center mr-2">
-            <Icon name="ph:user-circle" class="h-4 w-4 text-muted-foreground" />
+            <Icon name="ph:user-circle" class="h-5 w-5 text-muted-foreground" />
           </NuxtLink>
         </div>
       </header>
 
       <!-- Desktop sidebar -->
-      <aside class="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex py-4">
+      <aside
+        class="hidden md:fixed inset-y-0 left-0 top-0 w-14 max-w-14 h-full max-h-full flex-col border-r shadow-inner bg-background sm:flex py-4 z-40">
         <nav class="flex flex-col items-center gap-4">
           <a href="/"
-            class="group flex h-9 w-9 shrink-0 items-center justify-center rounded-full filter drop-shadow-lg dark:brightness-200 dark:invert">
+            class="group flex h-9 w-9 shrink-0 items-center justify-center rounded-full filter dark:brightness-200 dark:invert">
             <img src="/images/deth_logo_transparent.png" alt="DETH" class="w-full " />
             <span class="sr-only">DETH</span>
           </a>
           <div v-for="item in filteredNavItems" :key="item.name" class="relative group w-full z-50">
             <div class="flex items-center">
               <a :href="item.href" :class="[
-                'flex h-9 w-full items-center justify-center transition-colors hover:text-foreground hover:bg-background hover:border-y hover:border-l',
+                'flex h-9 w-full items-center justify-center transition-colors hover:text-foreground hover:bg-background  hover:border-l',
                 item.active ? 'bg-accent text-accent-foreground scale-105 text-accent-primary' : 'text-muted-foreground'
               ]">
                 <Icon :name="item.icon" class="h-5 w-5" />
                 <div
-                  class="absolute left-[40px] top-0 h-9 hidden group-hover:flex items-center bg-background border-y border-r rounded-r-lg cursor-pointer min-w-[100px]">
-                  <div
-                    class="animate-in slide-in-from-left-5 duration-300 whitespace-nowrap pl-2 pr-6 py-1 text-foreground text-sm">
+                  class="absolute left-[53px] border-l-bg-background animate-in slide-in-from-left-5 duration-300 z-50 h-9 hidden group-hover:flex items-center bg-background border-y border-r rounded-r-lg cursor-pointer min-w-[100px]">
+                  <div class="  whitespace-nowrap pl-2 pr-6 py-1 text-foreground text-sm">
                     {{ item.name }}
                   </div>
                 </div>
@@ -169,7 +168,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
             </div>
           </div>
         </nav>
-        <div class="mt-auto flex flex-col items-center gap-4 px-2 py-5">
+        <div class="mt-auto flex flex-col items-center gap-4">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger as-child>
@@ -214,7 +213,7 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
       <!-- Mobile sidebar -->
       <Transition name="slide-fade">
         <aside v-if="isSidebarOpen"
-          class="fixed inset-0 z-50 min-h-svh h-svh max-h-svh  flex flex-col overflow-hidden bg-background/60 p-4 sm:hidden mb-10 backdrop-blur-sm">
+          class="fixed top-0 left-0 w-full inset-0 z-50 min-h-svh h-svh max-h-svh flex flex-col overflow-hidden bg-background/75 p-4 md:hidden mb-10 backdrop-blur-sm">
           <button @click="toggleSidebar" class="self-end mb-4 h-10">
             <Icon name="ph:x" class="h-6 w-6" />
           </button>
@@ -261,8 +260,8 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
       </Transition>
 
       <!-- Main content area -->
-      <main class="flex-1 sm:pl-14 overscroll-none overflow-hidden">
-        <div class="h-full w-full px-2 py-3 md:px-4 md:py-4 overscroll-none">
+      <main class="flex-1 flex pl-0 md:pl-14 md:pt-0 overscroll-none overflow-hidden">
+        <div class="w-full h-full max-h-full px-2 py-3 md:px-4 md:py-4 overscroll-none overflow-hidden">
           <slot></slot>
         </div>
       </main>
@@ -270,10 +269,11 @@ const userDisplayInfo = computed(() => getUserDisplayInfo.value);
   </ClientOnly>
 </template>
 
-<style scoped>
+<style>
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.3s ease;
+  opacity: 1;
 }
 
 .slide-fade-enter-from,

@@ -8,17 +8,18 @@
           class="absolute right-2 top-1/2 transform -translate-y-1/2" @click="clearSelection">
           <Icon name="ph:x" class="w-4 h-4" />
         </Button>
-        <Button v-else variant="ghost" size="icon"
-          class="absolute right-2 top-1/2 transform -translate-y-1/2 hover:bg-transparent" @click="clearSelection">
-          <Icon name="ph:seal-percent" class="w-4 h-4 bg-opacity-75" />
+        <Button v-else variant="ghost" size="icon" class="absolute right-2 top-1/2 transform -translate-y-1/2"
+          @click="clearSelection">
+          <Icon v-if="isSearchLoading" name="ph:spinner" class="w-4 h-4 bg-opacity-75" />
+          <Icon v-else name=" ph:seal-percent" class="w-4 h-4 bg-opacity-75" />
         </Button>
       </div>
     </PopoverTrigger>
-    <PopoverContent :style="{ width: `${inputWidth}px` }" class="p-0">
-      <Command class="min-h-[100px] overflow-y-scroll"
-        :class="{ 'border animate-breath border-breath-light  dark:border-breath-dark': isLoading }">
+    <PopoverContent :style="{ width: `${inputWidth}px` }" class="p-0 ">
+      <Command class="min-h-[100px] overflow-y-scroll border  transition-all"
+        :class="{ 'border-breath-light  dark:border-breath-dark animate-breath ': isSearchLoading }">
         <CommandEmpty v-if="noDriversLoaded"
-          class="w-full min-h-full items-center justify-center p-4 flex text-muted-foreground/80 content-center ">
+          class="w-full min-h-full items-center justify-center p-4 flex text-muted-foreground/80 content-center shadow-lg">
           Unable to load drivers. Please try again later.
         </CommandEmpty>
         <template v-else>
@@ -83,10 +84,10 @@ const inputWrapper = ref<HTMLElement | null>(null)
 const inputWidth = ref(300)
 
 
-const { isLoading, error, recentSearches, searchDrivers, addToRecentSearches, getFrequentlyUsedDrivers } = useDriver()
+const { isSearchLoading, error, recentSearches, searchDrivers, addToRecentSearches, getFrequentlyUsedDrivers } = useDriver()
 
 const noDriversLoaded = computed(() => {
-  return !isLoading.value && error.value !== null && drivers.value.length === 0 && recentSearches.value.length === 0
+  return !isSearchLoading.value && error.value !== null && drivers.value.length === 0 && recentSearches.value.length === 0
 })
 
 watch(debouncedSearchQuery, async (newQuery) => {
